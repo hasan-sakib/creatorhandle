@@ -1,0 +1,38 @@
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Dependencies
+node_modules/
+
+# Environment variables (contains secrets)
+.env
+.env.*
+!.env.example
+deploy/.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.python-version
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+backend/htmlcov/
+
+# Build output
+frontend/dist/
+*.egg-info/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
