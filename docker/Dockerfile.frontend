@@ -1,26 +1,39 @@
-# Stage 0, "build-stage", based on Bun, to build and compile the frontend
-FROM oven/bun:1 AS build-stage
+# Stage 0: install dependencies (shared bun workspace)
+FROM oven/bun:1 AS deps
 
 WORKDIR /app
 
 COPY package.json bun.lock /app/
-
-COPY frontend/package.json /app/frontend/
-
-WORKDIR /app/frontend
+COPY frontend/creator-workspace/package.json /app/frontend/creator-workspace/
+COPY frontend/creator-site/package.json /app/frontend/creator-site/
 
 RUN bun install
 
-COPY ./frontend /app/frontend
+
+# Stage 1: build creator-workspace
+FROM deps AS workspace-build
+
+COPY ./frontend/creator-workspace /app/frontend/creator-workspace
 ARG VITE_API_URL
 
+WORKDIR /app/frontend/creator-workspace
 RUN bun run build
 
 
-# Stage 1, based on Nginx, to have only the compiled app, ready for production with Nginx
+# Stage 2: build creator-site
+FROM deps AS site-build
+
+COPY ./frontend/creator-site /app/frontend/creator-site
+ARG VITE_API_URL
+
+WORKDIR /app/frontend/creator-site
+RUN bun run build
+
+
+# Stage 3: serve both with nginx
 FROM nginx:1
 
-COPY --from=build-stage /app/frontend/dist/ /usr/share/nginx/html
+COPY --from=workspace-build /app/frontend/creator-workspace/dist/ /usr/share/nginx/creator-workspace/
+COPY --from=site-build /app/frontend/creator-site/dist/ /usr/share/nginx/creator-site/
 
 COPY ./frontend/nginx.conf /etc/nginx/conf.d/default.conf
-COPY ./frontend/nginx-backend-not-found.conf /etc/nginx/extra-conf.d/backend-not-found.conf

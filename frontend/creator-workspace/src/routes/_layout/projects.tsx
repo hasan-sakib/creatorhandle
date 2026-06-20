@@ -5,9 +5,9 @@ import { Suspense } from "react"
 
 import { ProjectsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
-import AddProject from "@/components/Projects/AddProject"
-import { columns } from "@/components/Projects/columns"
-import PendingItems from "@/components/Pending/PendingItems"
+import AddProject from "@/components/workspace/Projects/AddProject"
+import { columns } from "@/components/workspace/Projects/columns"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 
 function getProjectsQueryOptions() {
   return {

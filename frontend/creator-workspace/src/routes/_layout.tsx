@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import AppSidebar from "@/components/Sidebar/AppSidebar"
+import AppSidebar from "@/components/workspace/Sidebar/AppSidebar"
 import {
   SidebarInset,
   SidebarProvider,

@@ -1,5 +1,4 @@
 import { UserX } from "lucide-react"
-import { Link } from "@tanstack/react-router"
 import { Button } from "@/components/ui/button"
 
 interface NotFoundProps {
@@ -20,7 +19,7 @@ export function NotFound({ username }: NotFoundProps) {
         </p>
       </div>
       <Button asChild variant="outline">
-        <Link to="/login">Go to CreatorHandle</Link>
+        <a href="/login">Go to CreatorHandle</a>
       </Button>
     </div>
   )

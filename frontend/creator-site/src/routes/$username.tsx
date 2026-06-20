@@ -1,16 +1,16 @@
 import { useQuery } from "@tanstack/react-query"
-import { createFileRoute, Link } from "@tanstack/react-router"
+import { createFileRoute } from "@tanstack/react-router"
 
 import { PublicService } from "@/client"
-import { BrandsSection } from "@/components/PublicProfile/BrandsSection"
-import { CreatorHero } from "@/components/PublicProfile/CreatorHero"
-import { NotFound } from "@/components/PublicProfile/NotFound"
-import { ProjectsSection } from "@/components/PublicProfile/ProjectsSection"
+import { BrandsSection } from "@/components/creator/BrandsSection"
+import { CreatorHero } from "@/components/creator/CreatorHero"
+import { NotFound } from "@/components/creator/NotFound"
+import { ProjectsSection } from "@/components/creator/ProjectsSection"
 import { Logo } from "@/components/Common/Logo"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export const Route = createFileRoute("/creator/$username")({
+export const Route = createFileRoute("/$username")({
   component: CreatorProfilePage,
   head: ({ params }) => ({
     meta: [{ title: `@${params.username} - CreatorHandle` }],
@@ -63,11 +63,11 @@ function CreatorProfilePage() {
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <Link to="/login">
+          <a href="/login">
             <Logo variant="full" />
-          </Link>
+          </a>
           <Button asChild size="sm">
-            <Link to="/login">Sign In</Link>
+            <a href="/login">Sign In</a>
           </Button>
         </div>
       </header>
@@ -103,9 +103,9 @@ function CreatorProfilePage() {
 
       <footer className="border-t py-6 text-center text-sm text-muted-foreground">
         Powered by{" "}
-        <Link to="/login" className="text-primary font-medium hover:underline">
+        <a href="/login" className="text-primary font-medium hover:underline">
           CreatorHandle
-        </Link>
+        </a>
       </footer>
     </div>
   )

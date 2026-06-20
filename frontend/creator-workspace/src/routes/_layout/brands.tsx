@@ -5,9 +5,9 @@ import { Suspense } from "react"
 
 import { BrandsService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
-import AddBrand from "@/components/Brands/AddBrand"
-import { columns } from "@/components/Brands/columns"
-import PendingItems from "@/components/Pending/PendingItems"
+import AddBrand from "@/components/workspace/Brands/AddBrand"
+import { columns } from "@/components/workspace/Brands/columns"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 
 function getBrandsQueryOptions() {
   return {

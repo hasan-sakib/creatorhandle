@@ -9,13 +9,12 @@ RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:$PATH"
 
 COPY package.json bun.lock /app/
-
-COPY frontend/package.json /app/frontend/
-
-WORKDIR /app/frontend
+COPY frontend/creator-workspace/package.json /app/frontend/creator-workspace/
+COPY frontend/creator-site/package.json /app/frontend/creator-site/
 
 RUN bun install
 
-COPY ./frontend /app/frontend
+COPY ./frontend/creator-workspace /app/frontend/creator-workspace
 
 ARG VITE_API_URL
+WORKDIR /app/frontend/creator-workspace

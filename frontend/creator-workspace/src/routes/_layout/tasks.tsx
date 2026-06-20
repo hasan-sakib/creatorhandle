@@ -5,9 +5,9 @@ import { Suspense } from "react"
 
 import { TasksService } from "@/client"
 import { DataTable } from "@/components/Common/DataTable"
-import AddTask from "@/components/Tasks/AddTask"
-import { columns } from "@/components/Tasks/columns"
-import PendingItems from "@/components/Pending/PendingItems"
+import AddTask from "@/components/workspace/Tasks/AddTask"
+import { columns } from "@/components/workspace/Tasks/columns"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 
 function getTasksQueryOptions() {
   return {
