@@ -108,6 +108,155 @@ class ItemsPublic(SQLModel):
     count: int
 
 
+# ── Brand ────────────────────────────────────────────────────────────────────
+
+class BrandBase(SQLModel):
+    name: str = Field(min_length=1, max_length=100)
+    category: str = Field(default="Other", max_length=50)
+    contact_name: str | None = Field(default=None, max_length=100)
+    contact_email: str | None = Field(default=None, max_length=255)
+    status: str = Field(default="active", max_length=20)
+    notes: str | None = Field(default=None, max_length=500)
+
+
+class BrandCreate(BrandBase):
+    pass
+
+
+class BrandUpdate(SQLModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    category: str | None = Field(default=None, max_length=50)
+    contact_name: str | None = Field(default=None, max_length=100)
+    contact_email: str | None = Field(default=None, max_length=255)
+    status: str | None = Field(default=None, max_length=20)
+    notes: str | None = Field(default=None, max_length=500)
+
+
+class Brand(BrandBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    owner: User | None = Relationship()
+    projects: list["Project"] = Relationship(back_populates="brand", cascade_delete=True)
+
+
+class BrandPublic(BrandBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    created_at: datetime | None = None
+
+
+class BrandsPublic(SQLModel):
+    data: list[BrandPublic]
+    count: int
+
+
+# ── Project ───────────────────────────────────────────────────────────────────
+
+class ProjectBase(SQLModel):
+    title: str = Field(min_length=1, max_length=200)
+    type: str = Field(default="Other", max_length=50)
+    platform_status: str = Field(default="Planning", max_length=50)
+    deadline: str | None = Field(default=None, max_length=20)  # ISO date string
+    description: str | None = Field(default=None, max_length=500)
+    brand_id: uuid.UUID | None = Field(default=None, foreign_key="brand.id", nullable=True)
+
+
+class ProjectCreate(ProjectBase):
+    pass
+
+
+class ProjectUpdate(SQLModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    type: str | None = Field(default=None, max_length=50)
+    platform_status: str | None = Field(default=None, max_length=50)
+    deadline: str | None = Field(default=None, max_length=20)
+    description: str | None = Field(default=None, max_length=500)
+    brand_id: uuid.UUID | None = None
+
+
+class Project(ProjectBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    owner: User | None = Relationship()
+    brand: Brand | None = Relationship(back_populates="projects")
+    tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=True)
+
+
+class ProjectPublic(ProjectBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    created_at: datetime | None = None
+
+
+class ProjectsPublic(SQLModel):
+    data: list[ProjectPublic]
+    count: int
+
+
+# ── Task ──────────────────────────────────────────────────────────────────────
+
+class TaskBase(SQLModel):
+    title: str = Field(min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=500)
+    status: str = Field(default="To Do", max_length=20)
+    priority: str = Field(default="Medium", max_length=20)
+    due_date: str | None = Field(default=None, max_length=20)  # ISO date string
+    project_id: uuid.UUID | None = Field(default=None, foreign_key="project.id", nullable=True)
+    assigned_to: uuid.UUID | None = Field(default=None, foreign_key="user.id", nullable=True)
+
+
+class TaskCreate(TaskBase):
+    pass
+
+
+class TaskUpdate(SQLModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, max_length=500)
+    status: str | None = Field(default=None, max_length=20)
+    priority: str | None = Field(default=None, max_length=20)
+    due_date: str | None = Field(default=None, max_length=20)
+    project_id: uuid.UUID | None = None
+    assigned_to: uuid.UUID | None = None
+
+
+class Task(TaskBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    owner_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    owner: User | None = Relationship(
+        sa_relationship_kwargs={"foreign_keys": "[Task.owner_id]"}
+    )
+    project: Project | None = Relationship(back_populates="tasks")
+
+
+class TaskPublic(TaskBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    created_at: datetime | None = None
+
+
+class TasksPublic(SQLModel):
+    data: list[TaskPublic]
+    count: int
+
+
 # Generic message
 class Message(SQLModel):
     message: str

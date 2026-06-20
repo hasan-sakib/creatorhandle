@@ -4,7 +4,19 @@ from typing import Any
 from sqlmodel import Session, select
 
 from app.core.security import get_password_hash, verify_password
-from app.models import Item, ItemCreate, User, UserCreate, UserUpdate
+from app.models import (
+    Brand,
+    BrandCreate,
+    Item,
+    ItemCreate,
+    Project,
+    ProjectCreate,
+    Task,
+    TaskCreate,
+    User,
+    UserCreate,
+    UserUpdate,
+)
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -66,3 +78,27 @@ def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -
     session.commit()
     session.refresh(db_item)
     return db_item
+
+
+def create_brand(*, session: Session, brand_in: BrandCreate, owner_id: uuid.UUID) -> Brand:
+    db_brand = Brand.model_validate(brand_in, update={"owner_id": owner_id})
+    session.add(db_brand)
+    session.commit()
+    session.refresh(db_brand)
+    return db_brand
+
+
+def create_project(*, session: Session, project_in: ProjectCreate, owner_id: uuid.UUID) -> Project:
+    db_project = Project.model_validate(project_in, update={"owner_id": owner_id})
+    session.add(db_project)
+    session.commit()
+    session.refresh(db_project)
+    return db_project
+
+
+def create_task(*, session: Session, task_in: TaskCreate, owner_id: uuid.UUID) -> Task:
+    db_task = Task.model_validate(task_in, update={"owner_id": owner_id})
+    session.add(db_task)
+    session.commit()
+    session.refresh(db_task)
+    return db_task

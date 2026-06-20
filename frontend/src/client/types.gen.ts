@@ -109,6 +109,159 @@ export type ValidationError = {
     type: string;
 };
 
+// ── Brand ────────────────────────────────────────────────────────────────────
+
+export type BrandCreate = {
+    name: string;
+    category?: string;
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: string;
+    notes?: (string | null);
+};
+
+export type BrandPublic = {
+    name: string;
+    category?: string;
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: string;
+    notes?: (string | null);
+    id: string;
+    owner_id: string;
+    created_at?: (string | null);
+};
+
+export type BrandsPublic = {
+    data: Array<BrandPublic>;
+    count: number;
+};
+
+export type BrandUpdate = {
+    name?: (string | null);
+    category?: (string | null);
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: (string | null);
+    notes?: (string | null);
+};
+
+// ── Project ───────────────────────────────────────────────────────────────────
+
+export type ProjectCreate = {
+    title: string;
+    type?: string;
+    platform_status?: string;
+    deadline?: (string | null);
+    description?: (string | null);
+    brand_id?: (string | null);
+};
+
+export type ProjectPublic = {
+    title: string;
+    type?: string;
+    platform_status?: string;
+    deadline?: (string | null);
+    description?: (string | null);
+    brand_id?: (string | null);
+    id: string;
+    owner_id: string;
+    created_at?: (string | null);
+};
+
+export type ProjectsPublic = {
+    data: Array<ProjectPublic>;
+    count: number;
+};
+
+export type ProjectUpdate = {
+    title?: (string | null);
+    type?: (string | null);
+    platform_status?: (string | null);
+    deadline?: (string | null);
+    description?: (string | null);
+    brand_id?: (string | null);
+};
+
+// ── Task ──────────────────────────────────────────────────────────────────────
+
+export type TaskCreate = {
+    title: string;
+    description?: (string | null);
+    status?: string;
+    priority?: string;
+    due_date?: (string | null);
+    project_id?: (string | null);
+    assigned_to?: (string | null);
+};
+
+export type TaskPublic = {
+    title: string;
+    description?: (string | null);
+    status?: string;
+    priority?: string;
+    due_date?: (string | null);
+    project_id?: (string | null);
+    assigned_to?: (string | null);
+    id: string;
+    owner_id: string;
+    created_at?: (string | null);
+};
+
+export type TasksPublic = {
+    data: Array<TaskPublic>;
+    count: number;
+};
+
+export type TaskUpdate = {
+    title?: (string | null);
+    description?: (string | null);
+    status?: (string | null);
+    priority?: (string | null);
+    due_date?: (string | null);
+    project_id?: (string | null);
+    assigned_to?: (string | null);
+};
+
+// ── Brands request/response types ────────────────────────────────────────────
+
+export type BrandsReadBrandsData = { limit?: number; skip?: number };
+export type BrandsReadBrandsResponse = BrandsPublic;
+export type BrandsCreateBrandData = { requestBody: BrandCreate };
+export type BrandsCreateBrandResponse = BrandPublic;
+export type BrandsReadBrandData = { id: string };
+export type BrandsReadBrandResponse = BrandPublic;
+export type BrandsUpdateBrandData = { id: string; requestBody: BrandUpdate };
+export type BrandsUpdateBrandResponse = BrandPublic;
+export type BrandsDeleteBrandData = { id: string };
+export type BrandsDeleteBrandResponse = Message;
+
+// ── Projects request/response types ──────────────────────────────────────────
+
+export type ProjectsReadProjectsData = { limit?: number; skip?: number };
+export type ProjectsReadProjectsResponse = ProjectsPublic;
+export type ProjectsCreateProjectData = { requestBody: ProjectCreate };
+export type ProjectsCreateProjectResponse = ProjectPublic;
+export type ProjectsReadProjectData = { id: string };
+export type ProjectsReadProjectResponse = ProjectPublic;
+export type ProjectsUpdateProjectData = { id: string; requestBody: ProjectUpdate };
+export type ProjectsUpdateProjectResponse = ProjectPublic;
+export type ProjectsDeleteProjectData = { id: string };
+export type ProjectsDeleteProjectResponse = Message;
+
+// ── Tasks request/response types ─────────────────────────────────────────────
+
+export type TasksReadTasksData = { limit?: number; skip?: number };
+export type TasksReadTasksResponse = TasksPublic;
+export type TasksCreateTaskData = { requestBody: TaskCreate };
+export type TasksCreateTaskResponse = TaskPublic;
+export type TasksReadTaskData = { id: string };
+export type TasksReadTaskResponse = TaskPublic;
+export type TasksUpdateTaskData = { id: string; requestBody: TaskUpdate };
+export type TasksUpdateTaskResponse = TaskPublic;
+export type TasksDeleteTaskData = { id: string };
+export type TasksDeleteTaskResponse = Message;
+
 export type ItemsReadItemsData = {
     limit?: number;
     skip?: number;
