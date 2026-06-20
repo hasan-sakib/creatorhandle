@@ -1,344 +1,229 @@
-# FastAPI Project - Deployment
+# CreatorHandle — Deployment Guide
 
-You can deploy the project using Docker Compose to a remote server.
+## Overview
 
-This project expects you to have a Traefik proxy handling communication to the outside world and HTTPS certificates.
+Production uses Docker Compose with Traefik as the public-facing reverse proxy. Traefik handles TLS termination and certificate renewal via Let's Encrypt. The app stack runs behind it on a private Docker network.
 
-You can use CI/CD (continuous integration and continuous deployment) systems to deploy automatically, there are already configurations to do it with GitHub Actions.
+## Server Preparation
 
-But you have to configure a couple things first. 🤓
+1. Provision a Linux server with a public IP.
+2. Point your domain's DNS at that IP. Configure a wildcard subdomain (`*.yourdomain.com`) to cover `api.`, `dashboard.`, `adminer.`, `traefik.`.
+3. Install [Docker Engine](https://docs.docker.com/engine/install/) (not Docker Desktop).
 
-## Preparation
+## Step 1: Set Up Public Traefik
 
-* Have a remote server ready and available.
-* Configure the DNS records of your domain to point to the IP of the server you just created.
-* Configure a wildcard subdomain for your domain, so that you can have multiple subdomains for different services, e.g. `*.fastapi-project.example.com`. This will be useful for accessing different components, like `dashboard.fastapi-project.example.com`, `api.fastapi-project.example.com`, `traefik.fastapi-project.example.com`, `adminer.fastapi-project.example.com`, etc. And also for `staging`, like `dashboard.staging.fastapi-project.example.com`, `adminer.staging.fastapi-project.example.com`, etc.
-* Install and configure [Docker](https://docs.docker.com/engine/install/) on the remote server (Docker Engine, not Docker Desktop).
-
-## Public Traefik
-
-We need a Traefik proxy to handle incoming connections and HTTPS certificates.
-
-You need to do these next steps only once.
-
-### Traefik Docker Compose
-
-* Create a remote directory to store your Traefik Docker Compose file:
+This Traefik instance lives outside the app stack and handles all incoming HTTPS traffic. It only needs to be set up once per server.
 
 ```bash
-mkdir -p /root/code/traefik-public/
+# On the remote server
+mkdir -p /root/code/traefik-public
 ```
 
-Copy the Traefik Docker Compose file to your server. You could do it by running the command `rsync` in your local terminal:
+Copy `deploy/compose.traefik.yml` to `/root/code/traefik-public/` on the server:
 
 ```bash
-rsync -a compose.traefik.yml root@your-server.example.com:/root/code/traefik-public/
+rsync -a deploy/compose.traefik.yml root@your-server.com:/root/code/traefik-public/
 ```
 
-### Traefik Public Network
-
-This Traefik will expect a Docker "public network" named `traefik-public` to communicate with your stack(s).
-
-This way, there will be a single public Traefik proxy that handles the communication (HTTP and HTTPS) with the outside world, and then behind that, you could have one or more stacks with different domains, even if they are on the same single server.
-
-To create a Docker "public network" named `traefik-public` run the following command in your remote server:
+Create the shared Docker network:
 
 ```bash
 docker network create traefik-public
 ```
 
-### Traefik Environment Variables
-
-The Traefik Docker Compose file expects some environment variables to be set in your terminal before starting it. You can do it by running the following commands in your remote server.
-
-* Create the username for HTTP Basic Auth, e.g.:
+Set required environment variables and start Traefik:
 
 ```bash
+export DOMAIN=yourdomain.com
 export USERNAME=admin
-```
-
-* Create an environment variable with the password for HTTP Basic Auth, e.g.:
-
-```bash
-export PASSWORD=changethis
-```
-
-* Use openssl to generate the "hashed" version of the password for HTTP Basic Auth and store it in an environment variable:
-
-```bash
+export PASSWORD=your-traefik-dashboard-password
 export HASHED_PASSWORD=$(openssl passwd -apr1 $PASSWORD)
-```
+export EMAIL=admin@yourdomain.com
 
-To verify that the hashed password is correct, you can print it:
-
-```bash
-echo $HASHED_PASSWORD
-```
-
-* Create an environment variable with the domain name for your server, e.g.:
-
-```bash
-export DOMAIN=fastapi-project.example.com
-```
-
-* Create an environment variable with the email for Let's Encrypt, e.g.:
-
-```bash
-export EMAIL=admin@example.com
-```
-
-**Note**: you need to set a different email, an email `@example.com` won't work.
-
-### Start the Traefik Docker Compose
-
-Go to the directory where you copied the Traefik Docker Compose file in your remote server:
-
-```bash
-cd /root/code/traefik-public/
-```
-
-Now with the environment variables set and the `compose.traefik.yml` in place, you can start the Traefik Docker Compose running the following command:
-
-```bash
+cd /root/code/traefik-public
 docker compose -f compose.traefik.yml up -d
 ```
 
-## Deploy the FastAPI Project
+## Step 2: Configure Environment Variables
 
-Now that you have Traefik in place you can deploy your FastAPI project with Docker Compose.
-
-**Note**: You might want to jump ahead to the section about Continuous Deployment with GitHub Actions.
-
-## Copy the Code
+On the server, set required variables. The recommended approach is to write them into a `.env` file at `/root/code/app/deploy/.env`:
 
 ```bash
-rsync -av --filter=":- .gitignore" ./ root@your-server.example.com:/root/code/app/
+# Core
+DOMAIN=yourdomain.com
+ENVIRONMENT=production
+PROJECT_NAME=creatorhandle
+STACK_NAME=creatorhandle
+FRONTEND_HOST=https://dashboard.yourdomain.com
+
+# Security — generate with: python -c "import secrets; print(secrets.token_urlsafe(32))"
+SECRET_KEY=<generated>
+FIRST_SUPERUSER=admin@yourdomain.com
+FIRST_SUPERUSER_PASSWORD=<strong-password>
+
+# Database
+POSTGRES_SERVER=db
+POSTGRES_PORT=5432
+POSTGRES_DB=app
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<strong-password>
+
+# Email (use your real SMTP provider in production)
+SMTP_HOST=smtp.sendgrid.net
+SMTP_PORT=587
+SMTP_TLS=True
+SMTP_SSL=False
+SMTP_USER=apikey
+SMTP_PASSWORD=<smtp-password>
+EMAILS_FROM_EMAIL=noreply@yourdomain.com
+
+# Google OAuth (from Google Cloud Console > OAuth 2.0 Credentials)
+GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_ID=<your-client-id>.apps.googleusercontent.com
+
+# CORS — include your production frontend URL
+BACKEND_CORS_ORIGINS="https://dashboard.yourdomain.com"
+
+# Optional
+SENTRY_DSN=
+
+# Docker images
+DOCKER_IMAGE_BACKEND=backend
+DOCKER_IMAGE_FRONTEND=frontend
 ```
 
-Note: `--filter=":- .gitignore"` tells `rsync` to use the same rules as git, ignore files ignored by git, like the Python virtual environment.
+## Step 3: Deploy the App
 
-## Environment Variables
-
-You need to set some environment variables first.
-
-### Generate secret keys
-
-Some environment variables in the `.env` file have a default value of `changethis`.
-
-You have to change them with a secret key, to generate secret keys you can run the following command:
+Copy the project to the server:
 
 ```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
+rsync -av --filter=":- .gitignore" ./ root@your-server.com:/root/code/app/
 ```
 
-Copy the content and use that as password / secret key. And run that again to generate another secure key.
-
-### Required Environment Variables
-
-Set the `ENVIRONMENT`, by default `local` (for development), but when deploying to a server you would put something like `staging` or `production`:
+Build and start (production only uses `compose.yml`, not `compose.override.yml`):
 
 ```bash
-export ENVIRONMENT=production
+cd /root/code/app
+docker compose -f deploy/compose.yml build
+docker compose -f deploy/compose.yml up -d
 ```
 
-Set the `DOMAIN`, by default `localhost` (for development), but when deploying you would use your own domain, for example:
+The `prestart` container automatically runs `alembic upgrade head` and creates the first superuser before the backend accepts traffic.
+
+## Step 4: Verify
 
 ```bash
-export DOMAIN=fastapi-project.example.com
+# Check all containers are healthy
+docker compose -f deploy/compose.yml ps
+
+# Check backend logs
+docker compose -f deploy/compose.yml logs backend
+
+# Smoke test the API
+curl https://api.yourdomain.com/api/v1/utils/health-check/
 ```
 
-Set the `POSTGRES_PASSWORD` to something different than `changethis`:
+Production URLs:
+
+| Service | URL |
+|---|---|
+| Dashboard | https://dashboard.yourdomain.com |
+| Backend API | https://api.yourdomain.com |
+| Swagger docs | https://api.yourdomain.com/docs |
+| Adminer | https://adminer.yourdomain.com |
+| Traefik dashboard | https://traefik.yourdomain.com |
+
+## Google OAuth — Production Setup
+
+In [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services → Credentials → your OAuth 2.0 Client ID:
+
+- **Authorized JavaScript origins:** `https://dashboard.yourdomain.com`
+- **Authorized redirect URIs:** not required for the implicit flow used here
+
+Update `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID` in `.env`, then rebuild the frontend (the client ID is baked into the bundle at build time).
+
+## Updating the App
 
 ```bash
-export POSTGRES_PASSWORD="changethis"
+# Pull latest code
+cd /root/code/app
+git pull
+
+# Rebuild and restart
+docker compose -f deploy/compose.yml build
+docker compose -f deploy/compose.yml up -d
 ```
 
-Set the `SECRET_KEY`, used to sign tokens:
+If there are database schema changes, Alembic runs automatically on container start via the `prestart` service.
+
+## Database Migrations in Production
+
+Migrations run automatically via the `prestart` service every time the stack starts. To run them manually:
 
 ```bash
-export SECRET_KEY="changethis"
+docker compose -f deploy/compose.yml exec backend alembic upgrade head
 ```
 
-Note: you can use the Python command above to generate a secure secret key.
-
-Set the `FIRST_SUPER_USER_PASSWORD` to something different than `changethis`:
+To check current migration state:
 
 ```bash
-export FIRST_SUPERUSER_PASSWORD="changethis"
+docker compose -f deploy/compose.yml exec backend alembic current
 ```
 
-Set the `BACKEND_CORS_ORIGINS` to include your domain:
+## Backups
 
 ```bash
-export BACKEND_CORS_ORIGINS="https://dashboard.${DOMAIN?Variable not set},https://api.${DOMAIN?Variable not set}"
+# Dump the database
+docker compose -f deploy/compose.yml exec db pg_dump -U postgres app > backup_$(date +%Y%m%d).sql
+
+# Restore
+cat backup_YYYYMMDD.sql | docker compose -f deploy/compose.yml exec -T db psql -U postgres app
 ```
 
-You can set several other environment variables:
+## Continuous Deployment with GitHub Actions
 
-* `PROJECT_NAME`: The name of the project, used in the API for the docs and emails.
-* `STACK_NAME`: The name of the stack used for Docker Compose labels and project name, this should be different for `staging`, `production`, etc. You could use the same domain replacing dots with dashes, e.g. `fastapi-project-example-com` and `staging-fastapi-project-example-com`.
-* `BACKEND_CORS_ORIGINS`: A list of allowed CORS origins separated by commas.
-* `FIRST_SUPERUSER`: The email of the first superuser, this superuser will be the one that can create new users.
-* `SMTP_HOST`: The SMTP server host to send emails, this would come from your email provider (E.g. Mailgun, Sparkpost, Sendgrid, etc).
-* `SMTP_USER`: The SMTP server user to send emails.
-* `SMTP_PASSWORD`: The SMTP server password to send emails.
-* `EMAILS_FROM_EMAIL`: The email account to send emails from.
-* `POSTGRES_SERVER`: The hostname of the PostgreSQL server. You can leave the default of `db`, provided by the same Docker Compose. You normally wouldn't need to change this unless you are using a third-party provider.
-* `POSTGRES_PORT`: The port of the PostgreSQL server. You can leave the default. You normally wouldn't need to change this unless you are using a third-party provider.
-* `POSTGRES_USER`: The Postgres user, you can leave the default.
-* `POSTGRES_DB`: The database name to use for this application. You can leave the default of `app`.
-* `SENTRY_DSN`: The DSN for Sentry, if you are using it.
+The repository is set up for automated deployments via a self-hosted GitHub Actions runner.
 
-## GitHub Actions Environment Variables
+### Runner Setup
 
-There are some environment variables only used by GitHub Actions that you can configure:
-
-* `LATEST_CHANGES`: Used by the GitHub Action [latest-changes](https://github.com/tiangolo/latest-changes) to automatically add release notes based on the PRs merged. It's a personal access token, read the docs for details.
-* `SMOKESHOW_AUTH_KEY`: Used to handle and publish the code coverage using [Smokeshow](https://github.com/samuelcolvin/smokeshow), follow their instructions to create a (free) Smokeshow key.
-
-### Deploy with Docker Compose
-
-With the environment variables in place, you can deploy with Docker Compose:
+On the remote server:
 
 ```bash
-cd /root/code/app/
-docker compose -f compose.yml build
-docker compose -f compose.yml up -d
-```
-
-For production you wouldn't want to have the overrides in `compose.override.yml`, that's why we explicitly specify `compose.yml` as the file to use.
-
-## Continuous Deployment (CD)
-
-You can use GitHub Actions to deploy your project automatically. 😎
-
-You can have multiple environment deployments.
-
-There are already two environments configured, `staging` and `production`. 🚀
-
-### Install GitHub Actions Runner
-
-* On your remote server, create a user for your GitHub Actions:
-
-```bash
+# Create a dedicated user
 sudo adduser github
-```
-
-* Add Docker permissions to the `github` user:
-
-```bash
 sudo usermod -aG docker github
-```
 
-* Temporarily switch to the `github` user:
-
-```bash
+# Install GitHub Actions runner following the official guide
+# https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
 sudo su - github
-```
+# ... follow the installation instructions ...
 
-* Go to the `github` user's home directory:
-
-```bash
-cd
-```
-
-* [Install a GitHub Action self-hosted runner following the official guide](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/adding-self-hosted-runners#adding-a-self-hosted-runner-to-a-repository).
-
-* When asked about labels, add a label for the environment, e.g. `production`. You can also add labels later.
-
-After installing, the guide would tell you to run a command to start the runner. Nevertheless, it would stop once you terminate that process or if your local connection to your server is lost.
-
-To make sure it runs on startup and continues running, you can install it as a service. To do that, exit the `github` user and go back to the `root` user:
-
-```bash
+# Install as a system service (run as root)
 exit
-```
-
-After you do it, you will be on the previous user again. And you will be on the previous directory, belonging to that user.
-
-Before being able to go the `github` user directory, you need to become the `root` user (you might already be):
-
-```bash
-sudo su
-```
-
-* As the `root` user, go to the `actions-runner` directory inside of the `github` user's home directory:
-
-```bash
 cd /home/github/actions-runner
-```
-
-* Install the self-hosted runner as a service with the user `github`:
-
-```bash
 ./svc.sh install github
-```
-
-* Start the service:
-
-```bash
 ./svc.sh start
 ```
 
-* Check the status of the service:
+### GitHub Secrets
 
-```bash
-./svc.sh status
-```
+Configure these secrets in your repository (Settings → Secrets and variables → Actions):
 
-You can read more about it in the official guide: [Configuring the self-hosted runner application as a service](https://docs.github.com/en/actions/hosting-your-own-runners/managing-self-hosted-runners/configuring-the-self-hosted-runner-application-as-a-service).
+| Secret | Description |
+|---|---|
+| `DOMAIN_PRODUCTION` | Production domain |
+| `DOMAIN_STAGING` | Staging domain |
+| `STACK_NAME_PRODUCTION` | Docker Compose project name for production |
+| `STACK_NAME_STAGING` | Docker Compose project name for staging |
+| `SECRET_KEY` | JWT signing secret |
+| `POSTGRES_PASSWORD` | Database password |
+| `FIRST_SUPERUSER` | Admin email |
+| `FIRST_SUPERUSER_PASSWORD` | Admin password |
+| `EMAILS_FROM_EMAIL` | From address for outbound emails |
+| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
+| `VITE_GOOGLE_CLIENT_ID` | Same value as `GOOGLE_CLIENT_ID` |
 
-### Set Secrets
+### Deployment Triggers
 
-On your repository, configure secrets for the environment variables you need, the same ones described above, including `SECRET_KEY`, etc. Follow the [official GitHub guide for setting repository secrets](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions#creating-secrets-for-a-repository).
-
-The current Github Actions workflows expect these secrets:
-
-* `DOMAIN_PRODUCTION`
-* `DOMAIN_STAGING`
-* `STACK_NAME_PRODUCTION`
-* `STACK_NAME_STAGING`
-* `EMAILS_FROM_EMAIL`
-* `FIRST_SUPERUSER`
-* `FIRST_SUPERUSER_PASSWORD`
-* `POSTGRES_PASSWORD`
-* `SECRET_KEY`
-* `LATEST_CHANGES`
-* `SMOKESHOW_AUTH_KEY`
-
-## GitHub Action Deployment Workflows
-
-There are GitHub Action workflows in the `.github/workflows` directory already configured for deploying to the environments (GitHub Actions runners with the labels):
-
-* `staging`: after pushing (or merging) to the branch `master`.
-* `production`: after publishing a release.
-
-If you need to add extra environments you could use those as a starting point.
-
-## URLs
-
-Replace `fastapi-project.example.com` with your domain.
-
-### Main Traefik Dashboard
-
-Traefik UI: `https://traefik.fastapi-project.example.com`
-
-### Production
-
-Frontend: `https://dashboard.fastapi-project.example.com`
-
-Backend API docs: `https://api.fastapi-project.example.com/docs`
-
-Backend API base URL: `https://api.fastapi-project.example.com`
-
-Adminer: `https://adminer.fastapi-project.example.com`
-
-### Staging
-
-Frontend: `https://dashboard.staging.fastapi-project.example.com`
-
-Backend API docs: `https://api.staging.fastapi-project.example.com/docs`
-
-Backend API base URL: `https://api.staging.fastapi-project.example.com`
-
-Adminer: `https://adminer.staging.fastapi-project.example.com`
+- Push or merge to `master` → deploys to **staging**
+- Publish a GitHub release → deploys to **production**

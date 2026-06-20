@@ -1,172 +1,204 @@
-# FastAPI Project - Backend
+# CreatorHandle — Backend
 
-## Requirements
+FastAPI application with SQLModel ORM, PostgreSQL, JWT authentication, and Google OAuth.
 
-* [Docker](https://www.docker.com/).
-* [uv](https://docs.astral.sh/uv/) for Python package and environment management.
+## Stack
 
-## Docker Compose
+| Tool | Purpose |
+|---|---|
+| FastAPI 0.115 | API framework |
+| SQLModel | ORM + Pydantic schema models |
+| PostgreSQL 18 | Database |
+| Alembic | Schema migrations |
+| uv | Python package management |
+| Pytest | Testing |
+| Ruff | Linting + formatting |
 
-Start the local development environment with Docker Compose following the guide in [../development.md](../development.md).
+## Directory Structure
 
-## General Workflow
-
-By default, the dependencies are managed with [uv](https://docs.astral.sh/uv/), go there and install it.
-
-From `./backend/` you can install all the dependencies with:
-
-```console
-$ uv sync
+```
+backend/
+├── app/
+│   ├── api/
+│   │   ├── deps.py          # FastAPI dependencies (auth, session)
+│   │   ├── main.py          # API router aggregation
+│   │   └── routes/
+│   │       ├── login.py     # JWT + Google OAuth endpoints
+│   │       ├── users.py     # User CRUD
+│   │       ├── brands.py    # Brand management
+│   │       ├── projects.py  # Project management
+│   │       ├── tasks.py     # Task management
+│   │       ├── items.py     # Item management
+│   │       ├── public.py    # Public creator profile (no auth)
+│   │       ├── utils.py     # Health check, test email
+│   │       └── private.py   # Test helpers (local env only)
+│   ├── core/
+│   │   ├── config.py        # Settings (loaded from env vars)
+│   │   ├── db.py            # Database engine + session
+│   │   └── security.py      # Password hashing, JWT generation
+│   ├── alembic/
+│   │   └── versions/        # Migration scripts
+│   ├── models.py            # All SQLModel table + schema models
+│   ├── crud.py              # Database operations
+│   ├── main.py              # App factory, CORS, Sentry
+│   ├── initial_data.py      # Seeds first superuser
+│   └── backend_pre_start.py # Waits for DB, runs on container start
+├── tests/
+├── scripts/
+│   ├── prestart.sh          # Alembic upgrade + initial_data
+│   └── tests-start.sh       # Wait for DB, run pytest
+└── pyproject.toml
 ```
 
-Then you can activate the virtual environment with:
+## API Endpoints
 
-```console
-$ source .venv/bin/activate
+All routes are under `/api/v1/`.
+
+### Authentication (`/api/v1/`)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| POST | `/login/access-token` | None | Email + password login → JWT |
+| POST | `/login/google` | None | Google OAuth access token → JWT |
+| POST | `/login/test-token` | JWT | Validate current token |
+| POST | `/password-recovery/{email}` | None | Send recovery email |
+| POST | `/reset-password/` | None | Reset password with token |
+
+### Users (`/api/v1/users/`)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/` | Superuser | List all users |
+| POST | `/` | Superuser | Create user |
+| GET | `/me` | JWT | Get current user |
+| PATCH | `/me` | JWT | Update profile |
+| PATCH | `/me/password` | JWT | Change password |
+| DELETE | `/me` | JWT | Delete own account |
+| POST | `/signup` | None | Self-registration |
+| GET | `/{user_id}` | JWT | Get user by ID |
+| PATCH | `/{user_id}` | Superuser | Update any user |
+| DELETE | `/{user_id}` | Superuser | Delete any user |
+
+### Brands, Projects, Tasks, Items
+
+Standard CRUD pattern for each resource:
+
+```
+GET    /api/v1/{resource}/          List owned records (paginated)
+POST   /api/v1/{resource}/          Create record
+GET    /api/v1/{resource}/{id}      Get by ID
+PUT    /api/v1/{resource}/{id}      Update
+DELETE /api/v1/{resource}/{id}      Delete
 ```
 
-Make sure your editor is using the correct Python virtual environment, with the interpreter at `backend/.venv/bin/python`.
+### Public (`/api/v1/public/`) — no authentication
+| Method | Path | Description |
+|---|---|---|
+| GET | `/{username}` | Creator profile + stats |
+| GET | `/{username}/brands` | Creator's active brands |
+| GET | `/{username}/projects` | Creator's non-cancelled projects |
 
-Modify or add SQLModel models for data and SQL tables in `./backend/app/models.py`, API endpoints in `./backend/app/api/`, CRUD (Create, Read, Update, Delete) utils in `./backend/app/crud.py`.
-
-## VS Code
-
-There are already configurations in place to run the backend through the VS Code debugger, so that you can use breakpoints, pause and explore variables, etc.
-
-The setup is also already configured so you can run the tests through the VS Code Python tests tab.
-
-## Docker Compose Override
-
-During development, you can change Docker Compose settings that will only affect the local development environment in the file `compose.override.yml`.
-
-The changes to that file only affect the local development environment, not the production environment. So, you can add "temporary" changes that help the development workflow.
-
-For example, the directory with the backend code is synchronized in the Docker container, copying the code you change live to the directory inside the container. That allows you to test your changes right away, without having to build the Docker image again. It should only be done during development, for production, you should build the Docker image with a recent version of the backend code. But during development, it allows you to iterate very fast.
-
-There is also a command override that runs `fastapi run --reload` instead of the default `fastapi run`. It starts a single server process (instead of multiple, as would be for production) and reloads the process whenever the code changes. Have in mind that if you have a syntax error and save the Python file, it will break and exit, and the container will stop. After that, you can restart the container by fixing the error and running again:
-
-```console
-$ docker compose watch
-```
-
-There is also a commented out `command` override, you can uncomment it and comment the default one. It makes the backend container run a process that does "nothing", but keeps the container alive. That allows you to get inside your running container and execute commands inside, for example a Python interpreter to test installed dependencies, or start the development server that reloads when it detects changes.
-
-To get inside the container with a `bash` session you can start the stack with:
-
-```console
-$ docker compose watch
-```
-
-and then in another terminal, `exec` inside the running container:
-
-```console
-$ docker compose exec backend bash
-```
-
-You should see an output like:
-
-```console
-root@7f2607af31c3:/app#
-```
-
-that means that you are in a `bash` session inside your container, as a `root` user, under the `/app` directory, this directory has another directory called "app" inside, that's where your code lives inside the container: `/app/app`.
-
-There you can use the `fastapi run --reload` command to run the debug live reloading server.
-
-```console
-$ fastapi run --reload app/main.py
-```
-
-...it will look like:
-
-```console
-root@7f2607af31c3:/app# fastapi run --reload app/main.py
-```
-
-and then hit enter. That runs the live reloading server that auto reloads when it detects code changes.
-
-Nevertheless, if it doesn't detect a change but a syntax error, it will just stop with an error. But as the container is still alive and you are in a Bash session, you can quickly restart it after fixing the error, running the same command ("up arrow" and "Enter").
-
-...this previous detail is what makes it useful to have the container alive doing nothing and then, in a Bash session, make it run the live reload server.
-
-## Backend tests
-
-To test the backend run:
-
-```console
-$ bash ./scripts/test.sh
-```
-
-The tests run with Pytest, modify and add tests to `./backend/tests/`.
-
-If you use GitHub Actions the tests will run automatically.
-
-### Test running stack
-
-If your stack is already up and you just want to run the tests, you can use:
-
-```bash
-docker compose exec backend bash scripts/tests-start.sh
-```
-
-That `/app/scripts/tests-start.sh` script just calls `pytest` after making sure that the rest of the stack is running. If you need to pass extra arguments to `pytest`, you can pass them to that command and they will be forwarded.
-
-For example, to stop on first error:
-
-```bash
-docker compose exec backend bash scripts/tests-start.sh -x
-```
-
-### Test Coverage
-
-When the tests are run, a file `htmlcov/index.html` is generated, you can open it in your browser to see the coverage of the tests.
-
-## Migrations
-
-As during local development your app directory is mounted as a volume inside the container, you can also run the migrations with `alembic` commands inside the container and the migration code will be in your app directory (instead of being only inside the container). So you can add it to your git repository.
-
-Make sure you create a "revision" of your models and that you "upgrade" your database with that revision every time you change them. As this is what will update the tables in your database. Otherwise, your application will have errors.
-
-* Start an interactive session in the backend container:
-
-```console
-$ docker compose exec backend bash
-```
-
-* Alembic is already configured to import your SQLModel models from `./backend/app/models.py`.
-
-* After changing a model (for example, adding a column), inside the container, create a revision, e.g.:
-
-```console
-$ alembic revision --autogenerate -m "Add column last_name to User model"
-```
-
-* Commit to the git repository the files generated in the alembic directory.
-
-* After creating the revision, run the migration in the database (this is what will actually change the database):
-
-```console
-$ alembic upgrade head
-```
-
-If you don't want to use migrations at all, uncomment the lines in the file at `./backend/app/core/db.py` that end in:
+## Data Models
 
 ```python
-SQLModel.metadata.create_all(engine)
+User
+  id: UUID (PK)
+  email: str (unique)
+  username: str | None (unique, used for public profile URL)
+  full_name: str | None
+  hashed_password: str | None  # None for Google-only accounts
+  is_active: bool
+  is_superuser: bool
+  created_at: datetime
+
+Brand
+  id: UUID (PK)
+  name: str
+  description: str | None
+  owner_id: UUID (FK → User)
+
+Project
+  id: UUID (PK)
+  name: str
+  description: str | None
+  status: str
+  brand_id: UUID (FK → Brand)
+  owner_id: UUID (FK → User)
+
+Task
+  id: UUID (PK)
+  title: str
+  description: str | None
+  status: str
+  project_id: UUID (FK → Project)
+  owner_id: UUID (FK → User)
+
+Item
+  id: UUID (PK)
+  title: str
+  description: str | None
+  owner_id: UUID (FK → User)
 ```
 
-and comment the line in the file `scripts/prestart.sh` that contains:
+Relationships use cascade deletes: deleting a User deletes all their Brands, Projects, Tasks, and Items. Deleting a Brand deletes its Projects. Deleting a Project deletes its Tasks.
 
-```console
-$ alembic upgrade head
+## Local Setup
+
+```bash
+cd backend
+uv sync
+source .venv/bin/activate
 ```
 
-If you don't want to start with the default models and want to remove them / modify them, from the beginning, without having any previous revision, you can remove the revision files (`.py` Python files) under `./backend/app/alembic/versions/`. And then create a first migration as described above.
+## Running Tests
+
+```bash
+# Via Docker (uses real database)
+docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash scripts/tests-start.sh
+
+# With extra pytest args
+docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash scripts/tests-start.sh -x -v
+```
+
+Coverage report: `backend/htmlcov/index.html`
+
+## Database Migrations
+
+```bash
+# Shell into the backend container
+docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash
+
+# Generate a migration after changing models.py
+alembic revision --autogenerate -m "add column foo to bar"
+
+# Apply all pending migrations
+alembic upgrade head
+
+# Check current state
+alembic current
+
+# Rollback one step
+alembic downgrade -1
+```
+
+Always commit the generated migration file to the repository.
+
+## Configuration
+
+Settings are loaded from environment variables via Pydantic Settings (`app/core/config.py`). Key settings:
+
+| Variable | Default | Description |
+|---|---|---|
+| `SECRET_KEY` | — | JWT signing key |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | 10080 (7 days) | Token lifetime |
+| `GOOGLE_CLIENT_ID` | `""` | Google OAuth client ID |
+| `POSTGRES_SERVER` | `localhost` | DB host |
+| `POSTGRES_PORT` | 5432 | DB port |
+| `POSTGRES_DB` | `app` | DB name |
+| `BACKEND_CORS_ORIGINS` | — | Allowed CORS origins |
+| `ENVIRONMENT` | `local` | `local` / `staging` / `production` |
+| `SMTP_HOST` | — | SMTP server for emails |
+
+In non-local environments, `SECRET_KEY` and `POSTGRES_PASSWORD` must not be the default placeholder values — the app raises an error on startup if they are.
 
 ## Email Templates
 
-The email templates are in `./backend/app/email-templates/`. Here, there are two directories: `build` and `src`. The `src` directory contains the source files that are used to build the final email templates. The `build` directory contains the final email templates that are used by the application.
-
-Before continuing, ensure you have the [MJML extension](https://github.com/mjmlio/vscode-mjml) installed in your VS Code.
-
-Once you have the MJML extension installed, you can create a new email template in the `src` directory. After creating the new email template and with the `.mjml` file open in your editor, open the command palette with `Ctrl+Shift+P` and search for `MJML: Export to HTML`. This will convert the `.mjml` file to a `.html` file and now you can save it in the build directory.
+Password recovery emails use MJML templates in `app/email-templates/`. Edit `.mjml` source files in `src/`, then export to HTML using the [VS Code MJML extension](https://github.com/mjmlio/vscode-mjml) and save the output to `build/`.

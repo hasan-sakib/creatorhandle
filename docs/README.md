@@ -1,233 +1,176 @@
-# Full Stack FastAPI Template
+# CreatorHandle — Project Overview
 
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Docker+Compose%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Docker%20Compose/badge.svg" alt="Test Docker Compose"></a>
-<a href="https://github.com/fastapi/full-stack-fastapi-template/actions?query=workflow%3A%22Test+Backend%22" target="_blank"><img src="https://github.com/fastapi/full-stack-fastapi-template/workflows/Test%20Backend/badge.svg" alt="Test Backend"></a>
-<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/full-stack-fastapi-template" target="_blank"><img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/full-stack-fastapi-template.svg" alt="Coverage"></a>
+## What It Is
 
-## Technology Stack and Features
+CreatorHandle is a creator management platform. Each creator gets:
+- A **public profile page** at `/creator/{username}` — visible to anyone, no login required
+- A **private workspace dashboard** at `/` — manage brands, projects, tasks, and settings
 
-- ⚡ [**FastAPI**](https://fastapi.tiangolo.com) for the Python backend API.
-  - 🧰 [SQLModel](https://sqlmodel.tiangolo.com) for the Python SQL database interactions (ORM).
-  - 🔍 [Pydantic](https://docs.pydantic.dev), used by FastAPI, for the data validation and settings management.
-  - 💾 [PostgreSQL](https://www.postgresql.org) as the SQL database.
-- 🚀 [React](https://react.dev) for the frontend.
-  - 💃 Using TypeScript, hooks, [Vite](https://vitejs.dev), and other parts of a modern frontend stack.
-  - 🎨 [Tailwind CSS](https://tailwindcss.com) and [shadcn/ui](https://ui.shadcn.com) for the frontend components.
-  - 🤖 An automatically generated frontend client.
-  - 🧪 [Playwright](https://playwright.dev) for End-to-End testing.
-  - 🦇 Dark mode support.
-- 🐋 [Docker Compose](https://www.docker.com) for development and production.
-- 🔒 Secure password hashing by default.
-- 🔑 JWT (JSON Web Token) authentication.
-- 📫 Email based password recovery.
-- 📬 [Mailcatcher](https://mailcatcher.me) for local email testing during development.
-- ✅ Tests with [Pytest](https://pytest.org).
-- 📞 [Traefik](https://traefik.io) as a reverse proxy / load balancer.
-- 🚢 Deployment instructions using Docker Compose, including how to set up a frontend Traefik proxy to handle automatic HTTPS certificates.
-- 🏭 CI (continuous integration) and CD (continuous deployment) based on GitHub Actions.
+## Tech Stack
 
-### Dashboard Login
+| Layer | Technology |
+|---|---|
+| Backend API | FastAPI 0.115, Python 3.10 |
+| ORM / Schema | SQLModel + Pydantic v2 |
+| Database | PostgreSQL 18 |
+| Migrations | Alembic |
+| Authentication | JWT (HS256) + Google OAuth 2.0 |
+| Dashboard frontend | React 19, TanStack Router v1, TanStack Query v5 |
+| Public frontend | React 19, TanStack Router v1 (basepath `/creator`) |
+| Styling | Tailwind CSS v4, shadcn/ui components |
+| Package manager | Bun (frontend), uv (backend) |
+| Reverse proxy | Traefik v3 (production), included in dev override |
+| Frontend serving | Nginx (single container, path-based routing) |
+| Container runtime | Docker Compose |
+| E2E tests | Playwright |
+| Backend tests | Pytest |
+| Linting | Biome (frontend), Ruff (backend) |
 
-[![API docs](img/login.png)](https://github.com/fastapi/full-stack-fastapi-template)
+## System Architecture
 
-### Dashboard - Admin
-
-[![API docs](img/dashboard.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Items
-
-[![API docs](img/dashboard-items.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Dashboard - Dark Mode
-
-[![API docs](img/dashboard-dark.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-### Interactive API Documentation
-
-[![API docs](img/docs.png)](https://github.com/fastapi/full-stack-fastapi-template)
-
-## How To Use It
-
-You can **just fork or clone** this repository and use it as is.
-
-✨ It just works. ✨
-
-### How to Use a Private Repository
-
-If you want to have a private repository, GitHub won't allow you to simply fork it as it doesn't allow changing the visibility of forks.
-
-But you can do the following:
-
-- Create a new GitHub repo, for example `my-full-stack`.
-- Clone this repository manually, set the name with the name of the project you want to use, for example `my-full-stack`:
-
-```bash
-git clone git@github.com:fastapi/full-stack-fastapi-template.git my-full-stack
+```
+Browser
+   │
+   ├─ /creator/*  ──► Nginx ──► creator-site dist   (public profiles)
+   │
+   └─ /*          ──► Nginx ──► creator-workspace dist (dashboard)
+                                     │
+                                     │  API calls (VITE_API_URL)
+                                     ▼
+                              FastAPI  :8000
+                                     │
+                                     ▼
+                              PostgreSQL :5432
 ```
 
-- Enter into the new directory:
+### Frontend — Two Separate Vite Apps
 
-```bash
-cd my-full-stack
+The `frontend/` directory contains a **Bun workspace** with two independent Vite applications:
+
+| App | Directory | Path | Purpose |
+|---|---|---|---|
+| creator-workspace | `frontend/creator-workspace/` | `/` | Authenticated dashboard |
+| creator-site | `frontend/creator-site/` | `/creator/` | Public creator profiles |
+
+Both apps are built at deploy time and served from a **single Nginx container**. Nginx routes requests based on the URL prefix:
+
+```nginx
+location /creator/ → /usr/share/nginx/creator-site/
+location /         → /usr/share/nginx/creator-workspace/
 ```
 
-- Set the new origin to your new repository, copy it from the GitHub interface, for example:
+creator-site uses TanStack Router with `basepath: "/creator"` so the route `/$username` matches `/creator/sakib`.
 
-```bash
-git remote set-url origin git@github.com:octocat/my-full-stack.git
+### Backend — FastAPI
+
+All API routes are mounted under `/api/v1/`. The OpenAPI schema is available at `/api/v1/openapi.json`.
+
+| Router | Prefix | Auth | Description |
+|---|---|---|---|
+| login | `/api/v1/` | None | Token login, Google OAuth, password recovery |
+| users | `/api/v1/users` | JWT | User CRUD (self + superuser admin) |
+| brands | `/api/v1/brands` | JWT | Brand management |
+| projects | `/api/v1/projects` | JWT | Project management |
+| tasks | `/api/v1/tasks` | JWT | Task management |
+| items | `/api/v1/items` | JWT | Item management |
+| public | `/api/v1/public` | None | Public creator profile reads |
+| utils | `/api/v1/utils` | Superuser | Health check, test email |
+| private | `/api/v1/private` | None | Test helpers (local env only) |
+
+### Authentication
+
+Two flows are supported:
+
+1. **Email + password** — `POST /api/v1/login/access-token` returns a JWT.
+2. **Google OAuth (implicit flow)** — frontend calls `useGoogleLogin()` from `@react-oauth/google`, receives a Google `access_token`, sends it to `POST /api/v1/login/google`. Backend verifies the token via Google's `/oauth2/v3/userinfo` endpoint and returns an app JWT. Google-only accounts have `hashed_password = NULL`.
+
+### Data Model
+
+```
+User
+ ├── Items (owned by user)
+ ├── Brands (owned by user)
+ │    └── Projects (belong to brand, owned by user)
+ │         └── Tasks (belong to project, owned by user)
+ └── Tasks (also directly owned by user)
 ```
 
-- Add this repo as another "remote" to allow you to get updates later:
+All entities use UUID primary keys. Cascade deletes are configured throughout the tree.
 
-```bash
-git remote add upstream git@github.com:fastapi/full-stack-fastapi-template.git
+### Docker Compose Services
+
+| Service | Image | Port | Notes |
+|---|---|---|---|
+| db | postgres:18 | 5432 | Primary datastore |
+| backend | custom (uv + Python 3.10) | 8000 | FastAPI with 4 workers in prod |
+| frontend | custom (bun + nginx) | 5173→80 | Serves both Vite apps |
+| adminer | adminer | 8080 | DB admin UI |
+| prestart | backend image | — | Runs Alembic migrations on startup |
+| proxy | traefik:3.6 | 80, 8090 | Dev: insecure mode; Prod: TLS |
+| mailcatcher | schickling/mailcatcher | 1025/1080 | Dev SMTP trap |
+| playwright | custom | 9323 | E2E test runner |
+
+### Docker Build — Frontend Multi-Stage
+
+```
+Stage 0 (deps)        — bun install (shared workspace)
+Stage 1 (workspace-build) — builds creator-workspace
+Stage 2 (site-build)  — builds creator-site
+Stage 3 (nginx:1)     — copies both dists, serves with nginx
 ```
 
-- Push the code to your new repository:
+Build args: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
 
-```bash
-git push -u origin master
+## Directory Structure
+
+```
+creatorhandle/
+├── backend/
+│   ├── app/
+│   │   ├── api/routes/      # FastAPI routers
+│   │   ├── core/            # config, db, security
+│   │   ├── alembic/         # migrations
+│   │   ├── models.py        # SQLModel table + schema models
+│   │   ├── crud.py          # database operations
+│   │   └── main.py          # app factory
+│   ├── tests/               # Pytest tests
+│   └── pyproject.toml
+├── frontend/
+│   ├── creator-workspace/   # dashboard Vite app
+│   │   └── src/
+│   │       ├── client/      # auto-generated OpenAPI client
+│   │       ├── components/  # UI components
+│   │       ├── hooks/       # useAuth, useCustomToast
+│   │       └── routes/      # TanStack Router file-based routes
+│   ├── creator-site/        # public profile Vite app
+│   │   └── src/
+│   │       ├── components/
+│   │       └── routes/      # /$username route
+│   └── nginx.conf
+├── deploy/
+│   ├── .env                 # environment variables
+│   ├── compose.yml          # production stack
+│   ├── compose.override.yml # local dev overrides
+│   └── compose.traefik.yml  # production Traefik
+├── docker/
+│   ├── Dockerfile.backend
+│   ├── Dockerfile.frontend
+│   └── Dockerfile.playwright
+└── docs/
 ```
 
-### Update From the Original Template
+## Key Environment Variables
 
-After cloning the repository, and after doing changes, you might want to get the latest changes from this original template.
-
-- Make sure you added the original repository as a remote, you can check it with:
-
-```bash
-git remote -v
-
-origin    git@github.com:octocat/my-full-stack.git (fetch)
-origin    git@github.com:octocat/my-full-stack.git (push)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (fetch)
-upstream    git@github.com:fastapi/full-stack-fastapi-template.git (push)
-```
-
-- Pull the latest changes without merging:
-
-```bash
-git pull --no-commit upstream master
-```
-
-This will download the latest changes from this template without committing them, that way you can check everything is right before committing.
-
-- If there are conflicts, solve them in your editor.
-
-- Once you are done, commit the changes:
-
-```bash
-git merge --continue
-```
-
-### Configure
-
-You can then update configs in the `.env` files to customize your configurations.
-
-Before deploying it, make sure you change at least the values for:
-
-- `SECRET_KEY`
-- `FIRST_SUPERUSER_PASSWORD`
-- `POSTGRES_PASSWORD`
-
-You can (and should) pass these as environment variables from secrets.
-
-Read the [deployment.md](./deployment.md) docs for more details.
-
-### Generate Secret Keys
-
-Some environment variables in the `.env` file have a default value of `changethis`.
-
-You have to change them with a secret key, to generate secret keys you can run the following command:
-
-```bash
-python -c "import secrets; print(secrets.token_urlsafe(32))"
-```
-
-Copy the content and use that as password / secret key. And run that again to generate another secure key.
-
-## How To Use It - Alternative With Copier
-
-This repository also supports generating a new project using [Copier](https://copier.readthedocs.io).
-
-It will copy all the files, ask you configuration questions, and update the `.env` files with your answers.
-
-### Install Copier
-
-You can install Copier with:
-
-```bash
-pip install copier
-```
-
-Or better, if you have [`pipx`](https://pipx.pypa.io/), you can run it with:
-
-```bash
-pipx install copier
-```
-
-**Note**: If you have `pipx`, installing copier is optional, you could run it directly.
-
-### Generate a Project With Copier
-
-Decide a name for your new project's directory, you will use it below. For example, `my-awesome-project`.
-
-Go to the directory that will be the parent of your project, and run the command with your project's name:
-
-```bash
-copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-If you have `pipx` and you didn't install `copier`, you can run it directly:
-
-```bash
-pipx run copier copy https://github.com/fastapi/full-stack-fastapi-template my-awesome-project --trust
-```
-
-**Note** the `--trust` option is necessary to be able to execute a [post-creation script](https://github.com/fastapi/full-stack-fastapi-template/blob/master/.copier/update_dotenv.py) that updates your `.env` files.
-
-### Input Variables
-
-Copier will ask you for some data, you might want to have at hand before generating the project.
-
-But don't worry, you can just update any of that in the `.env` files afterwards.
-
-The input variables, with their default values (some auto generated) are:
-
-- `project_name`: (default: `"FastAPI Project"`) The name of the project, shown to API users (in .env).
-- `stack_name`: (default: `"fastapi-project"`) The name of the stack used for Docker Compose labels and project name (no spaces, no periods) (in .env).
-- `secret_key`: (default: `"changethis"`) The secret key for the project, used for security, stored in .env, you can generate one with the method above.
-- `first_superuser`: (default: `"admin@example.com"`) The email of the first superuser (in .env).
-- `first_superuser_password`: (default: `"changethis"`) The password of the first superuser (in .env).
-- `smtp_host`: (default: "") The SMTP server host to send emails, you can set it later in .env.
-- `smtp_user`: (default: "") The SMTP server user to send emails, you can set it later in .env.
-- `smtp_password`: (default: "") The SMTP server password to send emails, you can set it later in .env.
-- `emails_from_email`: (default: `"info@example.com"`) The email account to send emails from, you can set it later in .env.
-- `postgres_password`: (default: `"changethis"`) The password for the PostgreSQL database, stored in .env, you can generate one with the method above.
-- `sentry_dsn`: (default: "") The DSN for Sentry, if you are using it, you can set it later in .env.
-
-## Backend Development
-
-Backend docs: [backend/README.md](./backend/README.md).
-
-## Frontend Development
-
-Frontend docs: [frontend/README.md](./frontend/README.md).
-
-## Deployment
-
-Deployment docs: [deployment.md](./deployment.md).
-
-## Development
-
-General development docs: [development.md](./development.md).
-
-This includes using Docker Compose, custom local domains, `.env` configurations, etc.
-
-## Release Notes
-
-Check the file [release-notes.md](./release-notes.md).
-
-## License
-
-The Full Stack FastAPI Template is licensed under the terms of the MIT license.
+| Variable | Description |
+|---|---|
+| `SECRET_KEY` | JWT signing key (generate with `secrets.token_urlsafe(32)`) |
+| `POSTGRES_PASSWORD` | Database password |
+| `FIRST_SUPERUSER` | Admin email created on first start |
+| `FIRST_SUPERUSER_PASSWORD` | Admin password |
+| `GOOGLE_CLIENT_ID` | Google OAuth 2.0 client ID (backend) |
+| `VITE_GOOGLE_CLIENT_ID` | Same value, baked into frontend bundle at build time |
+| `VITE_API_URL` | Backend URL used by frontend (e.g. `http://localhost:8000`) |
+| `ENVIRONMENT` | `local` / `staging` / `production` |
+| `DOMAIN` | Base domain for Traefik routing |
+| `SMTP_HOST` | SMTP server for email (Mailcatcher in dev) |
+| `SENTRY_DSN` | Optional Sentry error tracking |
