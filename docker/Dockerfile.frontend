@@ -15,6 +15,7 @@ FROM deps AS workspace-build
 
 COPY ./frontend/creator-workspace /app/frontend/creator-workspace
 ARG VITE_API_URL
+ARG VITE_GOOGLE_CLIENT_ID
 
 WORKDIR /app/frontend/creator-workspace
 RUN bun run build

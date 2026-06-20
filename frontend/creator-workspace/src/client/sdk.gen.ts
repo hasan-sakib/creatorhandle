@@ -277,6 +277,19 @@ export class LoginService {
             }
         });
     }
+
+    public static loginWithGoogle(data: { body: { token: string } }): CancelablePromise<import('./types.gen').Token> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/login/google',
+            body: data.body,
+            mediaType: 'application/json',
+            errors: {
+                400: 'Bad Request',
+                422: 'Validation Error'
+            }
+        });
+    }
 }
 
 export class PrivateService {

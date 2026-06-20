@@ -147,9 +147,10 @@ interface LoginPageProps {
   onSubmit?: (data: { username: string; password: string }) => void;
   isLoading?: boolean;
   externalError?: string;
+  onGoogleLogin?: () => void;
 }
 
-function LoginPage({ onSubmit, isLoading: externalLoading, externalError }: LoginPageProps) {
+function LoginPage({ onSubmit, isLoading: externalLoading, externalError, onGoogleLogin }: LoginPageProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -662,6 +663,7 @@ function LoginPage({ onSubmit, isLoading: externalLoading, externalError }: Logi
               variant="outline"
               className="w-full h-12 bg-background border-border/60 hover:bg-accent"
               type="button"
+              onClick={onGoogleLogin}
             >
               <Mail className="mr-2 size-5" />
               Log in with Google

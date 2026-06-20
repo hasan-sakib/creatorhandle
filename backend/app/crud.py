@@ -61,6 +61,9 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
         # This ensures the response time is similar whether or not the email exists
         verify_password(password, DUMMY_HASH)
         return None
+    if db_user.hashed_password is None:
+        # Google-only account — cannot log in with password
+        return None
     verified, updated_password_hash = verify_password(password, db_user.hashed_password)
     if not verified:
         return None
@@ -70,6 +73,17 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
         session.commit()
         session.refresh(db_user)
     return db_user
+
+
+def get_or_create_google_user(*, session: Session, email: str, full_name: str) -> User:
+    user = get_user_by_email(session=session, email=email)
+    if user:
+        return user
+    user = User(email=email, full_name=full_name or None, hashed_password=None, is_active=True)
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+    return user
 
 
 def create_item(*, session: Session, item_in: ItemCreate, owner_id: uuid.UUID) -> Item:

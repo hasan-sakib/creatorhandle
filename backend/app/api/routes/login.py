@@ -1,6 +1,7 @@
 from datetime import timedelta
 from typing import Annotated, Any
 
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -9,6 +10,8 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
+from sqlmodel import SQLModel
+
 from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
 from app.utils import (
     generate_password_reset_token,
@@ -120,4 +123,36 @@ def recover_password_html_content(email: str, session: SessionDep) -> Any:
 
     return HTMLResponse(
         content=email_data.html_content, headers={"subject:": email_data.subject}
+    )
+
+
+class GoogleTokenBody(SQLModel):
+    token: str
+
+
+@router.post("/login/google")
+async def login_with_google(body: GoogleTokenBody, session: SessionDep) -> Token:
+    """
+    Sign in with Google — exchanges a Google access token for an app JWT.
+    """
+    async with httpx.AsyncClient() as client:
+        r = await client.get(
+            "https://www.googleapis.com/oauth2/v3/userinfo",
+            headers={"Authorization": f"Bearer {body.token}"},
+        )
+    if r.status_code != 200:
+        raise HTTPException(status_code=400, detail="Invalid Google token")
+    info = r.json()
+    email = info.get("email")
+    if not email:
+        raise HTTPException(status_code=400, detail="Google account has no email")
+    if not info.get("email_verified"):
+        raise HTTPException(status_code=400, detail="Google email not verified")
+    full_name = info.get("name", "")
+    user = crud.get_or_create_google_user(session=session, email=email, full_name=full_name)
+    if not user.is_active:
+        raise HTTPException(status_code=400, detail="Inactive user")
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    return Token(
+        access_token=security.create_access_token(user.id, expires_delta=access_token_expires)
     )
