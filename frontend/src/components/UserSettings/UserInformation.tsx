@@ -24,6 +24,12 @@ import { handleError } from "@/utils"
 const formSchema = z.object({
   full_name: z.string().max(30).optional(),
   email: z.email({ message: "Invalid email address" }),
+  username: z
+    .string()
+    .max(30)
+    .regex(/^[a-z0-9-]*$/, { message: "Only lowercase letters, numbers, and hyphens" })
+    .optional()
+    .or(z.literal("")),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -41,6 +47,7 @@ const UserInformation = () => {
     defaultValues: {
       full_name: currentUser?.full_name ?? undefined,
       email: currentUser?.email,
+      username: currentUser?.username ?? "",
     },
   })
 
@@ -70,6 +77,10 @@ const UserInformation = () => {
     }
     if (data.email !== currentUser?.email) {
       updateData.email = data.email
+    }
+    const newUsername = data.username || null
+    if (newUsername !== (currentUser?.username ?? null)) {
+      updateData.username = newUsername
     }
 
     mutation.mutate(updateData)
@@ -132,6 +143,41 @@ const UserInformation = () => {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <p className="py-2 truncate max-w-sm">{field.value}</p>
+                </FormItem>
+              )
+            }
+          />
+
+          <FormField
+            control={form.control}
+            name="username"
+            render={({ field }) =>
+              editMode ? (
+                <FormItem>
+                  <FormLabel>Public handle</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="e.g. johndoe"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                  <p className="text-xs text-muted-foreground">
+                    Your profile will be at /creator/{field.value || "yourhandle"}
+                  </p>
+                </FormItem>
+              ) : (
+                <FormItem>
+                  <FormLabel>Public handle</FormLabel>
+                  <p
+                    className={cn(
+                      "py-2 truncate max-w-sm",
+                      !field.value && "text-muted-foreground italic",
+                    )}
+                  >
+                    {field.value ? `@${field.value}` : "Not set"}
+                  </p>
                 </FormItem>
               )
             }

@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksReadTasksData, TasksReadTasksResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, PublicGetCreatorBrandsData, PublicGetCreatorBrandsResponse, PublicGetCreatorProfileData, PublicGetCreatorProfileResponse, PublicGetCreatorProjectsData, PublicGetCreatorProjectsResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksReadTasksData, TasksReadTasksResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class ItemsService {
     /**
@@ -167,6 +167,18 @@ export class TasksService {
     }
     public static deleteTask(data: TasksDeleteTaskData): CancelablePromise<TasksDeleteTaskResponse> {
         return __request(OpenAPI, { method: 'DELETE', url: '/api/v1/tasks/{id}', path: { id: data.id }, errors: { 422: 'Validation Error' } });
+    }
+}
+
+export class PublicService {
+    public static getCreatorProfile(data: PublicGetCreatorProfileData): CancelablePromise<PublicGetCreatorProfileResponse> {
+        return __request(OpenAPI, { method: 'GET', url: '/api/v1/public/{username}', path: { username: data.username }, errors: { 404: 'Not Found', 422: 'Validation Error' } });
+    }
+    public static getCreatorBrands(data: PublicGetCreatorBrandsData): CancelablePromise<PublicGetCreatorBrandsResponse> {
+        return __request(OpenAPI, { method: 'GET', url: '/api/v1/public/{username}/brands', path: { username: data.username }, errors: { 404: 'Not Found', 422: 'Validation Error' } });
+    }
+    public static getCreatorProjects(data: PublicGetCreatorProjectsData): CancelablePromise<PublicGetCreatorProjectsResponse> {
+        return __request(OpenAPI, { method: 'GET', url: '/api/v1/public/{username}/projects', path: { username: data.username }, errors: { 404: 'Not Found', 422: 'Validation Error' } });
     }
 }
 

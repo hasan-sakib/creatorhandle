@@ -75,6 +75,7 @@ export type UserPublic = {
     is_active?: boolean;
     is_superuser?: boolean;
     full_name?: (string | null);
+    username?: (string | null);
     id: string;
     created_at?: (string | null);
 };
@@ -101,6 +102,7 @@ export type UserUpdate = {
 export type UserUpdateMe = {
     full_name?: (string | null);
     email?: (string | null);
+    username?: (string | null);
 };
 
 export type ValidationError = {
@@ -387,3 +389,26 @@ export type UtilsTestEmailData = {
 export type UtilsTestEmailResponse = (Message);
 
 export type UtilsHealthCheckResponse = (boolean);
+
+// ── Public Profile ────────────────────────────────────────────────────────────
+
+export type CreatorStats = {
+    brands_count: number;
+    projects_count: number;
+    tasks_done: number;
+    tasks_total: number;
+};
+
+export type CreatorProfile = {
+    full_name: string | null;
+    username: string;
+    created_at: string | null;
+    stats: CreatorStats;
+};
+
+export type PublicGetCreatorProfileData = { username: string };
+export type PublicGetCreatorProfileResponse = CreatorProfile;
+export type PublicGetCreatorBrandsData = { username: string };
+export type PublicGetCreatorBrandsResponse = BrandsPublic;
+export type PublicGetCreatorProjectsData = { username: string };
+export type PublicGetCreatorProjectsResponse = ProjectsPublic;
