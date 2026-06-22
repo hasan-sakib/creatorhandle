@@ -3,6 +3,10 @@
 !.vscode/extensions.json
 .idea/
 
+# Tooling
+.copier/
+.agents/
+
 # Dependencies
 node_modules/
 
