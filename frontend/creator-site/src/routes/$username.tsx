@@ -6,8 +6,8 @@ import { BrandsSection } from "@/components/creator/BrandsSection"
 import { CreatorHero } from "@/components/creator/CreatorHero"
 import { NotFound } from "@/components/creator/NotFound"
 import { ProjectsSection } from "@/components/creator/ProjectsSection"
-import { Logo } from "@/components/Common/Logo"
-import { Button } from "@/components/ui/button"
+import { Footer } from "@/components/layout/Footer"
+import { Navbar } from "@/components/layout/Navbar"
 import { Skeleton } from "@/components/ui/skeleton"
 
 export const Route = createFileRoute("/$username")({
@@ -61,16 +61,7 @@ function CreatorProfilePage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <a href="/login">
-            <Logo variant="full" />
-          </a>
-          <Button asChild size="sm">
-            <a href="/login">Sign In</a>
-          </Button>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="flex-1 max-w-5xl mx-auto w-full px-4 sm:px-6 pb-16">
         {profileLoading && <ProfileSkeleton />}
@@ -101,12 +92,7 @@ function CreatorProfilePage() {
         )}
       </main>
 
-      <footer className="border-t py-6 text-center text-sm text-muted-foreground">
-        Powered by{" "}
-        <a href="/login" className="text-primary font-medium hover:underline">
-          CreatorHandle
-        </a>
-      </footer>
+      <Footer />
     </div>
   )
 }
