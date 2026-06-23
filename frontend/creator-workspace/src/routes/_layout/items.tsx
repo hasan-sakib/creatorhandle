@@ -1,9 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Search } from "lucide-react"
-import { Suspense } from "react"
+import { Suspense, useMemo, useState } from "react"
 
 import { ItemsService } from "@/client"
+import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
 import AddItem from "@/components/workspace/Items/AddItem"
 import { columns } from "@/components/workspace/Items/columns"
@@ -19,16 +20,18 @@ function getItemsQueryOptions() {
 export const Route = createFileRoute("/_layout/items")({
   component: Items,
   head: () => ({
-    meta: [
-      {
-        title: "Items - CreatorHandle",
-      },
-    ],
+    meta: [{ title: "Items - CreatorHandle" }],
   }),
 })
 
-function ItemsTableContent() {
+function ItemsTableContent({ search }: { search: string }) {
   const { data: items } = useSuspenseQuery(getItemsQueryOptions())
+
+  const filtered = useMemo(() => {
+    if (!search) return items.data
+    const q = search.toLowerCase()
+    return items.data.filter((i) => i.title.toLowerCase().includes(q))
+  }, [items.data, search])
 
   if (items.data.length === 0) {
     return (
@@ -42,18 +45,20 @@ function ItemsTableContent() {
     )
   }
 
-  return <DataTable columns={columns} data={items.data} />
-}
+  if (filtered.length === 0) {
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        No items match your search.
+      </div>
+    )
+  }
 
-function ItemsTable() {
-  return (
-    <Suspense fallback={<PendingItems />}>
-      <ItemsTableContent />
-    </Suspense>
-  )
+  return <DataTable columns={columns} data={filtered} />
 }
 
 function Items() {
+  const [search, setSearch] = useState("")
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -63,7 +68,14 @@ function Items() {
         </div>
         <AddItem />
       </div>
-      <ItemsTable />
+      <TableFilters
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search items..."
+      />
+      <Suspense fallback={<PendingItems />}>
+        <ItemsTableContent search={search} />
+      </Suspense>
     </div>
   )
 }

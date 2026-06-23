@@ -403,6 +403,12 @@ export type CreatorProfile = {
     full_name: string | null;
     username: string;
     created_at: string | null;
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
     stats: CreatorStats;
 };
 

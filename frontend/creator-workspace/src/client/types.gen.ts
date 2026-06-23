@@ -76,6 +76,12 @@ export type UserPublic = {
     is_superuser?: boolean;
     full_name?: (string | null);
     username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
     id: string;
     created_at?: (string | null);
 };
@@ -103,6 +109,12 @@ export type UserUpdateMe = {
     full_name?: (string | null);
     email?: (string | null);
     username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
 };
 
 export type ValidationError = {

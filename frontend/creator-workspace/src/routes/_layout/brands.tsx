@@ -1,9 +1,10 @@
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { Building2 } from "lucide-react"
-import { Suspense } from "react"
+import { Suspense, useMemo, useState } from "react"
 
 import { BrandsService } from "@/client"
+import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
 import AddBrand from "@/components/workspace/Brands/AddBrand"
 import { columns } from "@/components/workspace/Brands/columns"
@@ -19,16 +20,41 @@ function getBrandsQueryOptions() {
 export const Route = createFileRoute("/_layout/brands")({
   component: Brands,
   head: () => ({
-    meta: [
-      {
-        title: "Brands - CreatorHandle",
-      },
-    ],
+    meta: [{ title: "Brands - CreatorHandle" }],
   }),
 })
 
-function BrandsTableContent() {
+const STATUS_OPTIONS = [
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
+  { label: "Prospect", value: "prospect" },
+]
+
+function BrandsTableContent({
+  search,
+  statusFilter,
+}: {
+  search: string
+  statusFilter: string
+}) {
   const { data: brands } = useSuspenseQuery(getBrandsQueryOptions())
+
+  const filtered = useMemo(() => {
+    let data = brands.data
+    if (search) {
+      const q = search.toLowerCase()
+      data = data.filter(
+        (b) =>
+          b.name.toLowerCase().includes(q) ||
+          (b.category ?? "").toLowerCase().includes(q) ||
+          (b.contact_name ?? "").toLowerCase().includes(q),
+      )
+    }
+    if (statusFilter !== "all") {
+      data = data.filter((b) => (b.status ?? "active") === statusFilter)
+    }
+    return data
+  }, [brands.data, search, statusFilter])
 
   if (brands.data.length === 0) {
     return (
@@ -42,18 +68,21 @@ function BrandsTableContent() {
     )
   }
 
-  return <DataTable columns={columns} data={brands.data} />
-}
+  if (filtered.length === 0) {
+    return (
+      <div className="py-12 text-center text-sm text-muted-foreground">
+        No brands match your search.
+      </div>
+    )
+  }
 
-function BrandsTable() {
-  return (
-    <Suspense fallback={<PendingItems />}>
-      <BrandsTableContent />
-    </Suspense>
-  )
+  return <DataTable columns={columns} data={filtered} />
 }
 
 function Brands() {
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
@@ -63,7 +92,18 @@ function Brands() {
         </div>
         <AddBrand />
       </div>
-      <BrandsTable />
+      <TableFilters
+        searchValue={search}
+        onSearchChange={setSearch}
+        searchPlaceholder="Search brands..."
+        filterOptions={STATUS_OPTIONS}
+        filterValue={statusFilter}
+        onFilterChange={setStatusFilter}
+        filterPlaceholder="Filter by status"
+      />
+      <Suspense fallback={<PendingItems />}>
+        <BrandsTableContent search={search} statusFilter={statusFilter} />
+      </Suspense>
     </div>
   )
 }

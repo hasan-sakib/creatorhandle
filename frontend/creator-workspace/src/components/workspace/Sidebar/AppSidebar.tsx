@@ -28,9 +28,9 @@ export function AppSidebar() {
     : baseItems
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="px-4 py-6 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:items-center">
-        <Logo variant="responsive" />
+    <Sidebar collapsible="offcanvas">
+      <SidebarHeader className="px-4 py-5">
+        <Logo variant="full" />
       </SidebarHeader>
       <SidebarContent>
         <Main items={items} />

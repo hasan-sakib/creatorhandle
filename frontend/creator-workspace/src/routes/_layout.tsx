@@ -41,15 +41,15 @@ function HeaderUser() {
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-2 px-2 h-9"
+          className="flex items-center gap-2.5 px-2 h-9 hover:bg-accent"
           id="header-user-menu"
         >
-          <Avatar className="size-7">
-            <AvatarFallback className="bg-zinc-600 text-white text-xs">
+          <Avatar className="size-8 ring-2 ring-background shadow-sm">
+            <AvatarFallback className="bg-slate-800 text-white text-[10px] font-bold">
               {user ? getInitials(displayName) : <UserIcon className="size-3" />}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden sm:block text-sm font-medium max-w-[140px] truncate">
+          <span className="hidden sm:block text-xs font-semibold uppercase tracking-wider max-w-40 truncate">
             {displayName}
           </span>
         </Button>
@@ -78,11 +78,11 @@ function Layout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b px-4">
+        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-border/60 bg-background px-6">
           <SidebarTrigger className="-ml-1 text-muted-foreground" />
           <HeaderUser />
         </header>
-        <main className="flex-1 p-6 md:p-8">
+        <main className="flex-1 p-8 md:p-12">
           <div className="mx-auto max-w-7xl">
             <Outlet />
           </div>

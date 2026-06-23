@@ -20,6 +20,12 @@ class CreatorProfile(SQLModel):
     full_name: str | None
     username: str
     created_at: str | None
+    bio: str | None = None
+    website: str | None = None
+    twitter: str | None = None
+    instagram: str | None = None
+    youtube: str | None = None
+    tiktok: str | None = None
     stats: CreatorStats
 
 
@@ -60,6 +66,12 @@ def get_creator_profile(session: SessionDep, username: str) -> Any:
         full_name=user.full_name,
         username=user.username,
         created_at=user.created_at.isoformat() if user.created_at else None,
+        bio=user.bio,
+        website=user.website,
+        twitter=user.twitter,
+        instagram=user.instagram,
+        youtube=user.youtube,
+        tiktok=user.tiktok,
         stats=CreatorStats(
             brands_count=brands_count,
             projects_count=projects_count,

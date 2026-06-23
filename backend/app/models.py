@@ -17,6 +17,12 @@ class UserBase(SQLModel):
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
     username: str | None = Field(default=None, max_length=30, unique=True)
+    bio: str | None = Field(default=None, max_length=300)
+    website: str | None = Field(default=None, max_length=255)
+    twitter: str | None = Field(default=None, max_length=100)
+    instagram: str | None = Field(default=None, max_length=100)
+    youtube: str | None = Field(default=None, max_length=100)
+    tiktok: str | None = Field(default=None, max_length=100)
 
 
 # Properties to receive via API on creation
@@ -40,6 +46,12 @@ class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
     username: str | None = Field(default=None, max_length=30)
+    bio: str | None = Field(default=None, max_length=300)
+    website: str | None = Field(default=None, max_length=255)
+    twitter: str | None = Field(default=None, max_length=100)
+    instagram: str | None = Field(default=None, max_length=100)
+    youtube: str | None = Field(default=None, max_length=100)
+    tiktok: str | None = Field(default=None, max_length=100)
 
 
 class UpdatePassword(SQLModel):

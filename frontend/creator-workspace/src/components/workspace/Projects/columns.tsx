@@ -84,6 +84,30 @@ export const columns: ColumnDef<ProjectPublic>[] = [
     ),
   },
   {
+    id: "progress",
+    header: "Progress",
+    cell: ({ row, table }) => {
+      const meta = table.options.meta as Record<string, unknown> | undefined
+      const progressMap = meta?.progressMap as Record<string, { done: number; total: number }> | undefined
+      const prog = progressMap?.[row.original.id]
+      if (!prog || prog.total === 0) return <span className="text-xs text-muted-foreground">—</span>
+      const pct = Math.round((prog.done / prog.total) * 100)
+      return (
+        <div className="flex items-center gap-2 min-w-24">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
+            <div
+              className="h-full rounded-full bg-primary transition-all"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-xs tabular-nums text-muted-foreground shrink-0">
+            {prog.done}/{prog.total}
+          </span>
+        </div>
+      )
+    },
+  },
+  {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => (
