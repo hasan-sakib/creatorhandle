@@ -7,13 +7,13 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
 import { cn } from "@/lib/utils"
 import { ItemActionsMenu } from "./ItemActionsMenu"
 
-function CopyId({ id }: { id: string }) {
+function CopyId({ num, id }: { num: number; id: string }) {
   const [copiedText, copy] = useCopyToClipboard()
   const isCopied = copiedText === id
 
   return (
     <div className="flex items-center gap-1.5 group">
-      <span className="font-mono text-xs text-muted-foreground">{id}</span>
+      <span className="text-sm tabular-nums text-muted-foreground">{num}</span>
       <Button
         variant="ghost"
         size="icon"
@@ -34,8 +34,8 @@ function CopyId({ id }: { id: string }) {
 export const columns: ColumnDef<ItemPublic>[] = [
   {
     accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <CopyId id={row.original.id} />,
+    header: "#",
+    cell: ({ row }) => <CopyId num={row.index + 1} id={row.original.id} />,
   },
   {
     accessorKey: "title",

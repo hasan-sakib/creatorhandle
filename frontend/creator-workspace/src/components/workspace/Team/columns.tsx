@@ -1,11 +1,11 @@
 import type { ColumnDef } from "@tanstack/react-table"
 import { Check, Copy } from "lucide-react"
 
-import type { BrandPublic } from "@/client"
+import type { CollaboratorPublic } from "@/client"
 import { Button } from "@/components/ui/button"
 import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
 import { cn } from "@/lib/utils"
-import { BrandActionsMenu } from "./BrandActionsMenu"
+import { CollaboratorActionsMenu } from "./CollaboratorActionsMenu"
 
 function CopyId({ num, id }: { num: number; id: string }) {
   const [copiedText, copy] = useCopyToClipboard()
@@ -31,12 +31,15 @@ function CopyId({ num, id }: { num: number; id: string }) {
   )
 }
 
-const statusColors: Record<string, string> = {
-  active: "text-green-600 bg-green-50 border-green-200",
-  inactive: "text-gray-500 bg-gray-50 border-gray-200",
+export const ROLE_COLORS: Record<string, string> = {
+  Manager: "text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/30 dark:border-purple-700",
+  Designer: "text-pink-700 bg-pink-50 border-pink-200 dark:text-pink-400 dark:bg-pink-900/30 dark:border-pink-700",
+  Developer: "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-700",
+  Writer: "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/30 dark:border-amber-700",
+  Editor: "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-700",
 }
 
-export const columns: ColumnDef<BrandPublic>[] = [
+export const columns: ColumnDef<CollaboratorPublic>[] = [
   {
     accessorKey: "id",
     header: "#",
@@ -50,49 +53,28 @@ export const columns: ColumnDef<BrandPublic>[] = [
     ),
   },
   {
-    accessorKey: "category",
-    header: "Category",
-    cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.category || "—"}</span>
-    ),
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "role",
+    header: "Role",
     cell: ({ row }) => {
-      const status = row.original.status ?? "active"
+      const role = row.original.role
       return (
         <span
           className={cn(
-            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border capitalize",
-            statusColors[status] ?? "text-gray-500 bg-gray-50 border-gray-200",
+            "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
+            ROLE_COLORS[role] ?? "text-gray-600 bg-gray-50 border-gray-200",
           )}
         >
-          {status}
+          {role}
         </span>
       )
     },
-  },
-  {
-    accessorKey: "contact_name",
-    header: "Contact",
-    cell: ({ row }) => (
-      <span
-        className={cn(
-          "text-sm",
-          !row.original.contact_name && "italic text-muted-foreground",
-        )}
-      >
-        {row.original.contact_name || "—"}
-      </span>
-    ),
   },
   {
     id: "actions",
     header: () => <span className="sr-only">Actions</span>,
     cell: ({ row }) => (
       <div className="flex justify-end">
-        <BrandActionsMenu brand={row.original} />
+        <CollaboratorActionsMenu collaborator={row.original} />
       </div>
     ),
   },

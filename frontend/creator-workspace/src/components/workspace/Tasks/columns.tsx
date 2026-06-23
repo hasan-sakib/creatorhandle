@@ -7,13 +7,13 @@ import { useCopyToClipboard } from "@/hooks/useCopyToClipboard"
 import { cn } from "@/lib/utils"
 import { TaskActionsMenu } from "./TaskActionsMenu"
 
-function CopyId({ id }: { id: string }) {
+function CopyId({ num, id }: { num: number; id: string }) {
   const [copiedText, copy] = useCopyToClipboard()
   const isCopied = copiedText === id
 
   return (
     <div className="flex items-center gap-1.5 group">
-      <span className="font-mono text-xs text-muted-foreground">{id}</span>
+      <span className="text-sm tabular-nums text-muted-foreground">{num}</span>
       <Button
         variant="ghost"
         size="icon"
@@ -46,8 +46,8 @@ const priorityColors: Record<string, string> = {
 export const columns: ColumnDef<TaskPublic>[] = [
   {
     accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <CopyId id={row.original.id} />,
+    header: "#",
+    cell: ({ row }) => <CopyId num={row.index + 1} id={row.original.id} />,
   },
   {
     accessorKey: "title",
@@ -96,6 +96,20 @@ export const columns: ColumnDef<TaskPublic>[] = [
     cell: ({ row }) => (
       <span className="text-sm text-muted-foreground">{row.original.due_date || "—"}</span>
     ),
+  },
+  {
+    id: "assigned_to",
+    header: "Assigned To",
+    cell: ({ row }) => {
+      const c = row.original.collaborator
+      if (!c) return <span className="text-sm text-muted-foreground">—</span>
+      return (
+        <div className="flex flex-col">
+          <span className="text-sm font-medium">{c.name}</span>
+          <span className="text-xs text-muted-foreground">{c.role}</span>
+        </div>
+      )
+    },
   },
   {
     id: "actions",

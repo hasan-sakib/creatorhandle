@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type TaskPublic, ProjectsService, TasksService } from "@/client"
+import { type TaskPublic, CollaboratorsService, ProjectsService, TasksService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -44,6 +44,7 @@ const formSchema = z.object({
   due_date: z.string().optional(),
   description: z.string().optional(),
   project_id: z.string().nullable().optional(),
+  collaborator_id: z.string().nullable().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -67,6 +68,12 @@ const EditTask = ({ task, onSuccess }: EditTaskProps) => {
     enabled: isOpen,
   })
 
+  const { data: collaboratorsData } = useQuery({
+    queryKey: ["collaborators"],
+    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+    enabled: isOpen,
+  })
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     mode: "onBlur",
@@ -78,6 +85,7 @@ const EditTask = ({ task, onSuccess }: EditTaskProps) => {
       due_date: task.due_date ?? "",
       description: task.description ?? "",
       project_id: task.project_id ?? null,
+      collaborator_id: task.collaborator_id ?? null,
     },
   })
 
@@ -92,6 +100,7 @@ const EditTask = ({ task, onSuccess }: EditTaskProps) => {
           due_date: data.due_date || undefined,
           description: data.description || undefined,
           project_id: data.project_id || null,
+          collaborator_id: data.collaborator_id || null,
         },
       }),
     onSuccess: () => {
@@ -222,6 +231,35 @@ const EditTask = ({ task, onSuccess }: EditTaskProps) => {
                         {projectsData?.data.map((project) => (
                           <SelectItem key={project.id} value={project.id}>
                             {project.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="collaborator_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assign To</FormLabel>
+                    <Select
+                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      value={field.value ?? "__none__"}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Assign to a team member (optional)" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="__none__">Unassigned</SelectItem>
+                        {collaboratorsData?.data.map((c: { id: string; name: string; role: string }) => (
+                          <SelectItem key={c.id} value={c.id}>
+                            {c.name} — {c.role}
                           </SelectItem>
                         ))}
                       </SelectContent>

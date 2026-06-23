@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, PublicGetCreatorBrandsData, PublicGetCreatorBrandsResponse, PublicGetCreatorProfileData, PublicGetCreatorProfileResponse, PublicGetCreatorProjectsData, PublicGetCreatorProjectsResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksReadTasksData, TasksReadTasksResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, PublicGetCreatorBrandsData, PublicGetCreatorBrandsResponse, PublicGetCreatorProfileData, PublicGetCreatorProfileResponse, PublicGetCreatorProjectsData, PublicGetCreatorProjectsResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksReadTasksData, TasksReadTasksResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
 
 export class ItemsService {
     /**
@@ -167,6 +167,24 @@ export class TasksService {
     }
     public static deleteTask(data: TasksDeleteTaskData): CancelablePromise<TasksDeleteTaskResponse> {
         return __request(OpenAPI, { method: 'DELETE', url: '/api/v1/tasks/{id}', path: { id: data.id }, errors: { 422: 'Validation Error' } });
+    }
+}
+
+export class CollaboratorsService {
+    public static readCollaborators(data: CollaboratorsReadCollaboratorsData = {}): CancelablePromise<CollaboratorsReadCollaboratorsResponse> {
+        return __request(OpenAPI, { method: 'GET', url: '/api/v1/collaborators/', query: { skip: data.skip, limit: data.limit }, errors: { 422: 'Validation Error' } });
+    }
+    public static createCollaborator(data: CollaboratorsCreateCollaboratorData): CancelablePromise<CollaboratorsCreateCollaboratorResponse> {
+        return __request(OpenAPI, { method: 'POST', url: '/api/v1/collaborators/', body: data.requestBody, mediaType: 'application/json', errors: { 422: 'Validation Error' } });
+    }
+    public static readCollaborator(data: CollaboratorsReadCollaboratorData): CancelablePromise<CollaboratorsReadCollaboratorResponse> {
+        return __request(OpenAPI, { method: 'GET', url: '/api/v1/collaborators/{id}', path: { id: data.id }, errors: { 422: 'Validation Error' } });
+    }
+    public static updateCollaborator(data: CollaboratorsUpdateCollaboratorData): CancelablePromise<CollaboratorsUpdateCollaboratorResponse> {
+        return __request(OpenAPI, { method: 'PUT', url: '/api/v1/collaborators/{id}', path: { id: data.id }, body: data.requestBody, mediaType: 'application/json', errors: { 422: 'Validation Error' } });
+    }
+    public static deleteCollaborator(data: CollaboratorsDeleteCollaboratorData): CancelablePromise<CollaboratorsDeleteCollaboratorResponse> {
+        return __request(OpenAPI, { method: 'DELETE', url: '/api/v1/collaborators/{id}', path: { id: data.id }, errors: { 422: 'Validation Error' } });
     }
 }
 

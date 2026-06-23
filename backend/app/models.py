@@ -219,6 +219,42 @@ class ProjectsPublic(SQLModel):
     count: int
 
 
+# ── Collaborator ──────────────────────────────────────────────────────────────
+
+class CollaboratorBase(SQLModel):
+    name: str = Field(min_length=1, max_length=100)
+    role: str = Field(max_length=50)
+
+
+class CollaboratorCreate(CollaboratorBase):
+    pass
+
+
+class CollaboratorUpdate(SQLModel):
+    name: str | None = Field(default=None, max_length=100)
+    role: str | None = Field(default=None, max_length=50)
+
+
+class Collaborator(CollaboratorBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    owner: User | None = Relationship()
+    tasks: list["Task"] = Relationship(back_populates="collaborator")
+
+
+class CollaboratorPublic(CollaboratorBase):
+    id: uuid.UUID
+
+
+class CollaboratorsPublic(SQLModel):
+    data: list[CollaboratorPublic]
+    count: int
+
+
 # ── Task ──────────────────────────────────────────────────────────────────────
 
 class TaskBase(SQLModel):
@@ -229,6 +265,7 @@ class TaskBase(SQLModel):
     due_date: str | None = Field(default=None, max_length=20)  # ISO date string
     project_id: uuid.UUID | None = Field(default=None, foreign_key="project.id", nullable=True)
     assigned_to: uuid.UUID | None = Field(default=None, foreign_key="user.id", nullable=True)
+    collaborator_id: uuid.UUID | None = Field(default=None, foreign_key="collaborator.id", nullable=True)
 
 
 class TaskCreate(TaskBase):
@@ -243,6 +280,7 @@ class TaskUpdate(SQLModel):
     due_date: str | None = Field(default=None, max_length=20)
     project_id: uuid.UUID | None = None
     assigned_to: uuid.UUID | None = None
+    collaborator_id: uuid.UUID | None = None
 
 
 class Task(TaskBase, table=True):
@@ -258,12 +296,14 @@ class Task(TaskBase, table=True):
         sa_relationship_kwargs={"foreign_keys": "[Task.owner_id]"}
     )
     project: Project | None = Relationship(back_populates="tasks")
+    collaborator: Collaborator | None = Relationship(back_populates="tasks")
 
 
 class TaskPublic(TaskBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     created_at: datetime | None = None
+    collaborator: CollaboratorPublic | None = None
 
 
 class TasksPublic(SQLModel):

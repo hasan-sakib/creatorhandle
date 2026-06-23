@@ -197,6 +197,29 @@ export type ProjectUpdate = {
     brand_id?: (string | null);
 };
 
+// ── Collaborator ──────────────────────────────────────────────────────────────
+
+export type CollaboratorCreate = {
+    name: string;
+    role: string;
+};
+
+export type CollaboratorPublic = {
+    name: string;
+    role: string;
+    id: string;
+};
+
+export type CollaboratorsPublic = {
+    data: Array<CollaboratorPublic>;
+    count: number;
+};
+
+export type CollaboratorUpdate = {
+    name?: (string | null);
+    role?: (string | null);
+};
+
 // ── Task ──────────────────────────────────────────────────────────────────────
 
 export type TaskCreate = {
@@ -207,6 +230,7 @@ export type TaskCreate = {
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
+    collaborator_id?: (string | null);
 };
 
 export type TaskPublic = {
@@ -217,6 +241,8 @@ export type TaskPublic = {
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
+    collaborator_id?: (string | null);
+    collaborator?: (CollaboratorPublic | null);
     id: string;
     owner_id: string;
     created_at?: (string | null);
@@ -235,6 +261,7 @@ export type TaskUpdate = {
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
+    collaborator_id?: (string | null);
 };
 
 // ── Brands request/response types ────────────────────────────────────────────
@@ -275,6 +302,19 @@ export type TasksUpdateTaskData = { id: string; requestBody: TaskUpdate };
 export type TasksUpdateTaskResponse = TaskPublic;
 export type TasksDeleteTaskData = { id: string };
 export type TasksDeleteTaskResponse = Message;
+
+// ── Collaborators request/response types ─────────────────────────────────────
+
+export type CollaboratorsReadCollaboratorsData = { limit?: number; skip?: number };
+export type CollaboratorsReadCollaboratorsResponse = CollaboratorsPublic;
+export type CollaboratorsCreateCollaboratorData = { requestBody: CollaboratorCreate };
+export type CollaboratorsCreateCollaboratorResponse = CollaboratorPublic;
+export type CollaboratorsReadCollaboratorData = { id: string };
+export type CollaboratorsReadCollaboratorResponse = CollaboratorPublic;
+export type CollaboratorsUpdateCollaboratorData = { id: string; requestBody: CollaboratorUpdate };
+export type CollaboratorsUpdateCollaboratorResponse = CollaboratorPublic;
+export type CollaboratorsDeleteCollaboratorData = { id: string };
+export type CollaboratorsDeleteCollaboratorResponse = Message;
 
 export type ItemsReadItemsData = {
     limit?: number;

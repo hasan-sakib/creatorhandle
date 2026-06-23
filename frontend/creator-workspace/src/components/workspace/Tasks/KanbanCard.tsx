@@ -50,6 +50,11 @@ export function KanbanCard({ task, onDragStart }: KanbanCardProps) {
               </span>
             )}
           </div>
+          {task.collaborator && (
+            <p className="mt-1.5 text-[10px] text-muted-foreground">
+              {task.collaborator.name} · {task.collaborator.role}
+            </p>
+          )}
         </CardContent>
       </Card>
 

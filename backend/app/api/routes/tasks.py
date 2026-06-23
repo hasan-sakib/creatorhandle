@@ -2,6 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
+from sqlalchemy.orm import selectinload
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
@@ -23,6 +24,7 @@ def read_tasks(
     statement = (
         select(Task)
         .where(Task.owner_id == current_user.id)
+        .options(selectinload(Task.collaborator))
         .order_by(Task.created_at.desc())
         .offset(skip)
         .limit(limit)
@@ -33,7 +35,12 @@ def read_tasks(
 
 @router.get("/{id}", response_model=TaskPublic)
 def read_task(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
-    task = session.get(Task, id)
+    statement = (
+        select(Task)
+        .where(Task.id == id)
+        .options(selectinload(Task.collaborator))
+    )
+    task = session.exec(statement).first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     if task.owner_id != current_user.id:
@@ -49,6 +56,8 @@ def create_task(
     session.add(task)
     session.commit()
     session.refresh(task)
+    if task.collaborator_id:
+        session.refresh(task, attribute_names=["collaborator"])
     return task
 
 
@@ -70,6 +79,8 @@ def update_task(
     session.add(task)
     session.commit()
     session.refresh(task)
+    if task.collaborator_id:
+        session.refresh(task, attribute_names=["collaborator"])
     return task
 
 

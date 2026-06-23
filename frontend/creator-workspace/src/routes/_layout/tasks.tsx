@@ -1,9 +1,9 @@
-import { useSuspenseQuery } from "@tanstack/react-query"
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
 import { CheckSquare, LayoutGrid, List } from "lucide-react"
 import { Suspense, useCallback, useMemo, useState } from "react"
 
-import { TasksService } from "@/client"
+import { CollaboratorsService, TasksService } from "@/client"
 import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
 import { Button } from "@/components/ui/button"
@@ -42,11 +42,13 @@ function TasksContent({
   search,
   statusFilter,
   priorityFilter,
+  collaboratorFilter,
   view,
 }: {
   search: string
   statusFilter: string
   priorityFilter: string
+  collaboratorFilter: string
   view: "table" | "kanban"
 }) {
   const { data: tasks } = useSuspenseQuery(getTasksQueryOptions())
@@ -63,8 +65,11 @@ function TasksContent({
     if (priorityFilter !== "all") {
       data = data.filter((t) => t.priority === priorityFilter)
     }
+    if (collaboratorFilter !== "all") {
+      data = data.filter((t) => t.collaborator_id === collaboratorFilter)
+    }
     return data
-  }, [tasks.data, search, statusFilter, priorityFilter])
+  }, [tasks.data, search, statusFilter, priorityFilter, collaboratorFilter])
 
   if (tasks.data.length === 0) {
     return (
@@ -97,6 +102,22 @@ function Tasks() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [priorityFilter, setPriorityFilter] = useState("all")
+  const [collaboratorFilter, setCollaboratorFilter] = useState("all")
+
+  const { data: collaboratorsData } = useQuery({
+    queryKey: ["collaborators"],
+    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+  })
+
+  const collaboratorOptions = useMemo(
+    () =>
+      (collaboratorsData?.data ?? []).map((c: { id: string; name: string; role: string }) => ({
+        label: `${c.name} (${c.role})`,
+        value: c.id,
+      })),
+    [collaboratorsData],
+  )
+
   const [view, setView] = useState<"table" | "kanban">(() => {
     try {
       return (localStorage.getItem("tasks-view") as "table" | "kanban") ?? "table"
@@ -153,12 +174,17 @@ function Tasks() {
         secondaryFilterValue={priorityFilter}
         onSecondaryFilterChange={setPriorityFilter}
         secondaryFilterPlaceholder="Filter by priority"
+        tertiaryFilterOptions={collaboratorOptions}
+        tertiaryFilterValue={collaboratorFilter}
+        onTertiaryFilterChange={setCollaboratorFilter}
+        tertiaryFilterPlaceholder="Filter by assignee"
       />
       <Suspense fallback={<PendingItems />}>
         <TasksContent
           search={search}
           statusFilter={statusFilter}
           priorityFilter={priorityFilter}
+          collaboratorFilter={collaboratorFilter}
           view={view}
         />
       </Suspense>

@@ -26,6 +26,10 @@ interface TableFiltersProps {
   secondaryFilterValue?: string
   onSecondaryFilterChange?: (value: string) => void
   secondaryFilterPlaceholder?: string
+  tertiaryFilterOptions?: FilterOption[]
+  tertiaryFilterValue?: string
+  onTertiaryFilterChange?: (value: string) => void
+  tertiaryFilterPlaceholder?: string
 }
 
 export function TableFilters({
@@ -40,6 +44,10 @@ export function TableFilters({
   secondaryFilterValue,
   onSecondaryFilterChange,
   secondaryFilterPlaceholder = "Filter",
+  tertiaryFilterOptions,
+  tertiaryFilterValue,
+  onTertiaryFilterChange,
+  tertiaryFilterPlaceholder = "Filter",
 }: TableFiltersProps) {
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -75,6 +83,21 @@ export function TableFilters({
           <SelectContent>
             <SelectItem value="all">All</SelectItem>
             {secondaryFilterOptions.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+      {tertiaryFilterOptions && onTertiaryFilterChange && tertiaryFilterValue !== undefined && (
+        <Select value={tertiaryFilterValue} onValueChange={onTertiaryFilterChange}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder={tertiaryFilterPlaceholder} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All</SelectItem>
+            {tertiaryFilterOptions.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
               </SelectItem>
