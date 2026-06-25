@@ -26,6 +26,7 @@ class CreatorProfile(SQLModel):
     instagram: str | None = None
     youtube: str | None = None
     tiktok: str | None = None
+    contact_email: str | None = None
     stats: CreatorStats
 
 
@@ -72,6 +73,7 @@ def get_creator_profile(session: SessionDep, username: str) -> Any:
         instagram=user.instagram,
         youtube=user.youtube,
         tiktok=user.tiktok,
+        contact_email=user.contact_email,
         stats=CreatorStats(
             brands_count=brands_count,
             projects_count=projects_count,

@@ -23,6 +23,7 @@ class UserBase(SQLModel):
     instagram: str | None = Field(default=None, max_length=100)
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
+    contact_email: str | None = Field(default=None, max_length=255)
 
 
 # Properties to receive via API on creation
@@ -52,6 +53,7 @@ class UserUpdateMe(SQLModel):
     instagram: str | None = Field(default=None, max_length=100)
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
+    contact_email: str | None = Field(default=None, max_length=255)
 
 
 class UpdatePassword(SQLModel):
@@ -179,6 +181,7 @@ class ProjectBase(SQLModel):
     deadline: str | None = Field(default=None, max_length=20)  # ISO date string
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = Field(default=None, foreign_key="brand.id", nullable=True)
+    is_featured: bool = Field(default=False)
 
 
 class ProjectCreate(ProjectBase):
@@ -192,6 +195,7 @@ class ProjectUpdate(SQLModel):
     deadline: str | None = Field(default=None, max_length=20)
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = None
+    is_featured: bool | None = None
 
 
 class Project(ProjectBase, table=True):

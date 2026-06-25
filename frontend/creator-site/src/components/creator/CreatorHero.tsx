@@ -1,3 +1,6 @@
+import { Check, Link } from "lucide-react"
+import { useEffect, useRef, useState } from "react"
+
 import type { CreatorProfile } from "@/client"
 
 interface CreatorHeroProps {
@@ -19,12 +22,42 @@ function getMemberYear(createdAt: string | null): string {
   return isNaN(year) ? "" : `Member since ${year}`
 }
 
-const STATS = [
-  { key: "brands_count" as const, label: "Brands" },
-  { key: "projects_count" as const, label: "Projects" },
-  { key: "tasks_done" as const, label: "Tasks Done" },
-  { key: "tasks_total" as const, label: "Total Tasks" },
-]
+function useCountUp(target: number, duration = 900) {
+  const [count, setCount] = useState(0)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el || target === 0) { setCount(0); return }
+    const observer = new IntersectionObserver(([entry]) => {
+      if (!entry.isIntersecting) return
+      observer.disconnect()
+      const steps = Math.ceil(duration / 16)
+      let step = 0
+      const tick = () => {
+        step++
+        setCount(Math.round((step / steps) * target))
+        if (step < steps) requestAnimationFrame(tick)
+        else setCount(target)
+      }
+      requestAnimationFrame(tick)
+    }, { threshold: 0.2 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [target, duration])
+
+  return [count, ref] as const
+}
+
+function AnimatedStat({ value, label }: { value: number; label: string }) {
+  const [count, ref] = useCountUp(value)
+  return (
+    <div ref={ref} className="flex flex-col items-center px-6 py-4 min-w-[90px]">
+      <span className="text-2xl font-bold text-primary tabular-nums">{count}</span>
+      <span className="text-xs text-muted-foreground mt-0.5 whitespace-nowrap">{label}</span>
+    </div>
+  )
+}
 
 function SocialLink({ href, label, children }: { href: string; label: string; children: React.ReactNode }) {
   return (
@@ -40,9 +73,28 @@ function SocialLink({ href, label, children }: { href: string; label: string; ch
   )
 }
 
+const STATS = [
+  { key: "brands_count" as const, label: "Brands" },
+  { key: "projects_count" as const, label: "Projects" },
+  { key: "tasks_done" as const, label: "Tasks Done" },
+  { key: "tasks_total" as const, label: "Total Tasks" },
+]
+
 export function CreatorHero({ profile }: CreatorHeroProps) {
   const initials = getInitials(profile.full_name, profile.username)
   const memberSince = getMemberYear(profile.created_at)
+  const [copied, setCopied] = useState(false)
+
+  const copyProfileUrl = () => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  const pct = profile.stats.tasks_total > 0
+    ? Math.round((profile.stats.tasks_done / profile.stats.tasks_total) * 100)
+    : 0
 
   const socialLinks = [
     profile.website && { href: profile.website.startsWith("http") ? profile.website : `https://${profile.website}`, label: "Website", text: profile.website.replace(/^https?:\/\//, "") },
@@ -65,7 +117,17 @@ export function CreatorHero({ profile }: CreatorHeroProps) {
         <h1 className="text-3xl font-bold tracking-tight">
           {profile.full_name || profile.username}
         </h1>
-        <p className="text-muted-foreground text-lg">@{profile.username}</p>
+        <div className="flex items-center justify-center gap-2">
+          <p className="text-muted-foreground text-lg">@{profile.username}</p>
+          <button
+            type="button"
+            onClick={copyProfileUrl}
+            aria-label="Copy profile link"
+            className="inline-flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          >
+            {copied ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Link className="w-3.5 h-3.5" />}
+          </button>
+        </div>
         {memberSince && (
           <p className="text-sm text-muted-foreground">{memberSince}</p>
         )}
@@ -85,12 +147,24 @@ export function CreatorHero({ profile }: CreatorHeroProps) {
 
       <div className="flex items-center divide-x divide-border rounded-xl border bg-card shadow-sm overflow-hidden">
         {STATS.map(({ key, label }) => (
-          <div key={key} className="flex flex-col items-center px-6 py-4 min-w-[90px]">
-            <span className="text-2xl font-bold text-primary">{profile.stats[key]}</span>
-            <span className="text-xs text-muted-foreground mt-0.5 whitespace-nowrap">{label}</span>
-          </div>
+          <AnimatedStat key={key} value={profile.stats[key]} label={label} />
         ))}
       </div>
+
+      {profile.stats.tasks_total > 0 && (
+        <div className="w-full max-w-xs">
+          <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+            <span>Work completed</span>
+            <span className="font-medium">{pct}%</span>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full bg-primary transition-all duration-1000 ease-out"
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -36,6 +36,7 @@ const formSchema = z.object({
   instagram: z.string().max(100).optional().or(z.literal("")),
   youtube: z.string().max(100).optional().or(z.literal("")),
   tiktok: z.string().max(100).optional().or(z.literal("")),
+  contact_email: z.string().max(255).optional().or(z.literal("")),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -60,6 +61,7 @@ const UserInformation = () => {
       instagram: currentUser?.instagram ?? "",
       youtube: currentUser?.youtube ?? "",
       tiktok: currentUser?.tiktok ?? "",
+      contact_email: (currentUser as { contact_email?: string | null })?.contact_email ?? "",
     },
   })
 
@@ -97,6 +99,9 @@ const UserInformation = () => {
     if (newYoutube !== (currentUser?.youtube ?? null)) updateData.youtube = newYoutube
     const newTiktok = data.tiktok || null
     if (newTiktok !== (currentUser?.tiktok ?? null)) updateData.tiktok = newTiktok
+    const newContactEmail = data.contact_email || null
+    const currentContactEmail = (currentUser as { contact_email?: string | null })?.contact_email ?? null
+    if (newContactEmail !== currentContactEmail) updateData.contact_email = newContactEmail
 
     mutation.mutate(updateData)
   }
@@ -262,6 +267,20 @@ const UserInformation = () => {
                       <FormMessage />
                     </FormItem>
                   ) : viewField("TikTok", field.value, "@")
+                }
+              />
+              <FormField
+                control={form.control}
+                name="contact_email"
+                render={({ field }) =>
+                  editMode ? (
+                    <FormItem>
+                      <FormLabel>Public contact email</FormLabel>
+                      <FormControl><Input type="email" placeholder="hello@yoursite.com" {...field} /></FormControl>
+                      <p className="text-xs text-muted-foreground">Shown on your public profile "Work With Me" section</p>
+                      <FormMessage />
+                    </FormItem>
+                  ) : viewField("Public contact email", field.value)
                 }
               />
             </div>

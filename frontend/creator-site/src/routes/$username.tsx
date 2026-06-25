@@ -1,8 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { createFileRoute } from "@tanstack/react-router"
+import { useState } from "react"
 
 import { PublicService } from "@/client"
+import { BackToTop } from "@/components/creator/BackToTop"
 import { BrandsSection } from "@/components/creator/BrandsSection"
+import { ContactSection } from "@/components/creator/ContactSection"
 import { CreatorHero } from "@/components/creator/CreatorHero"
 import { NotFound } from "@/components/creator/NotFound"
 import { ProjectsSection } from "@/components/creator/ProjectsSection"
@@ -38,6 +41,7 @@ function ProfileSkeleton() {
 
 function CreatorProfilePage() {
   const { username } = Route.useParams()
+  const [selectedBrandId, setSelectedBrandId] = useState<string | null>(null)
 
   const { data: profile, isLoading: profileLoading, error: profileError } = useQuery({
     queryKey: ["creator", username, "profile"],
@@ -47,13 +51,13 @@ function CreatorProfilePage() {
 
   const notFound = (profileError as { status?: number })?.status === 404
 
-  const { data: brandsData } = useQuery({
+  const { data: brandsData, isLoading: brandsLoading } = useQuery({
     queryKey: ["creator", username, "brands"],
     queryFn: () => PublicService.getCreatorBrands({ username }),
     enabled: !!profile,
   })
 
-  const { data: projectsData } = useQuery({
+  const { data: projectsData, isLoading: projectsLoading } = useQuery({
     queryKey: ["creator", username, "projects"],
     queryFn: () => PublicService.getCreatorProjects({ username }),
     enabled: !!profile,
@@ -73,12 +77,20 @@ function CreatorProfilePage() {
             <CreatorHero profile={profile} />
 
             <div className="space-y-12">
-              {brandsData && brandsData.data.length > 0 && (
-                <BrandsSection brands={brandsData.data} />
-              )}
-              {projectsData && projectsData.data.length > 0 && (
-                <ProjectsSection projects={projectsData.data} />
-              )}
+              <BrandsSection
+                brands={brandsData?.data ?? []}
+                isLoading={brandsLoading}
+                selectedBrandId={selectedBrandId}
+                onSelectBrand={setSelectedBrandId}
+              />
+
+              <ProjectsSection
+                projects={projectsData?.data ?? []}
+                brands={brandsData?.data ?? []}
+                isLoading={projectsLoading}
+                brandFilter={selectedBrandId}
+              />
+
               {brandsData && projectsData &&
                 brandsData.data.length === 0 &&
                 projectsData.data.length === 0 && (
@@ -87,12 +99,15 @@ function CreatorProfilePage() {
                     <p className="text-sm mt-1">This creator hasn't published any work yet.</p>
                   </div>
                 )}
+
+              <ContactSection profile={profile} />
             </div>
           </>
         )}
       </main>
 
       <Footer />
+      <BackToTop />
     </div>
   )
 }

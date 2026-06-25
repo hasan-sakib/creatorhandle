@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Moon, Sun } from "lucide-react"
 
 import { Logo } from "@/components/Common/Logo"
@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [hidden, setHidden] = useState(false)
   const [dark, setDark] = useState(false)
+  const lastY = useRef(0)
 
   useEffect(() => {
     const stored = localStorage.getItem("theme")
@@ -17,7 +19,12 @@ export function Navbar() {
   }, [])
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20)
+    const onScroll = () => {
+      const y = window.scrollY
+      setScrolled(y > 20)
+      setHidden(y > lastY.current && y > 80)
+      lastY.current = y
+    }
     window.addEventListener("scroll", onScroll, { passive: true })
     return () => window.removeEventListener("scroll", onScroll)
   }, [])
@@ -34,7 +41,8 @@ export function Navbar() {
       className={[
         "sticky top-0 z-50 w-full",
         "animate-in fade-in slide-in-from-top-2 duration-700",
-        "transition-all duration-500 ease-in-out",
+        "transition-all duration-300 ease-in-out",
+        hidden ? "-translate-y-full" : "translate-y-0",
         scrolled
           ? "bg-white/70 dark:bg-zinc-900/70 backdrop-blur-xl border-b border-white/30 dark:border-white/10 shadow-md"
           : "bg-transparent border-b border-transparent",

@@ -166,6 +166,7 @@ export type ProjectPublic = {
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
+    is_featured?: boolean;
     id: string;
     owner_id: string;
     created_at?: (string | null);
@@ -409,6 +410,7 @@ export type CreatorProfile = {
     instagram?: (string | null);
     youtube?: (string | null);
     tiktok?: (string | null);
+    contact_email?: (string | null);
     stats: CreatorStats;
 };
 

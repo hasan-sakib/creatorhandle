@@ -115,6 +115,7 @@ export type UserUpdateMe = {
     instagram?: (string | null);
     youtube?: (string | null);
     tiktok?: (string | null);
+    contact_email?: (string | null);
 };
 
 export type ValidationError = {
@@ -169,6 +170,7 @@ export type ProjectCreate = {
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
+    is_featured?: boolean;
 };
 
 export type ProjectPublic = {
@@ -178,6 +180,7 @@ export type ProjectPublic = {
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
+    is_featured?: boolean;
     id: string;
     owner_id: string;
     created_at?: (string | null);
@@ -195,6 +198,7 @@ export type ProjectUpdate = {
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
+    is_featured?: (boolean | null);
 };
 
 // ── Collaborator ──────────────────────────────────────────────────────────────

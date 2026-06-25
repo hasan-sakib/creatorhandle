@@ -44,6 +44,7 @@ const formSchema = z.object({
   deadline: z.string().optional(),
   description: z.string().optional(),
   brand_id: z.string().nullable().optional(),
+  is_featured: z.boolean().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -78,6 +79,7 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
       deadline: project.deadline ?? "",
       description: project.description ?? "",
       brand_id: project.brand_id ?? null,
+      is_featured: project.is_featured ?? false,
     },
   })
 
@@ -92,6 +94,7 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
           deadline: data.deadline || undefined,
           description: data.description || undefined,
           brand_id: data.brand_id || null,
+          is_featured: data.is_featured ?? false,
         },
       }),
     onSuccess: () => {
@@ -226,6 +229,26 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
                         ))}
                       </SelectContent>
                     </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="is_featured"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="is_featured"
+                        checked={field.value ?? false}
+                        onChange={(e) => field.onChange(e.target.checked)}
+                        className="h-4 w-4 rounded border-input accent-primary"
+                      />
+                      <FormLabel htmlFor="is_featured" className="cursor-pointer">Feature on public profile</FormLabel>
+                    </div>
                     <FormMessage />
                   </FormItem>
                 )}
