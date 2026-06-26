@@ -2,6 +2,7 @@ import { Check, Link } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 
 import type { CreatorProfile } from "@/client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 interface CreatorHeroProps {
   profile: CreatorProfile
@@ -107,9 +108,15 @@ export function CreatorHero({ profile }: CreatorHeroProps) {
   return (
     <div className="flex flex-col items-center text-center py-16 px-4 gap-6">
       <div className="relative">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center shadow-lg ring-4 ring-background">
-          <span className="text-2xl font-bold text-primary-foreground">{initials}</span>
-        </div>
+        <Avatar className="w-24 h-24 shadow-lg ring-4 ring-background">
+          <AvatarImage
+            src={profile.avatar_url ?? undefined}
+            alt={profile.full_name ?? profile.username}
+          />
+          <AvatarFallback className="bg-linear-to-br from-primary/80 to-primary">
+            <span className="text-2xl font-bold text-primary-foreground">{initials}</span>
+          </AvatarFallback>
+        </Avatar>
         <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-500 ring-2 ring-background" />
       </div>
 

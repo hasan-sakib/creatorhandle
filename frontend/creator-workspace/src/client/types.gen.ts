@@ -82,6 +82,7 @@ export type UserPublic = {
     instagram?: (string | null);
     youtube?: (string | null);
     tiktok?: (string | null);
+    avatar_url?: (string | null);
     id: string;
     created_at?: (string | null);
 };
@@ -116,6 +117,7 @@ export type UserUpdateMe = {
     youtube?: (string | null);
     tiktok?: (string | null);
     contact_email?: (string | null);
+    avatar_url?: (string | null);
 };
 
 export type ValidationError = {

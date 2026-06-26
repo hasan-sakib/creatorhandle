@@ -24,6 +24,7 @@ class UserBase(SQLModel):
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
+    avatar_url: str | None = Field(default=None, max_length=2048)
 
 
 # Properties to receive via API on creation
@@ -54,6 +55,7 @@ class UserUpdateMe(SQLModel):
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
+    avatar_url: str | None = None
 
 
 class UpdatePassword(SQLModel):

@@ -75,11 +75,24 @@ def authenticate(*, session: Session, email: str, password: str) -> User | None:
     return db_user
 
 
-def get_or_create_google_user(*, session: Session, email: str, full_name: str) -> User:
+def get_or_create_google_user(
+    *, session: Session, email: str, full_name: str, avatar_url: str | None = None
+) -> User:
     user = get_user_by_email(session=session, email=email)
     if user:
+        if avatar_url and user.avatar_url != avatar_url:
+            user.avatar_url = avatar_url
+            session.add(user)
+            session.commit()
+            session.refresh(user)
         return user
-    user = User(email=email, full_name=full_name or None, hashed_password=None, is_active=True)
+    user = User(
+        email=email,
+        full_name=full_name or None,
+        hashed_password=None,
+        is_active=True,
+        avatar_url=avatar_url,
+    )
     session.add(user)
     session.commit()
     session.refresh(user)

@@ -149,7 +149,10 @@ async def login_with_google(body: GoogleTokenBody, session: SessionDep) -> Token
     if not info.get("email_verified"):
         raise HTTPException(status_code=400, detail="Google email not verified")
     full_name = info.get("name", "")
-    user = crud.get_or_create_google_user(session=session, email=email, full_name=full_name)
+    picture = info.get("picture")
+    user = crud.get_or_create_google_user(
+        session=session, email=email, full_name=full_name, avatar_url=picture
+    )
     if not user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)

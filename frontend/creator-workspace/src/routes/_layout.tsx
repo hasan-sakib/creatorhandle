@@ -2,7 +2,9 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router"
 import { LogOut, User as UserIcon } from "lucide-react"
 
 import { Footer } from "@/components/Common/Footer"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { PixelTrail } from "@/components/ui/pixel-trail"
+import { useScreenSize } from "@/hooks/use-screen-size"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -45,6 +47,7 @@ function HeaderUser() {
           id="header-user-menu"
         >
           <Avatar className="size-8 ring-2 ring-background shadow-sm">
+            <AvatarImage src={user?.avatar_url ?? undefined} alt={displayName} />
             <AvatarFallback className="bg-slate-800 text-white text-[10px] font-bold">
               {user ? getInitials(displayName) : <UserIcon className="size-3" />}
             </AvatarFallback>
@@ -74,6 +77,8 @@ function HeaderUser() {
 }
 
 function Layout() {
+  const screenSize = useScreenSize()
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -82,8 +87,14 @@ function Layout() {
           <SidebarTrigger className="-ml-1 text-muted-foreground" />
           <HeaderUser />
         </header>
-        <main className="flex-1 p-8 md:p-12">
-          <div className="mx-auto max-w-7xl">
+        <main className="relative flex-1 p-8 md:p-12 overflow-hidden">
+          <PixelTrail
+            pixelSize={screenSize.lessThan("md") ? 32 : 56}
+            fadeDuration={500}
+            delay={900}
+            pixelClassName="rounded-sm bg-primary/20"
+          />
+          <div className="relative z-10 mx-auto max-w-7xl">
             <Outlet />
           </div>
         </main>

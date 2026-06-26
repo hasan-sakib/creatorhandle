@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { AtSign, Camera, Globe, Mail, Music2, Pencil, Youtube } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -11,7 +12,6 @@ import {
   FormControl,
   FormField,
   FormItem,
-  FormLabel,
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -40,6 +40,15 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
+
+const SOCIAL_FIELDS = [
+  { name: "website" as const, label: "Website", Icon: Globe, placeholder: "https://yoursite.com" },
+  { name: "twitter" as const, label: "X / Twitter", Icon: AtSign, placeholder: "@handle" },
+  { name: "instagram" as const, label: "Instagram", Icon: Camera, placeholder: "@handle" },
+  { name: "youtube" as const, label: "YouTube", Icon: Youtube, placeholder: "@channel or URL" },
+  { name: "tiktok" as const, label: "TikTok", Icon: Music2, placeholder: "@handle" },
+  { name: "contact_email" as const, label: "Public contact email", Icon: Mail, placeholder: "hello@yoursite.com" },
+]
 
 const UserInformation = () => {
   const queryClient = useQueryClient()
@@ -111,204 +120,181 @@ const UserInformation = () => {
     toggleEditMode()
   }
 
-  function viewField(label: string, value: string | null | undefined, prefix?: string) {
-    return (
-      <div>
-        <p className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mb-2">{label}</p>
-        <p className={cn("py-2 truncate max-w-sm text-sm", !value && "text-muted-foreground italic")}>
-          {value ? (prefix ? `${prefix}${value}` : value) : "Not set"}
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="max-w-md">
-      <h3 className="text-lg font-semibold py-4">User Information</h3>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <FormField
-            control={form.control}
-            name="full_name"
-            render={({ field }) =>
-              editMode ? (
-                <FormItem>
-                  <FormLabel>Full name</FormLabel>
-                  <FormControl><Input type="text" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              ) : viewField("Full name", field.value)
-            }
-          />
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
 
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) =>
-              editMode ? (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl><Input type="email" {...field} /></FormControl>
-                  <FormMessage />
-                </FormItem>
-              ) : (
-                <div>
-                  <p className="text-sm font-medium mb-2">Email</p>
-                  <p className="py-2 truncate max-w-sm text-sm">{field.value}</p>
-                </div>
-              )
-            }
-          />
-
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) =>
-              editMode ? (
-                <FormItem>
-                  <FormLabel>Public handle</FormLabel>
-                  <FormControl>
-                    <Input type="text" placeholder="e.g. johndoe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                  <p className="text-xs text-muted-foreground">
-                    Your profile will be at /creator/{field.value || "yourhandle"}
-                  </p>
-                </FormItem>
-              ) : viewField("Public handle", field.value ? `@${field.value}` : null)
-            }
-          />
-
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) =>
-              editMode ? (
-                <FormItem>
-                  <FormLabel>Bio</FormLabel>
-                  <FormControl>
-                    <textarea
-                      className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
-                      placeholder="Tell people about yourself..."
-                      maxLength={300}
-                      {...field}
-                    />
-                  </FormControl>
-                  <p className="text-xs text-muted-foreground text-right">{(field.value ?? "").length}/300</p>
-                  <FormMessage />
-                </FormItem>
-              ) : viewField("Bio", field.value)
-            }
-          />
-
-          <div className="pt-2">
-            <p className="text-sm font-semibold mb-3">Social Links</p>
-            <div className="flex flex-col gap-4">
-              <FormField
-                control={form.control}
-                name="website"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>Website</FormLabel>
-                      <FormControl><Input type="text" placeholder="https://yoursite.com" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("Website", field.value)
-                }
-              />
-              <FormField
-                control={form.control}
-                name="twitter"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>X / Twitter</FormLabel>
-                      <FormControl><Input type="text" placeholder="@handle" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("X / Twitter", field.value, "@")
-                }
-              />
-              <FormField
-                control={form.control}
-                name="instagram"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>Instagram</FormLabel>
-                      <FormControl><Input type="text" placeholder="@handle" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("Instagram", field.value, "@")
-                }
-              />
-              <FormField
-                control={form.control}
-                name="youtube"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>YouTube</FormLabel>
-                      <FormControl><Input type="text" placeholder="@channel or URL" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("YouTube", field.value)
-                }
-              />
-              <FormField
-                control={form.control}
-                name="tiktok"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>TikTok</FormLabel>
-                      <FormControl><Input type="text" placeholder="@handle" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("TikTok", field.value, "@")
-                }
-              />
-              <FormField
-                control={form.control}
-                name="contact_email"
-                render={({ field }) =>
-                  editMode ? (
-                    <FormItem>
-                      <FormLabel>Public contact email</FormLabel>
-                      <FormControl><Input type="email" placeholder="hello@yoursite.com" {...field} /></FormControl>
-                      <p className="text-xs text-muted-foreground">Shown on your public profile "Work With Me" section</p>
-                      <FormMessage />
-                    </FormItem>
-                  ) : viewField("Public contact email", field.value)
-                }
-              />
-            </div>
-          </div>
-
-          <div className="flex gap-3 pt-2">
-            {editMode ? (
-              <>
-                <LoadingButton
-                  type="submit"
-                  loading={mutation.isPending}
-                  disabled={!form.formState.isDirty}
-                >
-                  Save
-                </LoadingButton>
-                <Button type="button" variant="outline" onClick={onCancel} disabled={mutation.isPending}>
-                  Cancel
-                </Button>
-              </>
-            ) : (
-              <Button type="button" onClick={toggleEditMode}>
+        {/* ── User Information card ── */}
+        <section className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="flex items-start justify-between mb-6">
+            <h2 className="text-lg font-semibold">User Information</h2>
+            {!editMode && (
+              <Button
+                type="button"
+                size="sm"
+                className="rounded-full gap-1.5"
+                onClick={toggleEditMode}
+              >
+                <Pencil className="w-3.5 h-3.5" />
                 Edit
               </Button>
             )}
           </div>
-        </form>
-      </Form>
-    </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormField
+              control={form.control}
+              name="full_name"
+              render={({ field }) => (
+                <FormItem>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Full name</p>
+                  {editMode ? (
+                    <FormControl><Input type="text" {...field} /></FormControl>
+                  ) : (
+                    <p className={cn("text-base font-medium", !field.value && "text-sm text-muted-foreground italic font-normal")}>
+                      {field.value || "Not set"}
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Email</p>
+                  {editMode ? (
+                    <FormControl><Input type="email" {...field} /></FormControl>
+                  ) : (
+                    <p className="text-base font-medium truncate">{field.value}</p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Public handle</p>
+                  {editMode ? (
+                    <>
+                      <FormControl>
+                        <Input type="text" placeholder="e.g. johndoe" {...field} />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground">
+                        Profile: /creator/{field.value || "yourhandle"}
+                      </p>
+                    </>
+                  ) : (
+                    <p className={cn(
+                      "text-base font-medium",
+                      field.value ? "text-primary" : "text-sm text-muted-foreground italic font-normal",
+                    )}>
+                      {field.value ? `@${field.value}` : "Not set"}
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="bio"
+              render={({ field }) => (
+                <FormItem className="md:col-span-2">
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Bio</p>
+                  {editMode ? (
+                    <>
+                      <FormControl>
+                        <textarea
+                          className="flex min-h-20 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                          placeholder="Tell people about yourself..."
+                          maxLength={300}
+                          {...field}
+                        />
+                      </FormControl>
+                      <p className="text-xs text-muted-foreground text-right">{(field.value ?? "").length}/300</p>
+                    </>
+                  ) : (
+                    <p className={cn("text-sm leading-relaxed", !field.value && "text-muted-foreground italic")}>
+                      {field.value || "Not set"}
+                    </p>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          {editMode && (
+            <div className="flex gap-3 mt-6 pt-5 border-t">
+              <LoadingButton
+                type="submit"
+                loading={mutation.isPending}
+                disabled={!form.formState.isDirty}
+                className="rounded-full"
+              >
+                Save changes
+              </LoadingButton>
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                onClick={onCancel}
+                disabled={mutation.isPending}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </section>
+
+        {/* ── Social Links card ── */}
+        <section className="rounded-xl border bg-card p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-6">Social Links</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {SOCIAL_FIELDS.map(({ name, label, Icon, placeholder }) => (
+              <FormField
+                key={name}
+                control={form.control}
+                name={name}
+                render={({ field }) => (
+                  <FormItem className="flex items-start gap-3 p-4 rounded-lg bg-muted/40 border m-0">
+                    <Icon className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
+                      {editMode ? (
+                        <FormControl>
+                          <Input
+                            type={name === "contact_email" ? "email" : "text"}
+                            placeholder={placeholder}
+                            className="h-8 text-sm"
+                            {...field}
+                          />
+                        </FormControl>
+                      ) : (
+                        <p className={cn("text-sm font-medium truncate", !field.value && "text-muted-foreground italic font-normal")}>
+                          {field.value || "Not set"}
+                        </p>
+                      )}
+                      <FormMessage />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            ))}
+          </div>
+        </section>
+
+      </form>
+    </Form>
   )
 }
 

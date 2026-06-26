@@ -411,6 +411,7 @@ export type CreatorProfile = {
     youtube?: (string | null);
     tiktok?: (string | null);
     contact_email?: (string | null);
+    avatar_url?: (string | null);
     stats: CreatorStats;
 };
 
