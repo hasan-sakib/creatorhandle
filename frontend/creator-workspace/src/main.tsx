@@ -9,6 +9,7 @@ import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
+import { AccentColorProvider } from "./components/accent-color-provider"
 import { ThemeProvider } from "./components/theme-provider"
 import { Toaster } from "./components/ui/sonner"
 import "./index.css"
@@ -45,10 +46,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID ?? ""}>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <QueryClientProvider client={queryClient}>
-          <RouterProvider router={router} />
-          <Toaster richColors closeButton />
-        </QueryClientProvider>
+        <AccentColorProvider>
+          <QueryClientProvider client={queryClient}>
+            <RouterProvider router={router} />
+            <Toaster richColors closeButton />
+          </QueryClientProvider>
+        </AccentColorProvider>
       </ThemeProvider>
     </GoogleOAuthProvider>
   </StrictMode>,
