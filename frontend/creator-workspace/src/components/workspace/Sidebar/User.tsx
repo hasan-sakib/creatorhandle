@@ -23,10 +23,12 @@ interface UserInfoProps {
   fullName?: string | null
   email?: string | null
   avatarUrl?: string | null
+  muted?: boolean
 }
 
-function UserInfo({ fullName, email, avatarUrl }: UserInfoProps) {
+function UserInfo({ fullName, email, avatarUrl, muted = false }: UserInfoProps) {
   const displayName = fullName || email || "User"
+  const secondaryClass = muted ? "text-muted-foreground" : "text-sidebar-foreground/70"
   return (
     <div className="flex items-center gap-2.5 w-full min-w-0">
       <Avatar className="size-8">
@@ -38,7 +40,7 @@ function UserInfo({ fullName, email, avatarUrl }: UserInfoProps) {
       <div className="flex flex-col items-start min-w-0">
         <p className="text-sm font-medium truncate w-full">{displayName}</p>
         {fullName && (
-          <p className="text-xs text-muted-foreground truncate w-full">{email}</p>
+          <p className={`text-xs ${secondaryClass} truncate w-full`}>{email}</p>
         )}
       </div>
     </div>
@@ -90,7 +92,7 @@ export function User({ user }: { user: any }) {
               data-testid="user-menu"
             >
               <UserInfo fullName={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
-              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
+              <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/70" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -100,7 +102,7 @@ export function User({ user }: { user: any }) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <UserInfo fullName={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
+              <UserInfo fullName={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} muted />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <RouterLink to="/settings" onClick={handleMenuClick}>

@@ -82,6 +82,12 @@ function applyAccent(key: AccentKey, resolvedTheme: "dark" | "light") {
   root.style.setProperty("--primary", value)
   root.style.setProperty("--sidebar-primary", value)
   root.style.setProperty("--ring", value)
+  root.style.setProperty("--sidebar", value)
+  root.style.setProperty("--sidebar-foreground", "oklch(0.985 0 0)")
+  root.style.setProperty("--sidebar-primary-foreground", "oklch(0.985 0 0)")
+  root.style.setProperty("--sidebar-accent-foreground", "oklch(0.985 0 0)")
+  root.style.setProperty("--sidebar-accent", `color-mix(in oklch, ${value}, black 18%)`)
+  root.style.setProperty("--sidebar-border", `color-mix(in oklch, ${value}, black 25%)`)
 }
 
 export function AccentColorProvider({ children }: { children: React.ReactNode }) {

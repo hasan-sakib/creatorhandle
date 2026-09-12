@@ -28,7 +28,7 @@ export function Logo({
   const fullContent = (
     <span className={cn("flex items-center gap-3", className)}>
       <img src={iconSrc} alt="CreatorHandle" className="h-9 w-9 shrink-0" />
-      <span className="font-bold text-[#009688] text-2xl leading-none tracking-tight">
+      <span className="font-bold text-sidebar-foreground text-2xl leading-none tracking-tight">
         CreatorHandle
       </span>
     </span>
@@ -41,7 +41,7 @@ export function Logo({
       <>
         <span className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
           {iconImg}
-          <span className="font-semibold text-[#009688] text-base leading-none">
+          <span className="font-semibold text-sidebar-foreground text-base leading-none">
             CreatorHandle
           </span>
         </span>

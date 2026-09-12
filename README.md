@@ -22,6 +22,14 @@ The platform is split into two frontends backed by a single FastAPI/PostgreSQL A
 
 ---
 
+## Screenshots
+
+| Login | Dashboard (light) | Dashboard (dark) |
+|---|---|---|
+| ![Login](docs/img/login.png) | ![Dashboard](docs/img/dashboard.png) | ![Dashboard dark mode](docs/img/dashboard-dark.png) |
+
+---
+
 ## Architecture
 
 ```mermaid
