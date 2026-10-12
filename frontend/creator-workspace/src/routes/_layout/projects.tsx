@@ -9,11 +9,12 @@ import { DataTable } from "@/components/Common/DataTable"
 import AddProject from "@/components/workspace/Projects/AddProject"
 import { columns } from "@/components/workspace/Projects/columns"
 import PendingItems from "@/components/workspace/Pending/PendingItems"
+import { useWorkspace } from "@/components/workspace-provider"
 
-function getProjectsQueryOptions() {
+function getProjectsQueryOptions(activeWorkspaceId: string | null) {
   return {
     queryFn: () => ProjectsService.readProjects({ skip: 0, limit: 100 }),
-    queryKey: ["projects"],
+    queryKey: ["projects", activeWorkspaceId],
   }
 }
 
@@ -39,10 +40,11 @@ function ProjectsTableContent({
   search: string
   statusFilter: string
 }) {
-  const { data: projects } = useSuspenseQuery(getProjectsQueryOptions())
+  const { activeWorkspaceId } = useWorkspace()
+  const { data: projects } = useSuspenseQuery(getProjectsQueryOptions(activeWorkspaceId))
 
   const { data: tasksData } = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", activeWorkspaceId],
     queryFn: () => TasksService.readTasks({ skip: 0, limit: 1000 }),
   })
 

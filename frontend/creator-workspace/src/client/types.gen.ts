@@ -9,6 +9,68 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type BrandCreate = {
+    name: string;
+    category?: string;
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: string;
+    notes?: (string | null);
+};
+
+export type BrandPublic = {
+    name: string;
+    category?: string;
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: string;
+    notes?: (string | null);
+    id: string;
+    owner_id: string;
+    workspace_id: string;
+    created_at?: (string | null);
+};
+
+export type BrandsPublic = {
+    data: Array<BrandPublic>;
+    count: number;
+};
+
+export type BrandUpdate = {
+    name?: (string | null);
+    category?: (string | null);
+    contact_name?: (string | null);
+    contact_email?: (string | null);
+    status?: (string | null);
+    notes?: (string | null);
+};
+
+export type CollaboratorCreate = {
+    name: string;
+    role: string;
+};
+
+export type CollaboratorPublic = {
+    name: string;
+    role: string;
+    id: string;
+    workspace_id: string;
+};
+
+export type CollaboratorsPublic = {
+    data: Array<CollaboratorPublic>;
+    count: number;
+};
+
+export type CollaboratorUpdate = {
+    name?: (string | null);
+    role?: (string | null);
+};
+
+export type GoogleTokenBody = {
+    token: string;
+};
+
 export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
@@ -52,119 +114,6 @@ export type PrivateUserCreate = {
     is_verified?: boolean;
 };
 
-export type Token = {
-    access_token: string;
-    token_type?: string;
-};
-
-export type UpdatePassword = {
-    current_password: string;
-    new_password: string;
-};
-
-export type UserCreate = {
-    email: string;
-    is_active?: boolean;
-    is_superuser?: boolean;
-    full_name?: (string | null);
-    password: string;
-};
-
-export type UserPublic = {
-    email: string;
-    is_active?: boolean;
-    is_superuser?: boolean;
-    full_name?: (string | null);
-    username?: (string | null);
-    bio?: (string | null);
-    website?: (string | null);
-    twitter?: (string | null);
-    instagram?: (string | null);
-    youtube?: (string | null);
-    tiktok?: (string | null);
-    avatar_url?: (string | null);
-    id: string;
-    created_at?: (string | null);
-};
-
-export type UserRegister = {
-    email: string;
-    password: string;
-    full_name?: (string | null);
-};
-
-export type UsersPublic = {
-    data: Array<UserPublic>;
-    count: number;
-};
-
-export type UserUpdate = {
-    email?: (string | null);
-    is_active?: boolean;
-    is_superuser?: boolean;
-    full_name?: (string | null);
-    password?: (string | null);
-};
-
-export type UserUpdateMe = {
-    full_name?: (string | null);
-    email?: (string | null);
-    username?: (string | null);
-    bio?: (string | null);
-    website?: (string | null);
-    twitter?: (string | null);
-    instagram?: (string | null);
-    youtube?: (string | null);
-    tiktok?: (string | null);
-    contact_email?: (string | null);
-    avatar_url?: (string | null);
-};
-
-export type ValidationError = {
-    loc: Array<(string | number)>;
-    msg: string;
-    type: string;
-};
-
-// ── Brand ────────────────────────────────────────────────────────────────────
-
-export type BrandCreate = {
-    name: string;
-    category?: string;
-    contact_name?: (string | null);
-    contact_email?: (string | null);
-    status?: string;
-    notes?: (string | null);
-};
-
-export type BrandPublic = {
-    name: string;
-    category?: string;
-    contact_name?: (string | null);
-    contact_email?: (string | null);
-    status?: string;
-    notes?: (string | null);
-    id: string;
-    owner_id: string;
-    created_at?: (string | null);
-};
-
-export type BrandsPublic = {
-    data: Array<BrandPublic>;
-    count: number;
-};
-
-export type BrandUpdate = {
-    name?: (string | null);
-    category?: (string | null);
-    contact_name?: (string | null);
-    contact_email?: (string | null);
-    status?: (string | null);
-    notes?: (string | null);
-};
-
-// ── Project ───────────────────────────────────────────────────────────────────
-
 export type ProjectCreate = {
     title: string;
     type?: string;
@@ -173,6 +122,9 @@ export type ProjectCreate = {
     description?: (string | null);
     brand_id?: (string | null);
     is_featured?: boolean;
+    live_url?: (string | null);
+    thumbnail_url?: (string | null);
+    tags?: Array<(string)>;
 };
 
 export type ProjectPublic = {
@@ -183,8 +135,12 @@ export type ProjectPublic = {
     description?: (string | null);
     brand_id?: (string | null);
     is_featured?: boolean;
+    live_url?: (string | null);
+    thumbnail_url?: (string | null);
+    tags?: Array<(string)>;
     id: string;
     owner_id: string;
+    workspace_id: string;
     created_at?: (string | null);
 };
 
@@ -201,32 +157,76 @@ export type ProjectUpdate = {
     description?: (string | null);
     brand_id?: (string | null);
     is_featured?: (boolean | null);
+    live_url?: (string | null);
+    thumbnail_url?: (string | null);
+    tags?: Array<(string)>;
 };
 
-// ── Collaborator ──────────────────────────────────────────────────────────────
-
-export type CollaboratorCreate = {
-    name: string;
-    role: string;
-};
-
-export type CollaboratorPublic = {
-    name: string;
-    role: string;
+export type PublicBrand = {
     id: string;
+    name: string;
+    category: string;
 };
 
-export type CollaboratorsPublic = {
-    data: Array<CollaboratorPublic>;
-    count: number;
+export type PublicCreator = {
+    username: string;
+    full_name?: (string | null);
+    avatar_url?: (string | null);
+    cover_image_url?: (string | null);
+    headline?: (string | null);
+    location?: (string | null);
+    languages: Array<(string)>;
+    about?: (string | null);
+    bio?: (string | null);
+    niches: Array<(string)>;
+    content_formats: Array<(string)>;
+    platforms: Array<(string)>;
+    services: Array<PublicOffering>;
+    availability?: (string | null);
+    media_kit_url?: (string | null);
+    accent_color?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
+    contact_email?: (string | null);
+    member_since?: (string | null);
+    stats: PublicStats;
+    brands: Array<PublicBrand>;
+    projects: Array<PublicProject>;
+    projects_total: number;
 };
 
-export type CollaboratorUpdate = {
-    name?: (string | null);
-    role?: (string | null);
+export type PublicOffering = {
+    title: string;
+    description?: (string | null);
 };
 
-// ── Task ──────────────────────────────────────────────────────────────────────
+export type PublicProject = {
+    id: string;
+    title: string;
+    type: string;
+    description?: (string | null);
+    is_featured: boolean;
+    brand_name?: (string | null);
+    live_url?: (string | null);
+    thumbnail_url?: (string | null);
+    tags: Array<(string)>;
+};
+
+export type PublicStats = {
+    brands_count: number;
+    projects_count: number;
+};
+
+/**
+ * One thing a creator offers to brands.
+ */
+export type ServiceItem = {
+    title: string;
+    description?: (string | null);
+};
 
 export type TaskCreate = {
     title: string;
@@ -248,10 +248,11 @@ export type TaskPublic = {
     project_id?: (string | null);
     assigned_to?: (string | null);
     collaborator_id?: (string | null);
-    collaborator?: (CollaboratorPublic | null);
     id: string;
     owner_id: string;
+    workspace_id: string;
     created_at?: (string | null);
+    collaborator?: (CollaboratorPublic | null);
 };
 
 export type TasksPublic = {
@@ -270,57 +271,277 @@ export type TaskUpdate = {
     collaborator_id?: (string | null);
 };
 
-// ── Brands request/response types ────────────────────────────────────────────
+export type Token = {
+    access_token: string;
+    token_type?: string;
+};
 
-export type BrandsReadBrandsData = { limit?: number; skip?: number };
-export type BrandsReadBrandsResponse = BrandsPublic;
-export type BrandsCreateBrandData = { requestBody: BrandCreate };
-export type BrandsCreateBrandResponse = BrandPublic;
-export type BrandsReadBrandData = { id: string };
-export type BrandsReadBrandResponse = BrandPublic;
-export type BrandsUpdateBrandData = { id: string; requestBody: BrandUpdate };
-export type BrandsUpdateBrandResponse = BrandPublic;
-export type BrandsDeleteBrandData = { id: string };
-export type BrandsDeleteBrandResponse = Message;
+export type UpdatePassword = {
+    current_password: string;
+    new_password: string;
+};
 
-// ── Projects request/response types ──────────────────────────────────────────
+export type UserCreate = {
+    email: string;
+    is_active?: boolean;
+    is_superuser?: boolean;
+    full_name?: (string | null);
+    username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
+    contact_email?: (string | null);
+    avatar_url?: (string | null);
+    is_published?: boolean;
+    headline?: (string | null);
+    location?: (string | null);
+    languages?: Array<(string)>;
+    about?: (string | null);
+    niches?: Array<(string)>;
+    content_formats?: Array<(string)>;
+    platforms?: Array<(string)>;
+    services?: Array<{
+        [key: string]: unknown;
+    }>;
+    availability?: (string | null);
+    media_kit_url?: (string | null);
+    cover_image_url?: (string | null);
+    accent_color?: (string | null);
+    password: string;
+};
 
-export type ProjectsReadProjectsData = { limit?: number; skip?: number };
-export type ProjectsReadProjectsResponse = ProjectsPublic;
-export type ProjectsCreateProjectData = { requestBody: ProjectCreate };
-export type ProjectsCreateProjectResponse = ProjectPublic;
-export type ProjectsReadProjectData = { id: string };
-export type ProjectsReadProjectResponse = ProjectPublic;
-export type ProjectsUpdateProjectData = { id: string; requestBody: ProjectUpdate };
-export type ProjectsUpdateProjectResponse = ProjectPublic;
-export type ProjectsDeleteProjectData = { id: string };
-export type ProjectsDeleteProjectResponse = Message;
+export type UserPublic = {
+    email: string;
+    is_active?: boolean;
+    is_superuser?: boolean;
+    full_name?: (string | null);
+    username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
+    contact_email?: (string | null);
+    avatar_url?: (string | null);
+    is_published?: boolean;
+    headline?: (string | null);
+    location?: (string | null);
+    languages?: Array<(string)>;
+    about?: (string | null);
+    niches?: Array<(string)>;
+    content_formats?: Array<(string)>;
+    platforms?: Array<(string)>;
+    services?: Array<{
+        [key: string]: unknown;
+    }>;
+    availability?: (string | null);
+    media_kit_url?: (string | null);
+    cover_image_url?: (string | null);
+    accent_color?: (string | null);
+    id: string;
+    created_at?: (string | null);
+};
 
-// ── Tasks request/response types ─────────────────────────────────────────────
+export type UserRegister = {
+    email: string;
+    password: string;
+    full_name?: (string | null);
+};
 
-export type TasksReadTasksData = { limit?: number; skip?: number };
-export type TasksReadTasksResponse = TasksPublic;
-export type TasksCreateTaskData = { requestBody: TaskCreate };
-export type TasksCreateTaskResponse = TaskPublic;
-export type TasksReadTaskData = { id: string };
-export type TasksReadTaskResponse = TaskPublic;
-export type TasksUpdateTaskData = { id: string; requestBody: TaskUpdate };
-export type TasksUpdateTaskResponse = TaskPublic;
-export type TasksDeleteTaskData = { id: string };
-export type TasksDeleteTaskResponse = Message;
+export type UsersPublic = {
+    data: Array<UserPublic>;
+    count: number;
+};
 
-// ── Collaborators request/response types ─────────────────────────────────────
+export type UserUpdate = {
+    email?: (string | null);
+    is_active?: boolean;
+    is_superuser?: boolean;
+    full_name?: (string | null);
+    username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
+    contact_email?: (string | null);
+    avatar_url?: (string | null);
+    is_published?: boolean;
+    headline?: (string | null);
+    location?: (string | null);
+    languages?: Array<(string)>;
+    about?: (string | null);
+    niches?: Array<(string)>;
+    content_formats?: Array<(string)>;
+    platforms?: Array<(string)>;
+    services?: Array<{
+        [key: string]: unknown;
+    }>;
+    availability?: (string | null);
+    media_kit_url?: (string | null);
+    cover_image_url?: (string | null);
+    accent_color?: (string | null);
+    password?: (string | null);
+};
 
-export type CollaboratorsReadCollaboratorsData = { limit?: number; skip?: number };
-export type CollaboratorsReadCollaboratorsResponse = CollaboratorsPublic;
-export type CollaboratorsCreateCollaboratorData = { requestBody: CollaboratorCreate };
-export type CollaboratorsCreateCollaboratorResponse = CollaboratorPublic;
-export type CollaboratorsReadCollaboratorData = { id: string };
-export type CollaboratorsReadCollaboratorResponse = CollaboratorPublic;
-export type CollaboratorsUpdateCollaboratorData = { id: string; requestBody: CollaboratorUpdate };
-export type CollaboratorsUpdateCollaboratorResponse = CollaboratorPublic;
-export type CollaboratorsDeleteCollaboratorData = { id: string };
-export type CollaboratorsDeleteCollaboratorResponse = Message;
+export type UserUpdateMe = {
+    full_name?: (string | null);
+    email?: (string | null);
+    username?: (string | null);
+    bio?: (string | null);
+    website?: (string | null);
+    twitter?: (string | null);
+    instagram?: (string | null);
+    youtube?: (string | null);
+    tiktok?: (string | null);
+    contact_email?: (string | null);
+    avatar_url?: (string | null);
+    is_published?: (boolean | null);
+    headline?: (string | null);
+    location?: (string | null);
+    languages?: Array<(string)>;
+    about?: (string | null);
+    niches?: Array<(string)>;
+    content_formats?: Array<(string)>;
+    platforms?: Array<('YouTube' | 'TikTok' | 'Instagram' | 'Twitch' | 'X' | 'LinkedIn' | 'Podcast' | 'Blog' | 'Other')>;
+    services?: Array<ServiceItem>;
+    availability?: ('open' | 'limited' | 'closed' | null);
+    media_kit_url?: (string | null);
+    cover_image_url?: (string | null);
+    accent_color?: ('teal' | 'indigo' | 'violet' | 'rose' | 'orange' | 'green' | 'sky' | 'slate' | 'sunset' | 'aurora' | null);
+};
+
+export type ValidationError = {
+    loc: Array<(string | number)>;
+    msg: string;
+    type: string;
+};
+
+export type WorkspaceCreate = {
+    name: string;
+    slug: string;
+    logo_url?: (string | null);
+    description?: (string | null);
+    timezone?: (string | null);
+    workspace_type?: (string | null);
+};
+
+export type WorkspaceMemberPublic = {
+    role?: string;
+    status?: string;
+    id: string;
+    workspace_id: string;
+    user_id: string;
+    joined_at?: (string | null);
+    full_name?: (string | null);
+    email?: (string | null);
+    avatar_url?: (string | null);
+};
+
+export type WorkspaceMembersPublic = {
+    data: Array<WorkspaceMemberPublic>;
+    count: number;
+};
+
+export type WorkspaceMemberUpdate = {
+    role?: (string | null);
+    status?: (string | null);
+};
+
+export type WorkspacePublic = {
+    name: string;
+    slug: string;
+    logo_url?: (string | null);
+    description?: (string | null);
+    timezone?: (string | null);
+    workspace_type?: (string | null);
+    id: string;
+    created_at?: (string | null);
+    updated_at?: (string | null);
+    role?: (string | null);
+};
+
+export type WorkspacesPublic = {
+    data: Array<WorkspacePublic>;
+    count: number;
+};
+
+export type WorkspaceUpdate = {
+    name?: (string | null);
+    logo_url?: (string | null);
+    description?: (string | null);
+    timezone?: (string | null);
+    workspace_type?: (string | null);
+};
+
+export type BrandsReadBrandsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type BrandsReadBrandsResponse = (BrandsPublic);
+
+export type BrandsCreateBrandData = {
+    requestBody: BrandCreate;
+};
+
+export type BrandsCreateBrandResponse = (BrandPublic);
+
+export type BrandsReadBrandData = {
+    id: string;
+};
+
+export type BrandsReadBrandResponse = (BrandPublic);
+
+export type BrandsUpdateBrandData = {
+    id: string;
+    requestBody: BrandUpdate;
+};
+
+export type BrandsUpdateBrandResponse = (BrandPublic);
+
+export type BrandsDeleteBrandData = {
+    id: string;
+};
+
+export type BrandsDeleteBrandResponse = (Message);
+
+export type CollaboratorsReadCollaboratorsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type CollaboratorsReadCollaboratorsResponse = (CollaboratorsPublic);
+
+export type CollaboratorsCreateCollaboratorData = {
+    requestBody: CollaboratorCreate;
+};
+
+export type CollaboratorsCreateCollaboratorResponse = (CollaboratorPublic);
+
+export type CollaboratorsReadCollaboratorData = {
+    id: string;
+};
+
+export type CollaboratorsReadCollaboratorResponse = (CollaboratorPublic);
+
+export type CollaboratorsUpdateCollaboratorData = {
+    id: string;
+    requestBody: CollaboratorUpdate;
+};
+
+export type CollaboratorsUpdateCollaboratorResponse = (CollaboratorPublic);
+
+export type CollaboratorsDeleteCollaboratorData = {
+    id: string;
+};
+
+export type CollaboratorsDeleteCollaboratorResponse = (Message);
 
 export type ItemsReadItemsData = {
     limit?: number;
@@ -380,11 +601,87 @@ export type LoginRecoverPasswordHtmlContentData = {
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
 
+export type LoginLoginWithGoogleData = {
+    requestBody: GoogleTokenBody;
+};
+
+export type LoginLoginWithGoogleResponse = (Token);
+
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;
 };
 
 export type PrivateCreateUserResponse = (UserPublic);
+
+export type ProjectsReadProjectsData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type ProjectsReadProjectsResponse = (ProjectsPublic);
+
+export type ProjectsCreateProjectData = {
+    requestBody: ProjectCreate;
+};
+
+export type ProjectsCreateProjectResponse = (ProjectPublic);
+
+export type ProjectsReadProjectData = {
+    id: string;
+};
+
+export type ProjectsReadProjectResponse = (ProjectPublic);
+
+export type ProjectsUpdateProjectData = {
+    id: string;
+    requestBody: ProjectUpdate;
+};
+
+export type ProjectsUpdateProjectResponse = (ProjectPublic);
+
+export type ProjectsDeleteProjectData = {
+    id: string;
+};
+
+export type ProjectsDeleteProjectResponse = (Message);
+
+export type PublicGetCreatorData = {
+    username: string;
+};
+
+export type PublicGetCreatorResponse = (PublicCreator);
+
+export type TasksReadTasksData = {
+    limit?: number;
+    skip?: number;
+};
+
+export type TasksReadTasksResponse = (TasksPublic);
+
+export type TasksCreateTaskData = {
+    requestBody: TaskCreate;
+};
+
+export type TasksCreateTaskResponse = (TaskPublic);
+
+export type TasksReadTaskData = {
+    id: string;
+};
+
+export type TasksReadTaskResponse = (TaskPublic);
+
+export type TasksUpdateTaskData = {
+    id: string;
+    requestBody: TaskUpdate;
+};
+
+export type TasksUpdateTaskResponse = (TaskPublic);
+
+export type TasksDeleteTaskData = {
+    id: string;
+};
+
+export type TasksDeleteTaskResponse = (Message);
 
 export type UsersReadUsersData = {
     limit?: number;
@@ -448,25 +745,50 @@ export type UtilsTestEmailResponse = (Message);
 
 export type UtilsHealthCheckResponse = (boolean);
 
-// ── Public Profile ────────────────────────────────────────────────────────────
+export type WorkspacesReadWorkspacesResponse = (WorkspacesPublic);
 
-export type CreatorStats = {
-    brands_count: number;
-    projects_count: number;
-    tasks_done: number;
-    tasks_total: number;
+export type WorkspacesCreateWorkspaceData = {
+    requestBody: WorkspaceCreate;
 };
 
-export type CreatorProfile = {
-    full_name: string | null;
-    username: string;
-    created_at: string | null;
-    stats: CreatorStats;
+export type WorkspacesCreateWorkspaceResponse = (WorkspacePublic);
+
+export type WorkspacesReadWorkspaceData = {
+    id: string;
 };
 
-export type PublicGetCreatorProfileData = { username: string };
-export type PublicGetCreatorProfileResponse = CreatorProfile;
-export type PublicGetCreatorBrandsData = { username: string };
-export type PublicGetCreatorBrandsResponse = BrandsPublic;
-export type PublicGetCreatorProjectsData = { username: string };
-export type PublicGetCreatorProjectsResponse = ProjectsPublic;
+export type WorkspacesReadWorkspaceResponse = (WorkspacePublic);
+
+export type WorkspacesUpdateWorkspaceData = {
+    id: string;
+    requestBody: WorkspaceUpdate;
+};
+
+export type WorkspacesUpdateWorkspaceResponse = (WorkspacePublic);
+
+export type WorkspacesDeleteWorkspaceData = {
+    id: string;
+};
+
+export type WorkspacesDeleteWorkspaceResponse = (Message);
+
+export type WorkspacesReadWorkspaceMembersData = {
+    id: string;
+};
+
+export type WorkspacesReadWorkspaceMembersResponse = (WorkspaceMembersPublic);
+
+export type WorkspacesUpdateWorkspaceMemberData = {
+    id: string;
+    requestBody: WorkspaceMemberUpdate;
+    userId: string;
+};
+
+export type WorkspacesUpdateWorkspaceMemberResponse = (WorkspaceMemberPublic);
+
+export type WorkspacesRemoveWorkspaceMemberData = {
+    id: string;
+    userId: string;
+};
+
+export type WorkspacesRemoveWorkspaceMemberResponse = (Message);

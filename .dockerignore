@@ -1,0 +1,25 @@
+# The Docker build context is the repo root; keep it small and cache-friendly.
+.git
+.github
+.agents
+.copier
+.cmem-projects
+agent-transcripts
+docs
+deploy
+hooks
+
+**/node_modules
+**/.venv
+**/dist
+**/__pycache__
+**/*.pyc
+**/.env
+**/.env.*
+
+backend/htmlcov
+backend/.coverage
+frontend/test-results
+frontend/blob-report
+frontend/playwright-report
+frontend/**/playwright/.auth

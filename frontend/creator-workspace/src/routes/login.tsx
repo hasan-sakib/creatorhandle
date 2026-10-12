@@ -1,19 +1,16 @@
 import { useGoogleLogin } from "@react-oauth/google"
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router"
+import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 
 import type { ApiError } from "@/client"
 import { LoginService } from "@/client"
 import { AnimatedCharactersLoginPage } from "@/components/ui/animated-characters-login-page"
-import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import useAuth from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/login")({
+  // Always show the sign-in form (no redirect for an existing session), so
+  // "Sign in" works for switching accounts. Signing in replaces the old token.
   component: Login,
-  beforeLoad: async () => {
-    if (isLoggedIn()) {
-      throw redirect({ to: "/" })
-    }
-  },
   head: () => ({
     meta: [{ title: "Log In - CreatorHandle" }],
   }),
@@ -32,7 +29,7 @@ function Login() {
   const triggerGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await LoginService.loginWithGoogle({ body: { token: tokenResponse.access_token } })
+        const res = await LoginService.loginWithGoogle({ requestBody: { token: tokenResponse.access_token } })
         localStorage.setItem("access_token", res.access_token)
         navigate({ to: "/" })
       } catch {

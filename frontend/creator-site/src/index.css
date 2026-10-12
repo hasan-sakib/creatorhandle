@@ -1,9 +1,13 @@
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/bricolage-grotesque";
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Bricolage Grotesque Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -123,17 +127,82 @@
   }
 }
 
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
-@keyframes marquee-reverse {
-  from { transform: translateX(-50%); }
-  to   { transform: translateX(0); }
+/* Keep anchored sections clear of the sticky navbar */
+[id] {
+  scroll-margin-top: 5rem;
 }
 
-@theme inline {
-  --animate-marquee:         marquee 35s linear infinite;
-  --animate-marquee-reverse: marquee-reverse 35s linear infinite;
+/* ── Creator portfolio: accent scope, glass, aurora ───────────────────────── */
+
+/*
+ * AccentScope sets --accent-light / --accent-dark on a wrapper element.
+ * In light mode the filled primary is darkened slightly so white text stays at
+ * >= 4.5:1 on every preset; in dark mode the lighter accent gets dark text.
+ */
+[data-accent] {
+  --accent-raw: var(--accent-light);
+  --primary: color-mix(in oklch, var(--accent-light) 85%, black);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: var(--accent-raw);
+  --accent-alt: var(--accent-raw);
+}
+
+.dark [data-accent] {
+  --accent-raw: var(--accent-dark);
+  --primary: var(--accent-dark);
+  --primary-foreground: oklch(0.18 0.02 260);
+}
+
+/* A second glow colour, hue-shifted from the accent where the browser supports it */
+@supports (color: oklch(from red l c h)) {
+  [data-accent] {
+    --accent-alt: oklch(from var(--accent-raw) l c calc(h + 48));
+  }
+}
+
+@utility glass {
+  background-color: color-mix(in oklch, var(--background) 62%, transparent);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
+  box-shadow: 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent);
+}
+
+/* No backdrop-filter support: use a near-opaque panel so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass {
+    background-color: color-mix(in oklch, var(--background) 94%, transparent);
+  }
+}
+
+.aurora-blob {
+  position: absolute;
+  border-radius: 9999px;
+  will-change: transform;
+}
+
+@keyframes aurora-drift-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(8vw, 6vh, 0) scale(1.15); }
+}
+@keyframes aurora-drift-b {
+  from { transform: translate3d(0, 0, 0) scale(1.1); }
+  to   { transform: translate3d(-9vw, 5vh, 0) scale(0.95); }
+}
+@keyframes aurora-drift-c {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(5vw, -8vh, 0) scale(1.2); }
+}
+
+/* Static unless the visitor allows motion */
+@media (prefers-reduced-motion: no-preference) {
+  .aurora-a { animation: aurora-drift-a 26s ease-in-out infinite alternate; }
+  .aurora-b { animation: aurora-drift-b 32s ease-in-out infinite alternate; }
+  .aurora-c { animation: aurora-drift-c 38s ease-in-out infinite alternate; }
 }

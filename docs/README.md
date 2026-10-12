@@ -3,8 +3,8 @@
 ## What It Is
 
 CreatorHandle is a creator management platform. Each creator gets:
-- A **public profile page** at `/creator/{username}` — visible to anyone, no login required
-- A **private workspace dashboard** at `/` — manage brands, projects, tasks, and settings
+- A **public profile page** at `<domain>/@{username}` (e.g. `creatorhandle.com/@sakib`) — visible to anyone, no login required, and only once the creator explicitly publishes it from User Settings
+- A **private workspace dashboard** at `<domain>/app` — manage brands, projects, tasks, and settings
 
 ## Tech Stack
 
@@ -16,11 +16,10 @@ CreatorHandle is a creator management platform. Each creator gets:
 | Migrations | Alembic |
 | Authentication | JWT (HS256) + Google OAuth 2.0 |
 | Dashboard frontend | React 19, TanStack Router v1, TanStack Query v5 |
-| Public frontend | React 19, TanStack Router v1 (basepath `/creator`) |
+| Public frontend | React 19, TanStack Router v1 |
 | Styling | Tailwind CSS v4, shadcn/ui components |
 | Package manager | Bun (frontend), uv (backend) |
-| Reverse proxy | Traefik v3 (production), included in dev override |
-| Frontend serving | Nginx (single container, path-based routing) |
+| Web server / reverse proxy | Caddy 2 (one container: auto-HTTPS, serves both SPAs, proxies `/api`) |
 | Container runtime | Docker Compose |
 | E2E tests | Playwright |
 | Backend tests | Pytest |
@@ -29,18 +28,15 @@ CreatorHandle is a creator management platform. Each creator gets:
 ## System Architecture
 
 ```
-Browser
-   │
-   ├─ /creator/*  ──► Nginx ──► creator-site dist   (public profiles)
-   │
-   └─ /*          ──► Nginx ──► creator-workspace dist (dashboard)
-                                     │
-                                     │  API calls (VITE_API_URL)
-                                     ▼
-                              FastAPI  :8000
-                                     │
-                                     ▼
-                              PostgreSQL :5432
+Browser  ──►  https://<domain>  (one origin)
+                 │
+              Caddy (frontend container)
+                 │
+                 ├─ /api/*, /docs ──► FastAPI :8000 ──► PostgreSQL :5432
+                 │
+                 └─ everything else ──► Caddy (static files)
+                                          ├─ /app/*        creator-workspace dist (dashboard)
+                                          └─ /, /@username creator-site dist (marketing + profiles)
 ```
 
 ### Frontend — Two Separate Vite Apps
@@ -49,17 +45,14 @@ The `frontend/` directory contains a **Bun workspace** with two independent Vite
 
 | App | Directory | Path | Purpose |
 |---|---|---|---|
-| creator-workspace | `frontend/creator-workspace/` | `/` | Authenticated dashboard |
-| creator-site | `frontend/creator-site/` | `/creator/` | Public creator profiles |
+| creator-workspace | `frontend/creator-workspace/` | `/app` | Authenticated dashboard |
+| creator-site | `frontend/creator-site/` | `/` and `/@{username}` | Marketing homepage and public creator profiles |
 
-Both apps are built at deploy time and served from a **single Nginx container**. Nginx routes requests based on the URL prefix:
+Both apps are built at deploy time and served from a **single Caddy container** using path-based routing (`frontend/Caddyfile`). creator-workspace is built with Vite `base: "/app/"` and a TanStack Router `basepath` of `/app`; creator-site owns the root, and its `routes/@{$username}.tsx` renders a profile.
 
-```nginx
-location /creator/ → /usr/share/nginx/creator-site/
-location /         → /usr/share/nginx/creator-workspace/
-```
+Because everything is one origin, links between the two apps are plain same-origin paths (see `creator-site/src/lib/urls.ts`), the dashboard's JWT in `localStorage` is on the same origin as the profiles, and in production the API needs no CORS (the browser calls `/api` on the same host). Local dev serves the apps on `http://localhost:5173` and the API on `http://localhost:8000`, which is allowed through `BACKEND_CORS_ORIGINS`.
 
-creator-site uses TanStack Router with `basepath: "/creator"` so the route `/$username` matches `/creator/sakib`.
+A profile is only publicly visible once its owner has explicitly published it from User Settings (`User.is_published`). Usernames are limited to letters, digits, `_` and `-` so they are safe in a URL path.
 
 ### Backend — FastAPI
 
@@ -102,11 +95,8 @@ All entities use UUID primary keys. Cascade deletes are configured throughout th
 | Service | Image | Port | Notes |
 |---|---|---|---|
 | db | postgres:18 | 5432 | Primary datastore |
-| backend | custom (uv + Python 3.10) | 8000 | FastAPI with 4 workers in prod |
-| frontend | custom (bun + nginx) | 5173→80 | Serves both Vite apps |
-| adminer | adminer | 8080 | DB admin UI |
-| prestart | backend image | — | Runs Alembic migrations on startup |
-| proxy | traefik:3.6 | 80, 8090 | Dev: insecure mode; Prod: TLS |
+| backend | custom (uv + Python 3.10-slim) | 8000 (dev) | FastAPI, `WEB_CONCURRENCY` workers (default 2); runs Alembic migrations on startup |
+| frontend | custom (bun build + caddy:2-alpine) | 5173→80 (dev), 80/443 (prod) | Serves both Vite apps, proxies `/api`, HTTPS in prod |
 | mailcatcher | schickling/mailcatcher | 1025/1080 | Dev SMTP trap |
 | playwright | custom | 9323 | E2E test runner |
 
@@ -116,7 +106,7 @@ All entities use UUID primary keys. Cascade deletes are configured throughout th
 Stage 0 (deps)        — bun install (shared workspace)
 Stage 1 (workspace-build) — builds creator-workspace
 Stage 2 (site-build)  — builds creator-site
-Stage 3 (nginx:1)     — copies both dists, serves with nginx
+Stage 3 (caddy:2-alpine) — copies both dists and the Caddyfile
 ```
 
 Build args: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
@@ -145,13 +135,13 @@ creatorhandle/
 │   ├── creator-site/        # public profile Vite app
 │   │   └── src/
 │   │       ├── components/
-│   │       └── routes/      # /$username route
-│   └── nginx.conf
+│   │       └── routes/      # /@{username} route
+│   └── Caddyfile
 ├── deploy/
 │   ├── .env                 # environment variables
-│   ├── compose.yml          # production stack
-│   ├── compose.override.yml # local dev overrides
-│   └── compose.traefik.yml  # production Traefik
+│   ├── compose.yml          # base stack: db, backend, frontend
+│   ├── compose.prod.yml     # production: ports 80/443 + domain
+│   └── compose.override.yml # local dev overrides (ports, mailcatcher, playwright)
 ├── docker/
 │   ├── Dockerfile.backend
 │   ├── Dockerfile.frontend
@@ -171,6 +161,6 @@ creatorhandle/
 | `VITE_GOOGLE_CLIENT_ID` | Same value, baked into frontend bundle at build time |
 | `VITE_API_URL` | Backend URL used by frontend (e.g. `http://localhost:8000`) |
 | `ENVIRONMENT` | `local` / `staging` / `production` |
-| `DOMAIN` | Base domain for Traefik routing |
+| `DOMAIN` | Public domain Caddy serves (one host serves the site, `/app` and `/api`) |
 | `SMTP_HOST` | SMTP server for email (Mailcatcher in dev) |
 | `SENTRY_DSN` | Optional Sentry error tracking |

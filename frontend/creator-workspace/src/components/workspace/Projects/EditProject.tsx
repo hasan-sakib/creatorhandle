@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { ProjectPortfolioFields } from "@/components/workspace/Projects/ProjectPortfolioFields"
+import { blankToNull, tagArray, urlField } from "@/lib/profileFields"
 import {
   Select,
   SelectContent,
@@ -45,6 +47,9 @@ const formSchema = z.object({
   description: z.string().optional(),
   brand_id: z.string().nullable().optional(),
   is_featured: z.boolean().optional(),
+  live_url: urlField,
+  thumbnail_url: urlField,
+  tags: tagArray(6),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -80,6 +85,9 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
       description: project.description ?? "",
       brand_id: project.brand_id ?? null,
       is_featured: project.is_featured ?? false,
+      live_url: project.live_url ?? "",
+      thumbnail_url: project.thumbnail_url ?? "",
+      tags: project.tags ?? [],
     },
   })
 
@@ -95,6 +103,9 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
           description: data.description || undefined,
           brand_id: data.brand_id || null,
           is_featured: data.is_featured ?? false,
+          live_url: blankToNull(data.live_url),
+          thumbnail_url: blankToNull(data.thumbnail_url),
+          tags: data.tags,
         },
       }),
     onSuccess: () => {
@@ -121,7 +132,7 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
         <Pencil />
         Edit Project
       </DropdownMenuItem>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
@@ -261,12 +272,18 @@ const EditProject = ({ project, onSuccess }: EditProjectProps) => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Project description" type="text" {...field} />
+                      <Input placeholder="Project description" type="text" maxLength={500} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
+
+              <ProjectPortfolioFields control={form.control} />
+
+              <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
+                Only <strong>Published</strong> projects appear on your public page.
+              </p>
             </div>
 
             <DialogFooter>

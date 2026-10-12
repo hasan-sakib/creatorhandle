@@ -1,78 +1,79 @@
 import { Mail } from "lucide-react"
 
-import type { CreatorProfile } from "@/client"
+import type { PublicCreator } from "@/client"
+import { Section } from "@/components/creator/Section"
+import { Reveal } from "@/components/home/Reveal"
+import { Button } from "@/components/ui/button"
+import { safeEmail, safeHttpUrl } from "@/lib/safeUrl"
+import { getSocialLinks } from "@/lib/socials"
 
-interface ContactSectionProps {
-  profile: CreatorProfile
+export function hasContactMethods(p: PublicCreator) {
+  return !!(safeEmail(p.contact_email) || getSocialLinks(p).length > 0 || safeHttpUrl(p.media_kit_url))
 }
 
-function SocialButton({ href, label }: { href: string; label: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center px-4 py-2 rounded-full border text-sm font-medium
-        bg-background hover:bg-muted transition-colors"
-    >
-      {label}
-    </a>
-  )
+const COPY: Record<string, string> = {
+  open: "I'm open to new collaborations. Tell me about your brand and what you have in mind.",
+  limited: "My availability is limited right now, but I'd still love to hear from you.",
+  closed: "I'm not taking new work at the moment, but you're welcome to say hello.",
 }
 
-export function ContactSection({ profile }: ContactSectionProps) {
-  const socialLinks = [
-    profile.twitter && {
-      href: `https://x.com/${profile.twitter.replace(/^@/, "")}`,
-      label: "X / Twitter",
-    },
-    profile.instagram && {
-      href: `https://instagram.com/${profile.instagram.replace(/^@/, "")}`,
-      label: "Instagram",
-    },
-    profile.youtube && {
-      href: profile.youtube.startsWith("http")
-        ? profile.youtube
-        : `https://youtube.com/@${profile.youtube.replace(/^@/, "")}`,
-      label: "YouTube",
-    },
-    profile.tiktok && {
-      href: `https://tiktok.com/@${profile.tiktok.replace(/^@/, "")}`,
-      label: "TikTok",
-    },
-    profile.website && {
-      href: profile.website.startsWith("http") ? profile.website : `https://${profile.website}`,
-      label: "Website",
-    },
-  ].filter(Boolean) as { href: string; label: string }[]
-
-  if (!profile.contact_email && socialLinks.length === 0) return null
+export function ContactSection({ profile }: { profile: PublicCreator }) {
+  if (!hasContactMethods(profile)) return null
+  const email = safeEmail(profile.contact_email)
+  const links = getSocialLinks(profile)
+  const mediaKit = safeHttpUrl(profile.media_kit_url)
+  const name = profile.full_name || profile.username
 
   return (
-    <section className="rounded-2xl border bg-muted/30 px-8 py-10 text-center space-y-5">
-      <div className="space-y-1.5">
-        <h2 className="text-2xl font-bold">Work With Me</h2>
-        {profile.bio && (
-          <p className="text-muted-foreground text-sm max-w-sm mx-auto line-clamp-2">{profile.bio}</p>
-        )}
-      </div>
+    <Section id="contact" eyebrow="Contact" title="Let's work together">
+      <Reveal>
+        <div className="glass relative overflow-hidden rounded-3xl p-6 sm:p-10">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full opacity-60 blur-3xl"
+            style={{ background: "color-mix(in oklch, var(--accent-raw) 30%, transparent)" }}
+          />
+          <p className="relative max-w-xl text-base text-foreground/90 sm:text-lg">
+            {COPY[profile.availability ?? ""] ?? `Get in touch with ${name} about collaborations, sponsorships or projects.`}
+          </p>
 
-      <div className="flex flex-wrap justify-center gap-3">
-        {profile.contact_email && (
-          <a
-            href={`mailto:${profile.contact_email}`}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full
-              bg-primary text-primary-foreground text-sm font-medium
-              hover:opacity-90 transition-opacity"
-          >
-            <Mail className="w-4 h-4" />
-            Get in Touch
-          </a>
-        )}
-        {socialLinks.map((link) => (
-          <SocialButton key={link.label} href={link.href} label={link.label} />
-        ))}
-      </div>
-    </section>
+          <div className="relative mt-6 flex flex-wrap gap-3">
+            {email && (
+              <Button asChild size="lg" className="rounded-full px-6">
+                <a href={`mailto:${email}?subject=${encodeURIComponent(`Collaboration with ${name}`)}`}>
+                  <Mail className="size-4" /> {email}
+                </a>
+              </Button>
+            )}
+            {mediaKit && (
+              <Button asChild size="lg" variant="outline" className="rounded-full bg-background/50 px-6">
+                <a href={mediaKit} target="_blank" rel="noopener noreferrer">
+                  Download media kit
+                </a>
+              </Button>
+            )}
+          </div>
+
+          {links.length > 0 && (
+            <ul className="relative mt-6 flex flex-wrap gap-2">
+              {links.map(({ key, label, href, text, Icon }) => (
+                <li key={key}>
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3.5 py-1.5 text-sm transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <Icon className="size-4" />
+                    <span className="sr-only">{label}: </span>
+                    {text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </Reveal>
+    </Section>
   )
 }

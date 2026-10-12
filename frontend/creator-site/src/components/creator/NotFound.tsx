@@ -19,7 +19,7 @@ export function NotFound({ username }: NotFoundProps) {
         </p>
       </div>
       <Button asChild variant="outline">
-        <a href="/login">Go to CreatorHandle</a>
+        <a href="/">Go to CreatorHandle</a>
       </Button>
     </div>
   )

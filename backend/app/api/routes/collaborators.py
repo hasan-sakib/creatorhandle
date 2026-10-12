@@ -1,10 +1,10 @@
 import uuid
-from typing import Any
+from typing import Annotated, Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import func, select
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, SessionDep, require_permission
 from app.models import (
     Collaborator,
     CollaboratorCreate,
@@ -12,6 +12,7 @@ from app.models import (
     CollaboratorsPublic,
     CollaboratorUpdate,
     Message,
+    WorkspaceMember,
 )
 
 router = APIRouter(prefix="/collaborators", tags=["collaborators"])
@@ -19,17 +20,20 @@ router = APIRouter(prefix="/collaborators", tags=["collaborators"])
 
 @router.get("/", response_model=CollaboratorsPublic)
 def read_collaborators(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep,
+    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.view"))],
+    skip: int = 0,
+    limit: int = 100,
 ) -> Any:
     count_statement = (
         select(func.count())
         .select_from(Collaborator)
-        .where(Collaborator.owner_id == current_user.id)
+        .where(Collaborator.workspace_id == membership.workspace_id)
     )
     count = session.exec(count_statement).one()
     statement = (
         select(Collaborator)
-        .where(Collaborator.owner_id == current_user.id)
+        .where(Collaborator.workspace_id == membership.workspace_id)
         .order_by(Collaborator.created_at.desc())
         .offset(skip)
         .limit(limit)
@@ -40,22 +44,29 @@ def read_collaborators(
 
 @router.get("/{id}", response_model=CollaboratorPublic)
 def read_collaborator(
-    session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+    session: SessionDep,
+    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.view"))],
+    id: uuid.UUID,
 ) -> Any:
     collaborator = session.get(Collaborator, id)
     if not collaborator:
         raise HTTPException(status_code=404, detail="Collaborator not found")
-    if collaborator.owner_id != current_user.id:
+    if collaborator.workspace_id != membership.workspace_id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     return collaborator
 
 
 @router.post("/", response_model=CollaboratorPublic)
 def create_collaborator(
-    *, session: SessionDep, current_user: CurrentUser, collaborator_in: CollaboratorCreate
+    *,
+    session: SessionDep,
+    current_user: CurrentUser,
+    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.create"))],
+    collaborator_in: CollaboratorCreate,
 ) -> Any:
     collaborator = Collaborator.model_validate(
-        collaborator_in, update={"owner_id": current_user.id}
+        collaborator_in,
+        update={"owner_id": current_user.id, "workspace_id": membership.workspace_id},
     )
     session.add(collaborator)
     session.commit()
@@ -67,14 +78,14 @@ def create_collaborator(
 def update_collaborator(
     *,
     session: SessionDep,
-    current_user: CurrentUser,
+    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.update"))],
     id: uuid.UUID,
     collaborator_in: CollaboratorUpdate,
 ) -> Any:
     collaborator = session.get(Collaborator, id)
     if not collaborator:
         raise HTTPException(status_code=404, detail="Collaborator not found")
-    if collaborator.owner_id != current_user.id:
+    if collaborator.workspace_id != membership.workspace_id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     update_dict = collaborator_in.model_dump(exclude_unset=True)
     collaborator.sqlmodel_update(update_dict)
@@ -86,12 +97,14 @@ def update_collaborator(
 
 @router.delete("/{id}")
 def delete_collaborator(
-    session: SessionDep, current_user: CurrentUser, id: uuid.UUID
+    session: SessionDep,
+    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.delete"))],
+    id: uuid.UUID,
 ) -> Message:
     collaborator = session.get(Collaborator, id)
     if not collaborator:
         raise HTTPException(status_code=404, detail="Collaborator not found")
-    if collaborator.owner_id != current_user.id:
+    if collaborator.workspace_id != membership.workspace_id:
         raise HTTPException(status_code=403, detail="Not enough permissions")
     session.delete(collaborator)
     session.commit()

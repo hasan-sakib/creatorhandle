@@ -20,19 +20,19 @@ git clone <repo-url> && cd creatorhandle
 docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d
 ```
 
-The prestart service automatically runs `alembic upgrade head` and seeds the first superuser before the backend starts.
+The backend container automatically runs `alembic upgrade head` and seeds the first superuser every time it starts.
 
 ## Service URLs
 
 | Service | URL |
 |---|---|
-| Dashboard | http://localhost:5173 |
-| Public creator profile | http://localhost:5173/creator/{username} |
+| Marketing site | http://localhost:5173 |
+| Dashboard | http://localhost:5173/app/ |
+| Public creator profile | http://localhost:5173/@{username} |
 | Backend API | http://localhost:8000 |
 | Swagger UI | http://localhost:8000/docs |
 | ReDoc | http://localhost:8000/redoc |
-| Adminer | http://localhost:8080 |
-| Traefik UI | http://localhost:8090 |
+| PostgreSQL | localhost:5432 (any Postgres client) |
 | Mailcatcher | http://localhost:1080 |
 
 ## Running With Live Reload
@@ -48,7 +48,7 @@ The override file mounts `backend/` as a volume and runs `fastapi run --reload`,
 
 ### Frontend local dev server
 
-The Docker frontend is a static nginx build — it does NOT hot-reload. For frontend development, stop the Docker frontend and run the Vite dev server locally:
+The Docker frontend is a static Caddy build — it does NOT hot-reload. For frontend development, stop the Docker frontend and run the Vite dev server locally. Each Vite app serves itself at its own root (creator-workspace under `/app/`, because of its `base`); Caddy's path split is not in play, so run only one dev server on port 5173 at a time (or pass `--port` to the second).
 
 ```bash
 # Stop the Docker frontend
@@ -117,22 +117,13 @@ Test coverage report is written to `backend/htmlcov/index.html`.
 After changing backend endpoints, regenerate the TypeScript client:
 
 ```bash
-# Requires backend to be running
-bash ./scripts/generate-client.sh
+# From the repo root; needs uv and bun (the backend does not have to be running)
+bun run generate-client      # or: bash deploy/scripts/generate-client.sh
 ```
 
-Or manually:
-
-```bash
-# Download the OpenAPI schema
-curl http://localhost:8000/api/v1/openapi.json > frontend/creator-workspace/openapi.json
-
-# Generate the client
-cd frontend/creator-workspace
-bun run generate-client
-```
-
-Commit the generated files in `frontend/creator-workspace/src/client/`.
+This dumps the OpenAPI schema from the backend code and regenerates two clients:
+`frontend/creator-workspace/src/client` (the whole API) and `frontend/creator-site/src/client`
+(public endpoints only, filtered by `deploy/scripts/openapi_public.py`). Commit both.
 
 ## Frontend Development
 
@@ -142,8 +133,8 @@ The frontend is a **Bun workspace** with two apps:
 
 ```
 frontend/
-├── creator-workspace/   # authenticated dashboard (served at /)
-└── creator-site/        # public profiles (served at /creator/)
+├── creator-workspace/   # authenticated dashboard (served at /app)
+└── creator-site/        # marketing page and public portfolios (served at / and /@username)
 ```
 
 Install all workspace dependencies from the repo root:
@@ -158,11 +149,11 @@ Routes live in `frontend/creator-workspace/src/routes/`. After adding or renamin
 
 ### Cross-app navigation
 
-creator-site runs at basepath `/creator`. Links that navigate to the dashboard (creator-workspace) must use plain HTML `<a href="...">` tags — not TanStack `<Link>` — to trigger a full page navigation across apps:
+creator-workspace is served under `/app`, creator-site at the root. Links from one app to the other must use plain HTML `<a href="...">` tags — not TanStack `<Link>` — to trigger a full page navigation across apps:
 
 ```tsx
-// Correct — full page navigation to dashboard
-<a href="/login">Log in</a>
+// Correct — full page navigation to the dashboard (see creator-site/src/lib/urls.ts)
+<a href={dashboardPath("/login")}>Log in</a>
 
 // Wrong — stays within creator-site's router
 <Link to="/login">Log in</Link>
@@ -171,7 +162,9 @@ creator-site runs at basepath `/creator`. Links that navigate to the dashboard (
 ### Running E2E tests
 
 ```bash
-# Requires backend + frontend Docker containers to be running
+# Requires backend + frontend Docker containers to be running.
+# The Playwright container is not started by `up`; run it on demand with:
+#   docker compose -f deploy/compose.yml -f deploy/compose.override.yml run --rm playwright
 cd frontend/creator-workspace
 bunx playwright test
 

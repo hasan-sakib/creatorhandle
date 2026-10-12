@@ -21,6 +21,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
+import { WorkspaceProvider } from "@/components/workspace-provider"
 import { getInitials } from "@/utils"
 
 export const Route = createFileRoute("/_layout")({
@@ -80,27 +81,29 @@ function Layout() {
   const screenSize = useScreenSize()
 
   return (
-    <SidebarProvider>
-      <AppSidebar />
-      <SidebarInset>
-        <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border bg-sidebar text-sidebar-foreground px-6">
-          <SidebarTrigger className="-ml-1 text-sidebar-foreground/80 hover:text-sidebar-foreground" />
-          <HeaderUser />
-        </header>
-        <main className="relative flex-1 p-8 md:p-12 overflow-hidden">
-          <PixelTrail
-            pixelSize={screenSize.lessThan("md") ? 32 : 56}
-            fadeDuration={500}
-            delay={900}
-            pixelClassName="rounded-sm bg-primary/20"
-          />
-          <div className="relative z-10 mx-auto max-w-7xl">
-            <Outlet />
-          </div>
-        </main>
-        <Footer />
-      </SidebarInset>
-    </SidebarProvider>
+    <WorkspaceProvider>
+      <SidebarProvider>
+        <AppSidebar />
+        <SidebarInset>
+          <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-2 border-b border-sidebar-border bg-sidebar text-sidebar-foreground px-6">
+            <SidebarTrigger className="-ml-1 text-sidebar-foreground/80 hover:text-sidebar-foreground" />
+            <HeaderUser />
+          </header>
+          <main className="relative flex-1 p-8 md:p-12 overflow-hidden">
+            <PixelTrail
+              pixelSize={screenSize.lessThan("md") ? 32 : 56}
+              fadeDuration={500}
+              delay={900}
+              pixelClassName="rounded-sm bg-primary/20"
+            />
+            <div className="relative z-10 mx-auto max-w-7xl">
+              <Outlet />
+            </div>
+          </main>
+          <Footer />
+        </SidebarInset>
+      </SidebarProvider>
+    </WorkspaceProvider>
   )
 }
 

@@ -92,9 +92,9 @@ DELETE /api/v1/{resource}/{id}      Delete
 ### Public (`/api/v1/public/`) — no authentication
 | Method | Path | Description |
 |---|---|---|
-| GET | `/{username}` | Creator profile + stats |
-| GET | `/{username}/brands` | Creator's active brands |
-| GET | `/{username}/projects` | Creator's non-cancelled projects |
+| GET | `/{username}` | The whole portfolio in one response: profile (headline, about, niches, content formats, platforms, services, availability, links, cover/avatar, accent color), the creator's **Published** projects (featured first, max 60) and the brands tied to them |
+
+The response schemas (`PublicCreator`, `PublicBrand`, `PublicProject` in `app/api/routes/public.py`) are standalone on purpose, so a new private column can never leak. Brand notes and contacts, project status/deadline, tasks and internal ids are never returned. Unpublished or unknown creators get 404. The response is cacheable for 30 s.
 
 ## Data Models
 
@@ -104,6 +104,9 @@ User
   email: str (unique)
   username: str | None (unique, used for public profile URL)
   full_name: str | None
+  headline, location, about, availability, accent_color, media_kit_url, cover_image_url: str | None
+  languages, niches, content_formats, platforms: list[str]   # JSONB
+  services: list[{title, description}]                       # JSONB
   hashed_password: str | None  # None for Google-only accounts
   is_active: bool
   is_superuser: bool

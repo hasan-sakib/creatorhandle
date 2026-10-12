@@ -9,6 +9,7 @@
     "dev": "bun run --filter creator-workspace dev",
     "lint": "bun run --filter creator-workspace lint",
     "test": "bun run --filter creator-workspace test",
-    "test:ui": "bun run --filter creator-workspace test:ui"
+    "test:ui": "bun run --filter creator-workspace test:ui",
+    "generate-client": "bash deploy/scripts/generate-client.sh"
   }
 }

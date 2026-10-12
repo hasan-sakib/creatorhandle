@@ -1,3 +1,5 @@
+import { AtSign } from "lucide-react"
+
 import { cn } from "@/lib/utils"
 
 interface LogoProps {
@@ -6,18 +8,20 @@ interface LogoProps {
 }
 
 export function Logo({ variant = "full", className }: LogoProps) {
-  const content =
-    variant === "icon" ? (
-      <span className={cn("flex items-center", className)}>
-        <span className="font-bold text-[#009688] text-2xl leading-none tracking-tight">CH</span>
+  return (
+    <span className={cn("flex items-center gap-2.5", className)}>
+      <span
+        aria-hidden="true"
+        className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground shadow-sm"
+      >
+        <AtSign className="size-[18px]" strokeWidth={2.5} />
       </span>
-    ) : (
-      <span className={cn("flex items-center gap-3", className)}>
-        <span className="font-bold text-[#009688] text-2xl leading-none tracking-tight">
-          CreatorHandle
+      {variant === "full" && (
+        <span className="font-display text-xl font-bold leading-none tracking-tight text-foreground">
+          Creator<span className="text-primary">Handle</span>
         </span>
-      </span>
-    )
-
-  return content
+      )}
+      {variant === "icon" && <span className="sr-only">CreatorHandle</span>}
+    </span>
+  )
 }

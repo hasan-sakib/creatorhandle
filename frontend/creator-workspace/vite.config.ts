@@ -6,6 +6,8 @@ import { defineConfig } from "vite"
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // The dashboard is served under /app; creator-site owns the site root.
+  base: "/app/",
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

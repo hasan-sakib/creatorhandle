@@ -3,7 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CreatorHandle</title>
+    <title>CreatorHandle — Run your creator business, share it with one link</title>
+    <meta
+      name="description"
+      content="Manage brand deals, projects and tasks in one workspace, then publish a clean public page at /@yourhandle. Built for creators and small creator teams."
+    />
+    <meta name="theme-color" content="#009688" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="CreatorHandle" />
+    <meta property="og:title" content="CreatorHandle — Run your creator business, share it with one link" />
+    <meta
+      property="og:description"
+      content="Brands, projects and tasks in one workspace, plus a public page at /@yourhandle."
+    />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="CreatorHandle — Run your creator business, share it with one link" />
+    <meta
+      name="twitter:description"
+      content="Brands, projects and tasks in one workspace, plus a public page at /@yourhandle."
+    />
+
+    <!-- Apply the saved theme before first paint (same key as the dashboard) -->
+    <script>
+      try {
+        var t = localStorage.getItem("vite-ui-theme");
+        var dark =
+          t === "dark" ||
+          ((!t || t === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        document.documentElement.classList.add(dark ? "dark" : "light");
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

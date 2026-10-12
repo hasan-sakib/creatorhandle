@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AtSign, Camera, Globe, Mail, Music2, Pencil, Youtube } from "lucide-react"
+import { AtSign, Camera, ExternalLink, Globe, Mail, Music2, Pencil, Youtube } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -120,6 +120,20 @@ const UserInformation = () => {
     toggleEditMode()
   }
 
+  const publishMutation = useMutation({
+    mutationFn: (is_published: boolean) =>
+      UsersService.updateUserMe({ requestBody: { is_published } }),
+    onSuccess: (_, is_published) => {
+      showSuccessToast(is_published ? "Your website is now live" : "Your website is unpublished")
+    },
+    onError: handleError.bind(showErrorToast),
+    onSettled: () => {
+      queryClient.invalidateQueries()
+    },
+  })
+
+  const profileUrl = `${window.location.origin}/@${currentUser?.username}`
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
@@ -188,7 +202,7 @@ const UserInformation = () => {
                         <Input type="text" placeholder="e.g. johndoe" {...field} />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        Profile: /creator/{field.value || "yourhandle"}
+                        Profile: {window.location.host}/@{field.value || "yourhandle"}
                       </p>
                     </>
                   ) : (
@@ -254,6 +268,46 @@ const UserInformation = () => {
               </Button>
             </div>
           )}
+        </section>
+
+        {/* ── Publish website card ── */}
+        <section className="rounded-xl border bg-card p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold">Publish your website</h2>
+              {currentUser?.username ? (
+                currentUser?.is_published ? (
+                  <a
+                    href={profileUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-1 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                  >
+                    {window.location.host}/@{currentUser.username}
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                ) : (
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {window.location.host}/@{currentUser.username} — not live yet
+                  </p>
+                )
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground italic">
+                  Set a public handle above before publishing
+                </p>
+              )}
+            </div>
+            <LoadingButton
+              type="button"
+              variant={currentUser?.is_published ? "outline" : "default"}
+              className="rounded-full shrink-0"
+              loading={publishMutation.isPending}
+              disabled={!currentUser?.username}
+              onClick={() => publishMutation.mutate(!currentUser?.is_published)}
+            >
+              {currentUser?.is_published ? "Unpublish" : "Publish"}
+            </LoadingButton>
+          </div>
         </section>
 
         {/* ── Social Links card ── */}

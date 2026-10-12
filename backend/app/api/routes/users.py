@@ -89,6 +89,13 @@ def update_user_me(
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
+    resulting_username = (
+        user_in.username if user_in.username is not None else current_user.username
+    )
+    if user_in.is_published and not resulting_username:
+        raise HTTPException(
+            status_code=400, detail="Set a username before publishing your profile"
+        )
     user_data = user_in.model_dump(exclude_unset=True)
     current_user.sqlmodel_update(user_data)
     session.add(current_user)

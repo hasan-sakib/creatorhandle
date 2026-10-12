@@ -7,6 +7,7 @@ import { QuickActions } from "@/components/workspace/Dashboard/QuickActions"
 import { StatsGrid } from "@/components/workspace/Dashboard/StatsGrid"
 import { TaskStatusBreakdown } from "@/components/workspace/Dashboard/TaskStatusBreakdown"
 import { UpcomingDeadlines } from "@/components/workspace/Dashboard/UpcomingDeadlines"
+import { useWorkspace } from "@/components/workspace-provider"
 import useAuth from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/_layout/")({
@@ -16,20 +17,21 @@ export const Route = createFileRoute("/_layout/")({
 
 function Dashboard() {
   const { user: currentUser } = useAuth()
+  const { activeWorkspaceId } = useWorkspace()
   const displayName = currentUser?.full_name || currentUser?.email || ""
 
   const { data: brandsData, isLoading: brandsLoading } = useQuery({
-    queryKey: ["brands"],
+    queryKey: ["brands", activeWorkspaceId],
     queryFn: () => BrandsService.readBrands({ skip: 0, limit: 1000 }),
   })
 
   const { data: projectsData, isLoading: projectsLoading } = useQuery({
-    queryKey: ["projects"],
+    queryKey: ["projects", activeWorkspaceId],
     queryFn: () => ProjectsService.readProjects({ skip: 0, limit: 1000 }),
   })
 
   const { data: tasksData, isLoading: tasksLoading } = useQuery({
-    queryKey: ["tasks"],
+    queryKey: ["tasks", activeWorkspaceId],
     queryFn: () => TasksService.readTasks({ skip: 0, limit: 1000 }),
   })
 

@@ -1,0 +1,12 @@
+# Production: docker compose -f compose.yml -f compose.prod.yml up -d --build
+#
+# Caddy listens on 80/443 and gets a certificate for ${DOMAIN} automatically
+# (DNS for ${DOMAIN} must point at this host).
+services:
+  frontend:
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - SITE_ADDRESS=${DOMAIN?Variable not set}

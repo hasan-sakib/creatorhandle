@@ -1,26 +1,36 @@
 import { createFileRoute } from "@tanstack/react-router"
 
+import { FaqSection } from "@/components/home/FaqSection"
+import { FeaturesSection } from "@/components/home/FeaturesSection"
+import { FinalCta } from "@/components/home/FinalCta"
+import { HeroSection } from "@/components/home/HeroSection"
+import { HowItWorks } from "@/components/home/HowItWorks"
+import { PlatformStrip } from "@/components/home/PlatformStrip"
+import { ProfileShowcase } from "@/components/home/ProfileShowcase"
+import { RolesSection } from "@/components/home/RolesSection"
 import { Footer } from "@/components/layout/Footer"
 import { Navbar } from "@/components/layout/Navbar"
-import { FeaturesSection } from "@/components/home/FeaturesSection"
-import { HeroSection } from "@/components/home/HeroSection"
 
 export const Route = createFileRoute("/")({
+  // The landing page title and meta tags live in index.html.
   component: HomePage,
-  head: () => ({
-    meta: [{ title: "CreatorHandle — Manage your creator brand" }],
-  }),
 })
 
 function HomePage() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
-      <main className="flex-1">
+    <div className="flex min-h-screen flex-col bg-background">
+      <Navbar marketing />
+      <main id="main" className="flex-1">
         <HeroSection />
+        <PlatformStrip />
+        <HowItWorks />
         <FeaturesSection />
+        <ProfileShowcase />
+        <RolesSection />
+        <FaqSection />
+        <FinalCta />
       </main>
-      <Footer />
+      <Footer variant="marketing" />
     </div>
   )
 }

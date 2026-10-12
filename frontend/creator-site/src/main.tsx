@@ -6,11 +6,11 @@ import { OpenAPI } from "./client"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+OpenAPI.BASE = import.meta.env.VITE_API_URL ?? ""
 
 const queryClient = new QueryClient()
 
-const router = createRouter({ routeTree, basepath: "/creator" })
+const router = createRouter({ routeTree })
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router

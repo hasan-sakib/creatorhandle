@@ -4,10 +4,10 @@ Two independent React + Vite applications managed as a Bun workspace:
 
 | App | Directory | Served at | Purpose |
 |---|---|---|---|
-| creator-workspace | `creator-workspace/` | `/` | Authenticated dashboard |
-| creator-site | `creator-site/` | `/creator/` | Public creator profiles |
+| creator-workspace | `creator-workspace/` | `/app/` | Authenticated dashboard |
+| creator-site | `creator-site/` | `/`, `/@{username}` | Marketing page and public creator profiles |
 
-Both apps are built and served by a single Nginx Docker container. In production, nginx routes `/creator/*` to creator-site and everything else to creator-workspace.
+Both apps are built and served by a single Caddy Docker container. Caddy routes `/app/*` to creator-workspace and everything else to creator-site, and proxies `/api` to the backend.
 
 ## Tech Stack
 
@@ -90,9 +90,10 @@ creator-site/src/
 │   └── Common/          # Logo, NotFound
 ├── routes/
 │   ├── __root.tsx
-│   └── $username.tsx    # /$username → /creator/:username
+│   ├── index.tsx        # / (marketing page)
+│   └── @{$username}.tsx # /@:username (public profile)
 ├── routeTree.gen.ts
-└── main.tsx             # basepath: "/creator"
+└── main.tsx
 ```
 
 ## Authentication
@@ -119,13 +120,13 @@ const triggerGoogleLogin = useGoogleLogin({
 
 ## Cross-App Navigation
 
-creator-site runs at basepath `/creator`. Links that navigate outside creator-site (e.g. to the login page) must use plain `<a>` tags, not TanStack Router `<Link>`:
+creator-workspace runs at basepath `/app`. Links that navigate between the two apps (e.g. from creator-site to the login page) must use plain `<a>` tags, not TanStack Router `<Link>`:
 
 ```tsx
 // Correct
-<a href="/login">Log in</a>
+<a href="/app/login">Log in</a>
 
-// Wrong — resolves to /creator/login
+// Wrong — resolves inside creator-site
 <Link to="/login">Log in</Link>
 ```
 
@@ -135,7 +136,7 @@ Both apps are built as part of the frontend Docker image. Build args that must b
 
 | Arg | Description |
 |---|---|
-| `VITE_API_URL` | Backend URL (e.g. `http://localhost:8000`) |
+| `VITE_API_URL` | Backend URL (e.g. `http://localhost:8000`); empty in production, where `/api` is same-origin |
 | `VITE_GOOGLE_CLIENT_ID` | Google OAuth client ID (baked into bundle) |
 
 ```bash
@@ -144,14 +145,16 @@ docker compose -f deploy/compose.yml -f deploy/compose.override.yml build --no-c
 docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d frontend
 ```
 
-## Nginx Routing
+## Caddy Routing
 
-`frontend/nginx.conf` — path-based routing in the single nginx container:
+`frontend/Caddyfile` — path-based routing in the single Caddy container:
 
-```nginx
-location /creator/ → creator-site dist   (try_files → /creator/index.html)
-location /         → creator-workspace dist (try_files → /index.html)
-location /api      → 404  (API is on a separate port)
+```
+/api, /docs, /redoc  → reverse_proxy backend:8000
+/app/*               → creator-workspace dist (index.html fallback)
+/*                   → creator-site dist      (index.html fallback)
+/assets/*            → cached immutably; a missing asset is a 404, not index.html
+/login, /signup, …   → redirected to /app/… (old dashboard paths)
 ```
 
 ## Regenerating the API Client

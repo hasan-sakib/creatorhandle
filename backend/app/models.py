@@ -1,13 +1,39 @@
 import uuid
 from datetime import datetime, timezone
+from typing import Annotated, Any
 
 from pydantic import EmailStr
-from sqlalchemy import DateTime
+from pydantic import Field as PydanticField
+from sqlalchemy import DateTime, UniqueConstraint, text
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, Relationship, SQLModel
+
+from app.core.validators import (
+    AccentKey,
+    Availability,
+    PlatformList,
+    ServiceList,
+    tag_list,
+    text as clean_text,
+    url as clean_url,
+)
 
 
 def get_datetime_utc() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def json_list_field() -> Any:
+    """A JSONB list column, NOT NULL, defaulting to [] in Python and in the DB.
+
+    Always replace the whole list on update; never mutate it in place.
+    """
+    return Field(
+        default_factory=list,
+        sa_type=JSONB,
+        nullable=False,
+        sa_column_kwargs={"server_default": text("'[]'::jsonb")},
+    )
 
 
 # Shared properties
@@ -25,6 +51,21 @@ class UserBase(SQLModel):
     tiktok: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
     avatar_url: str | None = Field(default=None, max_length=2048)
+    is_published: bool = False
+
+    # Portfolio details shown on the public page (/@username)
+    headline: str | None = Field(default=None, max_length=120)
+    location: str | None = Field(default=None, max_length=100)
+    languages: list[str] = json_list_field()
+    about: str | None = Field(default=None, max_length=2000)
+    niches: list[str] = json_list_field()
+    content_formats: list[str] = json_list_field()
+    platforms: list[str] = json_list_field()
+    services: list[dict[str, Any]] = json_list_field()
+    availability: str | None = Field(default=None, max_length=10)
+    media_kit_url: str | None = Field(default=None, max_length=2048)
+    cover_image_url: str | None = Field(default=None, max_length=2048)
+    accent_color: str | None = Field(default=None, max_length=20)
 
 
 # Properties to receive via API on creation
@@ -47,15 +88,33 @@ class UserUpdate(UserBase):
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
-    username: str | None = Field(default=None, max_length=30)
+    # Profiles live at /@{username}, so keep usernames URL-safe.
+    username: Annotated[
+        str | None, PydanticField(max_length=30, pattern=r"^[A-Za-z0-9_-]+$")
+    ] = None
     bio: str | None = Field(default=None, max_length=300)
-    website: str | None = Field(default=None, max_length=255)
+    website: clean_url(255) = None  # type: ignore[valid-type]
     twitter: str | None = Field(default=None, max_length=100)
     instagram: str | None = Field(default=None, max_length=100)
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
-    avatar_url: str | None = None
+    avatar_url: clean_url() = None  # type: ignore[valid-type]
+    is_published: bool | None = None
+
+    # Portfolio details. Omitted = unchanged, [] clears a list, null on a list is rejected.
+    headline: clean_text(120) = None  # type: ignore[valid-type]
+    location: clean_text(100) = None  # type: ignore[valid-type]
+    languages: tag_list(8) = PydanticField(default_factory=list)  # type: ignore[valid-type]
+    about: clean_text(2000) = None  # type: ignore[valid-type]
+    niches: tag_list(10) = PydanticField(default_factory=list)  # type: ignore[valid-type]
+    content_formats: tag_list(10) = PydanticField(default_factory=list)  # type: ignore[valid-type]
+    platforms: PlatformList = PydanticField(default_factory=list)
+    services: ServiceList = PydanticField(default_factory=list)
+    availability: Availability | None = None
+    media_kit_url: clean_url() = None  # type: ignore[valid-type]
+    cover_image_url: clean_url() = None  # type: ignore[valid-type]
+    accent_color: AccentKey | None = None
 
 
 class UpdatePassword(SQLModel):
@@ -82,6 +141,103 @@ class UserPublic(UserBase):
 
 class UsersPublic(SQLModel):
     data: list[UserPublic]
+    count: int
+
+
+# ── Workspace ─────────────────────────────────────────────────────────────────
+
+class WorkspaceBase(SQLModel):
+    name: str = Field(min_length=1, max_length=100)
+    slug: str = Field(unique=True, index=True, max_length=60)
+    logo_url: str | None = Field(default=None, max_length=2048)
+    description: str | None = Field(default=None, max_length=300)
+    timezone: str | None = Field(default=None, max_length=50)
+    workspace_type: str | None = Field(default=None, max_length=20)
+
+
+class WorkspaceCreate(WorkspaceBase):
+    pass
+
+
+class WorkspaceUpdate(SQLModel):
+    name: str | None = Field(default=None, min_length=1, max_length=100)
+    logo_url: str | None = Field(default=None, max_length=2048)
+    description: str | None = Field(default=None, max_length=300)
+    timezone: str | None = Field(default=None, max_length=50)
+    workspace_type: str | None = Field(default=None, max_length=20)
+
+
+class Workspace(WorkspaceBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    created_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    updated_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    members: list["WorkspaceMember"] = Relationship(
+        back_populates="workspace", cascade_delete=True
+    )
+
+
+class WorkspacePublic(WorkspaceBase):
+    id: uuid.UUID
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    role: str | None = None
+
+
+class WorkspacesPublic(SQLModel):
+    data: list[WorkspacePublic]
+    count: int
+
+
+# ── WorkspaceMember ───────────────────────────────────────────────────────────
+
+class WorkspaceMemberBase(SQLModel):
+    role: str = Field(default="member", max_length=20)
+    status: str = Field(default="active", max_length=20)
+
+
+class WorkspaceMemberUpdate(SQLModel):
+    role: str | None = Field(default=None, max_length=20)
+    status: str | None = Field(default=None, max_length=20)
+
+
+class WorkspaceMember(WorkspaceMemberBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    workspace_id: uuid.UUID = Field(
+        foreign_key="workspace.id", nullable=False, ondelete="CASCADE"
+    )
+    user_id: uuid.UUID = Field(
+        foreign_key="user.id", nullable=False, ondelete="CASCADE"
+    )
+    joined_at: datetime | None = Field(
+        default_factory=get_datetime_utc,
+        sa_type=DateTime(timezone=True),  # type: ignore
+    )
+    workspace: Workspace | None = Relationship(back_populates="members")
+    user: User | None = Relationship()
+
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "user_id", name="uq_workspace_user"),
+    )
+
+
+class WorkspaceMemberPublic(WorkspaceMemberBase):
+    id: uuid.UUID
+    workspace_id: uuid.UUID
+    user_id: uuid.UUID
+    joined_at: datetime | None = None
+    full_name: str | None = None
+    email: str | None = None
+    avatar_url: str | None = None
+
+
+class WorkspaceMembersPublic(SQLModel):
+    data: list[WorkspaceMemberPublic]
     count: int
 
 
@@ -159,6 +315,9 @@ class Brand(BrandBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    workspace_id: uuid.UUID = Field(
+        foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True
+    )
     owner: User | None = Relationship()
     projects: list["Project"] = Relationship(back_populates="brand", cascade_delete=True)
 
@@ -166,6 +325,7 @@ class Brand(BrandBase, table=True):
 class BrandPublic(BrandBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    workspace_id: uuid.UUID
     created_at: datetime | None = None
 
 
@@ -184,10 +344,16 @@ class ProjectBase(SQLModel):
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = Field(default=None, foreign_key="brand.id", nullable=True)
     is_featured: bool = Field(default=False)
+    # Portfolio details for the public page
+    live_url: str | None = Field(default=None, max_length=2048)
+    thumbnail_url: str | None = Field(default=None, max_length=2048)
+    tags: list[str] = json_list_field()
 
 
 class ProjectCreate(ProjectBase):
-    pass
+    live_url: clean_url() = None  # type: ignore[valid-type]
+    thumbnail_url: clean_url() = None  # type: ignore[valid-type]
+    tags: tag_list(6) = PydanticField(default_factory=list)  # type: ignore[valid-type]
 
 
 class ProjectUpdate(SQLModel):
@@ -198,6 +364,9 @@ class ProjectUpdate(SQLModel):
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = None
     is_featured: bool | None = None
+    live_url: clean_url() = None  # type: ignore[valid-type]
+    thumbnail_url: clean_url() = None  # type: ignore[valid-type]
+    tags: tag_list(6) = PydanticField(default_factory=list)  # type: ignore[valid-type]
 
 
 class Project(ProjectBase, table=True):
@@ -209,6 +378,9 @@ class Project(ProjectBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    workspace_id: uuid.UUID = Field(
+        foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True
+    )
     owner: User | None = Relationship()
     brand: Brand | None = Relationship(back_populates="projects")
     tasks: list["Task"] = Relationship(back_populates="project", cascade_delete=True)
@@ -217,6 +389,7 @@ class Project(ProjectBase, table=True):
 class ProjectPublic(ProjectBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    workspace_id: uuid.UUID
     created_at: datetime | None = None
 
 
@@ -248,12 +421,16 @@ class Collaborator(CollaboratorBase, table=True):
         sa_type=DateTime(timezone=True),  # type: ignore
     )
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False, ondelete="CASCADE")
+    workspace_id: uuid.UUID = Field(
+        foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True
+    )
     owner: User | None = Relationship()
     tasks: list["Task"] = Relationship(back_populates="collaborator")
 
 
 class CollaboratorPublic(CollaboratorBase):
     id: uuid.UUID
+    workspace_id: uuid.UUID
 
 
 class CollaboratorsPublic(SQLModel):
@@ -298,6 +475,9 @@ class Task(TaskBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    workspace_id: uuid.UUID = Field(
+        foreign_key="workspace.id", nullable=False, ondelete="CASCADE", index=True
+    )
     owner: User | None = Relationship(
         sa_relationship_kwargs={"foreign_keys": "[Task.owner_id]"}
     )
@@ -308,6 +488,7 @@ class Task(TaskBase, table=True):
 class TaskPublic(TaskBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    workspace_id: uuid.UUID
     created_at: datetime | None = None
     collaborator: CollaboratorPublic | None = None
 

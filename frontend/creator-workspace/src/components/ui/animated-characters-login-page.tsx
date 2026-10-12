@@ -637,7 +637,7 @@ function LoginPage({ onSubmit, isLoading: externalLoading, externalError, onGoog
                   Remember for 30 days
                 </Label>
               </div>
-              <a href="/recover-password" className="text-sm text-primary hover:underline font-medium">
+              <a href={`${import.meta.env.BASE_URL}recover-password`} className="text-sm text-primary hover:underline font-medium">
                 Forgot password?
               </a>
             </div>
@@ -672,7 +672,7 @@ function LoginPage({ onSubmit, isLoading: externalLoading, externalError, onGoog
 
           <div className="text-center text-sm text-muted-foreground mt-8">
             Don't have an account?{" "}
-            <a href="/signup" className="text-foreground font-medium hover:underline">
+            <a href={`${import.meta.env.BASE_URL}signup`} className="text-foreground font-medium hover:underline">
               Sign Up
             </a>
           </div>

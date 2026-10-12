@@ -9,11 +9,12 @@ import { DataTable } from "@/components/Common/DataTable"
 import AddBrand from "@/components/workspace/Brands/AddBrand"
 import { columns } from "@/components/workspace/Brands/columns"
 import PendingItems from "@/components/workspace/Pending/PendingItems"
+import { useWorkspace } from "@/components/workspace-provider"
 
-function getBrandsQueryOptions() {
+function getBrandsQueryOptions(activeWorkspaceId: string | null) {
   return {
     queryFn: () => BrandsService.readBrands({ skip: 0, limit: 100 }),
-    queryKey: ["brands"],
+    queryKey: ["brands", activeWorkspaceId],
   }
 }
 
@@ -37,7 +38,8 @@ function BrandsTableContent({
   search: string
   statusFilter: string
 }) {
-  const { data: brands } = useSuspenseQuery(getBrandsQueryOptions())
+  const { activeWorkspaceId } = useWorkspace()
+  const { data: brands } = useSuspenseQuery(getBrandsQueryOptions(activeWorkspaceId))
 
   const filtered = useMemo(() => {
     let data = brands.data

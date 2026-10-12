@@ -11,6 +11,7 @@ import {
 import useAuth from "@/hooks/useAuth"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher"
 
 const baseItems: Item[] = [
   { icon: Home, title: "Dashboard", path: "/" },
@@ -30,8 +31,9 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="offcanvas">
-      <SidebarHeader className="px-4 py-5">
+      <SidebarHeader className="px-4 py-5 gap-2">
         <Logo variant="full" />
+        <WorkspaceSwitcher />
       </SidebarHeader>
       <SidebarContent>
         <Main items={items} />

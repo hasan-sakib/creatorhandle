@@ -48,6 +48,12 @@ class Settings(BaseSettings):
             self.FRONTEND_HOST
         ]
 
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def DASHBOARD_URL(self) -> str:
+        # The dashboard app is served under /app on the same origin as the site.
+        return f"{self.FRONTEND_HOST.rstrip('/')}/app"
+
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     POSTGRES_SERVER: str

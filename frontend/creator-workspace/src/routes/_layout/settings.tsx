@@ -3,19 +3,27 @@ import { createFileRoute } from "@tanstack/react-router"
 import AppearanceSettings from "@/components/workspace/UserSettings/AppearanceSettings"
 import ChangePassword from "@/components/workspace/UserSettings/ChangePassword"
 import DeleteAccount from "@/components/workspace/UserSettings/DeleteAccount"
+import PortfolioSettings from "@/components/workspace/UserSettings/PortfolioSettings"
 import UserInformation from "@/components/workspace/UserSettings/UserInformation"
+import WorkspaceMembers from "@/components/workspace/UserSettings/WorkspaceMembers"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import useAuth from "@/hooks/useAuth"
 
 const tabsConfig = [
   { value: "my-profile", title: "My profile", component: UserInformation },
+  { value: "portfolio", title: "Portfolio", component: PortfolioSettings },
   { value: "password", title: "Password", component: ChangePassword },
   { value: "appearance", title: "Appearance", component: AppearanceSettings },
+  { value: "workspace", title: "Workspace", component: WorkspaceMembers },
   { value: "danger-zone", title: "Danger zone", component: DeleteAccount },
 ]
 
 export const Route = createFileRoute("/_layout/settings")({
   component: UserSettings,
+  // ?tab=portfolio opens that tab (used by links from the public page)
+  validateSearch: (search: Record<string, unknown>): { tab?: string } => ({
+    tab: typeof search.tab === "string" ? search.tab : undefined,
+  }),
   head: () => ({
     meta: [
       {
@@ -27,8 +35,10 @@ export const Route = createFileRoute("/_layout/settings")({
 
 function UserSettings() {
   const { user: currentUser } = useAuth()
+  const { tab } = Route.useSearch()
+  // Superusers don't get the "Danger zone" tab (it's last)
   const finalTabs = currentUser?.is_superuser
-    ? tabsConfig.slice(0, 3)
+    ? tabsConfig.slice(0, -1)
     : tabsConfig
 
   if (!currentUser) {
@@ -44,7 +54,7 @@ function UserSettings() {
         </p>
       </div>
 
-      <Tabs defaultValue="my-profile">
+      <Tabs defaultValue={finalTabs.some((t) => t.value === tab) ? tab : "my-profile"}>
         <TabsList>
           {finalTabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>

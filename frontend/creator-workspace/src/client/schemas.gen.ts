@@ -57,6 +57,366 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const BrandCreateSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        category: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Category',
+            default: 'Other'
+        },
+        contact_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Name'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        status: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Status',
+            default: 'active'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    required: ['name'],
+    title: 'BrandCreate'
+} as const;
+
+export const BrandPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        category: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Category',
+            default: 'Other'
+        },
+        contact_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Name'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        status: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Status',
+            default: 'active'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        }
+    },
+    type: 'object',
+    required: ['name', 'id', 'owner_id', 'workspace_id'],
+    title: 'BrandPublic'
+} as const;
+
+export const BrandUpdateSchema = {
+    properties: {
+        name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Name'
+        },
+        category: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Category'
+        },
+        contact_name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Name'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        },
+        notes: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Notes'
+        }
+    },
+    type: 'object',
+    title: 'BrandUpdate'
+} as const;
+
+export const BrandsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/BrandPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'BrandsPublic'
+} as const;
+
+export const CollaboratorCreateSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        role: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    required: ['name', 'role'],
+    title: 'CollaboratorCreate'
+} as const;
+
+export const CollaboratorPublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        role: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Role'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        }
+    },
+    type: 'object',
+    required: ['name', 'role', 'id', 'workspace_id'],
+    title: 'CollaboratorPublic'
+} as const;
+
+export const CollaboratorUpdateSchema = {
+    properties: {
+        name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Name'
+        },
+        role: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    title: 'CollaboratorUpdate'
+} as const;
+
+export const CollaboratorsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CollaboratorPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CollaboratorsPublic'
+} as const;
+
+export const GoogleTokenBodySchema = {
+    properties: {
+        token: {
+            type: 'string',
+            title: 'Token'
+        }
+    },
+    type: 'object',
+    required: ['token'],
+    title: 'GoogleTokenBody'
+} as const;
+
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
@@ -251,6 +611,1120 @@ export const PrivateUserCreateSchema = {
     title: 'PrivateUserCreate'
 } as const;
 
+export const ProjectCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 200,
+            minLength: 1,
+            title: 'Title'
+        },
+        type: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Type',
+            default: 'Other'
+        },
+        platform_status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Platform Status',
+            default: 'Planning'
+        },
+        deadline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Deadline'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        brand_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Brand Id'
+        },
+        is_featured: {
+            type: 'boolean',
+            title: 'Is Featured',
+            default: false
+        },
+        live_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Live Url'
+        },
+        thumbnail_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Thumbnail Url'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 6,
+            title: 'Tags'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ProjectCreate'
+} as const;
+
+export const ProjectPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 200,
+            minLength: 1,
+            title: 'Title'
+        },
+        type: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Type',
+            default: 'Other'
+        },
+        platform_status: {
+            type: 'string',
+            maxLength: 50,
+            title: 'Platform Status',
+            default: 'Planning'
+        },
+        deadline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Deadline'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        brand_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Brand Id'
+        },
+        is_featured: {
+            type: 'boolean',
+            title: 'Is Featured',
+            default: false
+        },
+        live_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Live Url'
+        },
+        thumbnail_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Thumbnail Url'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Tags'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'owner_id', 'workspace_id'],
+    title: 'ProjectPublic'
+} as const;
+
+export const ProjectUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 200,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Type'
+        },
+        platform_status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Platform Status'
+        },
+        deadline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Deadline'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        brand_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Brand Id'
+        },
+        is_featured: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Featured'
+        },
+        live_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Live Url'
+        },
+        thumbnail_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Thumbnail Url'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 6,
+            title: 'Tags'
+        }
+    },
+    type: 'object',
+    title: 'ProjectUpdate'
+} as const;
+
+export const ProjectsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ProjectPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ProjectsPublic'
+} as const;
+
+export const PublicBrandSchema = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        category: {
+            type: 'string',
+            title: 'Category'
+        }
+    },
+    type: 'object',
+    required: ['id', 'name', 'category'],
+    title: 'PublicBrand'
+} as const;
+
+export const PublicCreatorSchema = {
+    properties: {
+        username: {
+            type: 'string',
+            title: 'Username'
+        },
+        full_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Name'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        },
+        cover_image_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cover Image Url'
+        },
+        headline: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Headline'
+        },
+        location: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Location'
+        },
+        languages: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Languages'
+        },
+        about: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'About'
+        },
+        bio: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bio'
+        },
+        niches: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Niches'
+        },
+        content_formats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Content Formats'
+        },
+        platforms: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Platforms'
+        },
+        services: {
+            items: {
+                '$ref': '#/components/schemas/PublicOffering'
+            },
+            type: 'array',
+            title: 'Services'
+        },
+        availability: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Availability'
+        },
+        media_kit_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Media Kit Url'
+        },
+        accent_color: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Accent Color'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        },
+        twitter: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Twitter'
+        },
+        instagram: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Instagram'
+        },
+        youtube: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youtube'
+        },
+        tiktok: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tiktok'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        member_since: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Member Since'
+        },
+        stats: {
+            '$ref': '#/components/schemas/PublicStats'
+        },
+        brands: {
+            items: {
+                '$ref': '#/components/schemas/PublicBrand'
+            },
+            type: 'array',
+            title: 'Brands'
+        },
+        projects: {
+            items: {
+                '$ref': '#/components/schemas/PublicProject'
+            },
+            type: 'array',
+            title: 'Projects'
+        },
+        projects_total: {
+            type: 'integer',
+            title: 'Projects Total'
+        }
+    },
+    type: 'object',
+    required: ['username', 'languages', 'niches', 'content_formats', 'platforms', 'services', 'stats', 'brands', 'projects', 'projects_total'],
+    title: 'PublicCreator'
+} as const;
+
+export const PublicOfferingSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'PublicOffering'
+} as const;
+
+export const PublicProjectSchema = {
+    properties: {
+        id: {
+            type: 'string',
+            title: 'Id'
+        },
+        title: {
+            type: 'string',
+            title: 'Title'
+        },
+        type: {
+            type: 'string',
+            title: 'Type'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        is_featured: {
+            type: 'boolean',
+            title: 'Is Featured'
+        },
+        brand_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Brand Name'
+        },
+        live_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Live Url'
+        },
+        thumbnail_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Thumbnail Url'
+        },
+        tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Tags'
+        }
+    },
+    type: 'object',
+    required: ['id', 'title', 'type', 'is_featured', 'tags'],
+    title: 'PublicProject'
+} as const;
+
+export const PublicStatsSchema = {
+    properties: {
+        brands_count: {
+            type: 'integer',
+            title: 'Brands Count'
+        },
+        projects_count: {
+            type: 'integer',
+            title: 'Projects Count'
+        }
+    },
+    type: 'object',
+    required: ['brands_count', 'projects_count'],
+    title: 'PublicStats'
+} as const;
+
+export const ServiceItemSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 60,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 200
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'ServiceItem',
+    description: 'One thing a creator offers to brands.'
+} as const;
+
+export const TaskCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 200,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Status',
+            default: 'To Do'
+        },
+        priority: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Priority',
+            default: 'Medium'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        assigned_to: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Assigned To'
+        },
+        collaborator_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Collaborator Id'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'TaskCreate'
+} as const;
+
+export const TaskPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 200,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Status',
+            default: 'To Do'
+        },
+        priority: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Priority',
+            default: 'Medium'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        assigned_to: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Assigned To'
+        },
+        collaborator_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Collaborator Id'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        owner_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Owner Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        },
+        collaborator: {
+            anyOf: [
+                {
+                    '$ref': '#/components/schemas/CollaboratorPublic'
+                },
+                {
+                    type: 'null'
+                }
+            ]
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'owner_id', 'workspace_id'],
+    title: 'TaskPublic'
+} as const;
+
+export const TaskUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 200,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        },
+        priority: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Priority'
+        },
+        due_date: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Due Date'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
+        },
+        assigned_to: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Assigned To'
+        },
+        collaborator_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Collaborator Id'
+        }
+    },
+    type: 'object',
+    title: 'TaskUpdate'
+} as const;
+
+export const TasksPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/TaskPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'TasksPublic'
+} as const;
+
 export const TokenSchema = {
     properties: {
         access_token: {
@@ -318,6 +1792,239 @@ export const UserCreateSchema = {
             ],
             title: 'Full Name'
         },
+        username: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 30
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Username'
+        },
+        bio: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bio'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        },
+        twitter: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Twitter'
+        },
+        instagram: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Instagram'
+        },
+        youtube: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youtube'
+        },
+        tiktok: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tiktok'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        },
+        is_published: {
+            type: 'boolean',
+            title: 'Is Published',
+            default: false
+        },
+        headline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 120
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Headline'
+        },
+        location: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Location'
+        },
+        languages: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Languages'
+        },
+        about: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'About'
+        },
+        niches: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Niches'
+        },
+        content_formats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Content Formats'
+        },
+        platforms: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Platforms'
+        },
+        services: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Services'
+        },
+        availability: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Availability'
+        },
+        media_kit_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Media Kit Url'
+        },
+        cover_image_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cover Image Url'
+        },
+        accent_color: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Accent Color'
+        },
         password: {
             type: 'string',
             maxLength: 128,
@@ -359,6 +2066,239 @@ export const UserPublicSchema = {
                 }
             ],
             title: 'Full Name'
+        },
+        username: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 30
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Username'
+        },
+        bio: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bio'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        },
+        twitter: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Twitter'
+        },
+        instagram: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Instagram'
+        },
+        youtube: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youtube'
+        },
+        tiktok: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tiktok'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        },
+        is_published: {
+            type: 'boolean',
+            title: 'Is Published',
+            default: false
+        },
+        headline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 120
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Headline'
+        },
+        location: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Location'
+        },
+        languages: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Languages'
+        },
+        about: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'About'
+        },
+        niches: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Niches'
+        },
+        content_formats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Content Formats'
+        },
+        platforms: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Platforms'
+        },
+        services: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Services'
+        },
+        availability: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Availability'
+        },
+        media_kit_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Media Kit Url'
+        },
+        cover_image_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cover Image Url'
+        },
+        accent_color: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Accent Color'
         },
         id: {
             type: 'string',
@@ -452,6 +2392,239 @@ export const UserUpdateSchema = {
             ],
             title: 'Full Name'
         },
+        username: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 30
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Username'
+        },
+        bio: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bio'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        },
+        twitter: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Twitter'
+        },
+        instagram: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Instagram'
+        },
+        youtube: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youtube'
+        },
+        tiktok: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tiktok'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        },
+        is_published: {
+            type: 'boolean',
+            title: 'Is Published',
+            default: false
+        },
+        headline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 120
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Headline'
+        },
+        location: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Location'
+        },
+        languages: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Languages'
+        },
+        about: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'About'
+        },
+        niches: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Niches'
+        },
+        content_formats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Content Formats'
+        },
+        platforms: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Platforms'
+        },
+        services: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Services'
+        },
+        availability: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Availability'
+        },
+        media_kit_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Media Kit Url'
+        },
+        cover_image_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cover Image Url'
+        },
+        accent_color: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Accent Color'
+        },
         password: {
             anyOf: [
                 {
@@ -496,6 +2669,251 @@ export const UserUpdateMeSchema = {
                 }
             ],
             title: 'Email'
+        },
+        username: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 30,
+                    pattern: '^[A-Za-z0-9_-]+$'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Username'
+        },
+        bio: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Bio'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        },
+        twitter: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Twitter'
+        },
+        instagram: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Instagram'
+        },
+        youtube: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Youtube'
+        },
+        tiktok: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Tiktok'
+        },
+        contact_email: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Contact Email'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        },
+        is_published: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Published'
+        },
+        headline: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 120
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Headline'
+        },
+        location: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Location'
+        },
+        languages: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 8,
+            title: 'Languages'
+        },
+        about: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'About'
+        },
+        niches: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 10,
+            title: 'Niches'
+        },
+        content_formats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 10,
+            title: 'Content Formats'
+        },
+        platforms: {
+            items: {
+                type: 'string',
+                enum: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'X', 'LinkedIn', 'Podcast', 'Blog', 'Other']
+            },
+            type: 'array',
+            maxItems: 10,
+            title: 'Platforms'
+        },
+        services: {
+            items: {
+                '$ref': '#/components/schemas/ServiceItem'
+            },
+            type: 'array',
+            maxItems: 8,
+            title: 'Services'
+        },
+        availability: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['open', 'limited', 'closed']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Availability'
+        },
+        media_kit_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Media Kit Url'
+        },
+        cover_image_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Cover Image Url'
+        },
+        accent_color: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['teal', 'indigo', 'violet', 'rose', 'orange', 'green', 'sky', 'slate', 'sunset', 'aurora']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Accent Color'
         }
     },
     type: 'object',
@@ -549,4 +2967,395 @@ export const ValidationErrorSchema = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const WorkspaceCreateSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        slug: {
+            type: 'string',
+            maxLength: 60,
+            title: 'Slug'
+        },
+        logo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Logo Url'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        timezone: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Timezone'
+        },
+        workspace_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Workspace Type'
+        }
+    },
+    type: 'object',
+    required: ['name', 'slug'],
+    title: 'WorkspaceCreate'
+} as const;
+
+export const WorkspaceMemberPublicSchema = {
+    properties: {
+        role: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Role',
+            default: 'member'
+        },
+        status: {
+            type: 'string',
+            maxLength: 20,
+            title: 'Status',
+            default: 'active'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        joined_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Joined At'
+        },
+        full_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Full Name'
+        },
+        email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Email'
+        },
+        avatar_url: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Avatar Url'
+        }
+    },
+    type: 'object',
+    required: ['id', 'workspace_id', 'user_id'],
+    title: 'WorkspaceMemberPublic'
+} as const;
+
+export const WorkspaceMemberUpdateSchema = {
+    properties: {
+        role: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Role'
+        },
+        status: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Status'
+        }
+    },
+    type: 'object',
+    title: 'WorkspaceMemberUpdate'
+} as const;
+
+export const WorkspaceMembersPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/WorkspaceMemberPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'WorkspaceMembersPublic'
+} as const;
+
+export const WorkspacePublicSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            minLength: 1,
+            title: 'Name'
+        },
+        slug: {
+            type: 'string',
+            maxLength: 60,
+            title: 'Slug'
+        },
+        logo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Logo Url'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        timezone: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Timezone'
+        },
+        workspace_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Workspace Type'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        created_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created At'
+        },
+        updated_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Updated At'
+        },
+        role: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Role'
+        }
+    },
+    type: 'object',
+    required: ['name', 'slug', 'id'],
+    title: 'WorkspacePublic'
+} as const;
+
+export const WorkspaceUpdateSchema = {
+    properties: {
+        name: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100,
+                    minLength: 1
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Name'
+        },
+        logo_url: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 2048
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Logo Url'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 300
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        },
+        timezone: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 50
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Timezone'
+        },
+        workspace_type: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Workspace Type'
+        }
+    },
+    type: 'object',
+    title: 'WorkspaceUpdate'
+} as const;
+
+export const WorkspacesPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/WorkspacePublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'WorkspacesPublic'
 } as const;

@@ -39,8 +39,8 @@ graph TB
         CS["creator-site<br/>(Public Profile SPA)<br/>React + TanStack Router"]
     end
 
-    subgraph Proxy["Traefik Reverse Proxy"]
-        T["SSL Termination<br/>& Routing"]
+    subgraph Proxy["Caddy (single container)"]
+        T["Auto-HTTPS, static SPAs<br/>& /api proxy"]
     end
 
     subgraph Backend["FastAPI Backend"]
@@ -56,7 +56,6 @@ graph TB
 
     subgraph Infra["Infrastructure"]
         MAIL["Mailcatcher<br/>(Dev SMTP)"]
-        ADM["Adminer<br/>(DB Admin UI)"]
     end
 
     WS -->|"HTTPS (auth)"| T
@@ -67,7 +66,6 @@ graph TB
     ROUTES --> PG
     ALM --> PG
     API --> MAIL
-    ADM --> PG
 ```
 
 ### Data Model
@@ -136,7 +134,7 @@ erDiagram
 ```mermaid
 sequenceDiagram
     participant B as Browser
-    participant T as Traefik
+    participant T as Caddy
     participant F as FastAPI
     participant D as PostgreSQL
 
@@ -188,8 +186,7 @@ sequenceDiagram
 | Service | Technology |
 |---|---|
 | Containerization | Docker + Docker Compose |
-| Reverse proxy | [Traefik](https://traefik.io/) (SSL, routing) |
-| DB admin | Adminer |
+| Web server / proxy | [Caddy](https://caddyserver.com/) (auto-HTTPS, static SPAs, `/api` proxy) |
 | Dev email | Mailcatcher |
 | Error tracking | Sentry SDK |
 

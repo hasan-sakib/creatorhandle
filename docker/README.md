@@ -7,8 +7,8 @@ All Compose files live in `deploy/`. Commands must be run from the **repo root**
 | File | Used For |
 |---|---|
 | `deploy/compose.yml` | Base stack definition (all environments) |
-| `deploy/compose.override.yml` | Local dev overrides — adds live-reload, Traefik dev proxy, Mailcatcher, port mappings |
-| `deploy/compose.traefik.yml` | Production public Traefik proxy (run once per server, outside the app stack) |
+| `deploy/compose.override.yml` | Local dev overrides — adds live-reload, Mailcatcher, port mappings, dev dependencies |
+| `deploy/compose.prod.yml` | Production additions: publishes ports 80/443 and sets the public domain (`docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build`) |
 
 ## Common Commands
 
@@ -34,8 +34,8 @@ docker compose -f deploy/compose.yml -f deploy/compose.override.yml down -v
 # Rebuild a specific image (e.g. after changing VITE_GOOGLE_CLIENT_ID)
 docker compose -f deploy/compose.yml -f deploy/compose.override.yml build --no-cache frontend
 
-# Production deploy (only compose.yml, no dev overrides)
-docker compose -f deploy/compose.yml up -d
+# Production deploy (no dev overrides)
+docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build
 ```
 
 ## Services
@@ -43,45 +43,41 @@ docker compose -f deploy/compose.yml up -d
 | Service | Image | Port (local) | Description |
 |---|---|---|---|
 | `db` | postgres:18 | 5432 | PostgreSQL database |
-| `backend` | `docker/Dockerfile.backend` | 8000 | FastAPI application |
-| `frontend` | `docker/Dockerfile.frontend` | 5173→80 | Nginx serving both Vite apps |
-| `adminer` | adminer | 8080 | Database web UI |
-| `prestart` | backend image | — | Runs Alembic migrations + seeds superuser |
-| `proxy` | traefik:3.6 | 80, 8090 | Dev: insecure proxy; Prod: TLS termination |
+| `backend` | `docker/Dockerfile.backend` | 8000 | FastAPI application (runs migrations + seeds superuser on start) |
+| `frontend` | `docker/Dockerfile.frontend` | 5173→80 | Caddy: serves both Vite apps, proxies `/api` to the backend, HTTPS in prod |
 | `mailcatcher` | schickling/mailcatcher | 1025 (SMTP), 1080 (Web) | Catches all outbound email in dev |
-| `playwright` | `docker/Dockerfile.playwright` | 9323 | E2E test runner |
+| `playwright` | `docker/Dockerfile.playwright` | 9323 | E2E test runner (on demand: `docker compose ... run --rm playwright`) |
 
 ## Local Dev URLs
 
 | Service | URL |
 |---|---|
-| Dashboard | http://localhost:5173 |
-| Public creator profile | http://localhost:5173/creator/{username} |
+| Marketing site | http://localhost:5173 |
+| Dashboard | http://localhost:5173/app/ |
+| Public creator profile | http://localhost:5173/@{username} |
 | Backend API | http://localhost:8000 |
 | Swagger UI | http://localhost:8000/docs |
-| Adminer | http://localhost:8080 |
 | Mailcatcher | http://localhost:1080 |
-| Traefik UI | http://localhost:8090 |
 
 ## Dockerfile Details
 
 ### `docker/Dockerfile.backend`
 
-- Base: `python:3.10`
-- Package manager: `uv` (installed from ghcr.io/astral-sh/uv)
-- Build: installs dependencies, copies `backend/app/`
-- Production command: `fastapi run --workers 4 app/main.py`
-- Dev override (from compose.override.yml): `fastapi run --reload app/main.py` with volume mount
+- Multi-stage: a builder stage (`python:3.10-slim` + `uv`) installs dependencies into a virtualenv, and the runtime stage (`python:3.10-slim`) copies only that virtualenv and the app. No `uv`, build cache or dev tools in the final image (~390 MB).
+- `INSTALL_DEV` build arg (default `false`): `true` also installs the dev dependencies (pytest, ruff, mypy, ...) and ships `backend/tests`. `compose.override.yml` and `deploy/scripts/test*.sh` set it.
+- Entrypoint (`backend/scripts/entrypoint.sh`): waits for the DB, runs `alembic upgrade head`, seeds the first superuser, then starts the command.
+- Command: `fastapi run app/main.py`; the number of workers comes from `WEB_CONCURRENCY` (default 2).
+- Dev override (from compose.override.yml): `fastapi run --reload app/main.py` with `develop.watch` sync.
 
 ### `docker/Dockerfile.frontend`
 
-Multi-stage build producing a single Nginx image with both Vite apps:
+Multi-stage build producing a small Caddy image with both Vite apps:
 
 ```
 Stage 0: deps          — bun install (Bun workspace, shared lockfile)
 Stage 1: workspace-build — builds creator-workspace with VITE_API_URL + VITE_GOOGLE_CLIENT_ID
 Stage 2: site-build    — builds creator-site with VITE_API_URL
-Stage 3: nginx:1       — copies both dists, applies nginx.conf
+Stage 3: caddy:2-alpine — copies both dists, installs frontend/Caddyfile
 ```
 
 Build args passed from compose.override.yml:
@@ -96,6 +92,7 @@ These are **baked into the JavaScript bundle** at build time. Changing them requ
 ### `docker/Dockerfile.playwright`
 
 - Extends the frontend build (shares `bun install`)
+- Not built by `docker compose up`: it sits behind the `test` profile and only builds when you `run` it
 - Runs Playwright E2E tests
 - Used by the `playwright` service in compose.override.yml
 

@@ -11,19 +11,25 @@ import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
 import { AccentColorProvider } from "./components/accent-color-provider"
 import { ThemeProvider } from "./components/theme-provider"
+import { ACTIVE_WORKSPACE_KEY } from "./components/workspace-provider"
 import { Toaster } from "./components/ui/sonner"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 
-OpenAPI.BASE = import.meta.env.VITE_API_URL
+OpenAPI.BASE = import.meta.env.VITE_API_URL ?? ""
 OpenAPI.TOKEN = async () => {
   return localStorage.getItem("access_token") || ""
 }
+OpenAPI.HEADERS = async () => {
+  return { "X-Workspace-Id": localStorage.getItem(ACTIVE_WORKSPACE_KEY) || "" }
+}
 
 const handleApiError = (error: Error) => {
-  if (error instanceof ApiError && [401, 403].includes(error.status)) {
+  // 403 is now an expected, normal response (e.g. insufficient workspace
+  // permission) — only an actual invalid/expired token should log the user out.
+  if (error instanceof ApiError && error.status === 401) {
     localStorage.removeItem("access_token")
-    window.location.href = "/login"
+    window.location.href = `${import.meta.env.BASE_URL}login`
   }
 }
 const queryClient = new QueryClient({
@@ -35,7 +41,10 @@ const queryClient = new QueryClient({
   }),
 })
 
-const router = createRouter({ routeTree })
+const router = createRouter({
+  routeTree,
+  basepath: import.meta.env.BASE_URL.replace(/\/$/, ""),
+})
 declare module "@tanstack/react-router" {
   interface Register {
     router: typeof router

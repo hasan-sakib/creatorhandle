@@ -9,11 +9,12 @@ import { DataTable } from "@/components/Common/DataTable"
 import AddCollaborator from "@/components/workspace/Team/AddCollaborator"
 import { columns } from "@/components/workspace/Team/columns"
 import PendingItems from "@/components/workspace/Pending/PendingItems"
+import { useWorkspace } from "@/components/workspace-provider"
 
-function getCollaboratorsQueryOptions() {
+function getCollaboratorsQueryOptions(activeWorkspaceId: string | null) {
   return {
     queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
-    queryKey: ["collaborators"],
+    queryKey: ["collaborators", activeWorkspaceId],
   }
 }
 
@@ -39,7 +40,8 @@ function TeamTableContent({
   search: string
   roleFilter: string
 }) {
-  const { data: collaborators } = useSuspenseQuery(getCollaboratorsQueryOptions())
+  const { activeWorkspaceId } = useWorkspace()
+  const { data: collaborators } = useSuspenseQuery(getCollaboratorsQueryOptions(activeWorkspaceId))
 
   const filtered = useMemo(() => {
     let data = collaborators.data

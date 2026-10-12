@@ -11,11 +11,12 @@ import AddTask from "@/components/workspace/Tasks/AddTask"
 import { columns } from "@/components/workspace/Tasks/columns"
 import { KanbanBoard } from "@/components/workspace/Tasks/KanbanBoard"
 import PendingItems from "@/components/workspace/Pending/PendingItems"
+import { useWorkspace } from "@/components/workspace-provider"
 
-function getTasksQueryOptions() {
+function getTasksQueryOptions(activeWorkspaceId: string | null) {
   return {
     queryFn: () => TasksService.readTasks({ skip: 0, limit: 100 }),
-    queryKey: ["tasks"],
+    queryKey: ["tasks", activeWorkspaceId],
   }
 }
 
@@ -51,7 +52,8 @@ function TasksContent({
   collaboratorFilter: string
   view: "table" | "kanban"
 }) {
-  const { data: tasks } = useSuspenseQuery(getTasksQueryOptions())
+  const { activeWorkspaceId } = useWorkspace()
+  const { data: tasks } = useSuspenseQuery(getTasksQueryOptions(activeWorkspaceId))
 
   const filtered = useMemo(() => {
     let data = tasks.data
@@ -104,8 +106,9 @@ function Tasks() {
   const [priorityFilter, setPriorityFilter] = useState("all")
   const [collaboratorFilter, setCollaboratorFilter] = useState("all")
 
+  const { activeWorkspaceId } = useWorkspace()
   const { data: collaboratorsData } = useQuery({
-    queryKey: ["collaborators"],
+    queryKey: ["collaborators", activeWorkspaceId],
     queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
   })
 
