@@ -4,7 +4,7 @@ import { useState } from "react"
 
 import type { ApiError } from "@/client"
 import { LoginService } from "@/client"
-import { AnimatedCharactersLoginPage } from "@/components/ui/animated-characters-login-page"
+import { LoginForm } from "@/components/auth/LoginForm"
 import useAuth from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/login")({
@@ -47,11 +47,14 @@ function Login() {
     : googleError
 
   return (
-    <AnimatedCharactersLoginPage
+    <LoginForm
       onSubmit={handleSubmit}
       isLoading={loginMutation.isPending}
-      externalError={errorMessage}
-      onGoogleLogin={() => { setGoogleError(undefined); triggerGoogleLogin() }}
+      error={errorMessage}
+      onGoogleLogin={() => {
+        setGoogleError(undefined)
+        triggerGoogleLogin()
+      }}
     />
   )
 }

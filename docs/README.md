@@ -19,7 +19,8 @@ CreatorHandle is a creator management platform. Each creator gets:
 | Public frontend | React 19, TanStack Router v1 |
 | Styling | Tailwind CSS v4, shadcn/ui components |
 | Package manager | Bun (frontend), uv (backend) |
-| Web server / reverse proxy | Caddy 2 (one container: auto-HTTPS, serves both SPAs, proxies `/api`) |
+| Web server / reverse proxy | Caddy 2 (one container: auto-HTTPS, serves both SPAs, proxies `/api` and `/media`) |
+| Object storage | RustFS (S3-compatible) for uploaded images |
 | Container runtime | Docker Compose |
 | E2E tests | Playwright |
 | Backend tests | Pytest |
@@ -95,6 +96,7 @@ All entities use UUID primary keys. Cascade deletes are configured throughout th
 | Service | Image | Port | Notes |
 |---|---|---|---|
 | db | postgres:18 | 5432 | Primary datastore |
+| rustfs | rustfs/rustfs | 9001 (dev console) | Object storage for uploaded images; private to the Docker network, public reads go through Caddy at `/media/*` |
 | backend | custom (uv + Python 3.10-slim) | 8000 (dev) | FastAPI, `WEB_CONCURRENCY` workers (default 2); runs Alembic migrations on startup |
 | frontend | custom (bun build + caddy:2-alpine) | 5173→80 (dev), 80/443 (prod) | Serves both Vite apps, proxies `/api`, HTTPS in prod |
 | mailcatcher | schickling/mailcatcher | 1025/1080 | Dev SMTP trap |
@@ -161,6 +163,8 @@ creatorhandle/
 | `VITE_GOOGLE_CLIENT_ID` | Same value, baked into frontend bundle at build time |
 | `VITE_API_URL` | Backend URL used by frontend (e.g. `http://localhost:8000`) |
 | `ENVIRONMENT` | `local` / `staging` / `production` |
-| `DOMAIN` | Public domain Caddy serves (one host serves the site, `/app` and `/api`) |
+| `DOMAIN` | Public domain Caddy serves (one host serves the site, `/app`, `/api` and `/media`) |
+| `S3_ACCESS_KEY` / `S3_SECRET_KEY` | Credentials for the image storage (RustFS). Required; use a long random secret in production |
+| `MEDIA_MAX_UPLOAD_MB` | Largest accepted image upload (default 5) |
 | `SMTP_HOST` | SMTP server for email (Mailcatcher in dev) |
 | `SENTRY_DSN` | Optional Sentry error tracking |

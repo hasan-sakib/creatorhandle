@@ -15,6 +15,16 @@ export function safeHttpUrl(value: string | null | undefined): string | null {
   }
 }
 
+/**
+ * An image URL: an absolute http(s) URL, or one of our own uploaded images
+ * (a site-relative /media/images/<owner>/<id>.webp path served by Caddy).
+ */
+export function safeImageUrl(value: string | null | undefined): string | null {
+  const v = (value ?? "").trim()
+  if (/^\/media\/images\/[0-9a-f]{16}\/[0-9a-f]{32}\.webp$/.test(v)) return v
+  return safeHttpUrl(v)
+}
+
 /** A plain address with exactly one "@" and no characters that could alter the mailto: URL. */
 export function safeEmail(value: string | null | undefined): string | null {
   const v = (value ?? "").trim()

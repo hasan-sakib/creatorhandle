@@ -45,6 +45,7 @@ docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build
 | `db` | postgres:18 | 5432 | PostgreSQL database |
 | `backend` | `docker/Dockerfile.backend` | 8000 | FastAPI application (runs migrations + seeds superuser on start) |
 | `frontend` | `docker/Dockerfile.frontend` | 5173→80 | Caddy: serves both Vite apps, proxies `/api` to the backend, HTTPS in prod |
+| `rustfs` | rustfs/rustfs | 9001 (console, dev only) | S3-compatible object storage for uploaded images (private network; Caddy serves `/media/*`) |
 | `mailcatcher` | schickling/mailcatcher | 1025 (SMTP), 1080 (Web) | Catches all outbound email in dev |
 | `playwright` | `docker/Dockerfile.playwright` | 9323 | E2E test runner (on demand: `docker compose ... run --rm playwright`) |
 

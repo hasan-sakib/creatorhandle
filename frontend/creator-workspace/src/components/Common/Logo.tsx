@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router"
+import { AtSign } from "lucide-react"
 
-import { useTheme } from "@/components/theme-provider"
 import { cn } from "@/lib/utils"
-import icon from "/assets/images/fastapi-icon.svg"
-import iconLight from "/assets/images/fastapi-icon-light.svg"
 
 interface LogoProps {
   variant?: "full" | "icon" | "responsive"
@@ -11,51 +9,57 @@ interface LogoProps {
   asLink?: boolean
 }
 
+function Mark({ className }: { className?: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-lg bg-primary text-primary-foreground",
+        className,
+      )}
+    >
+      <AtSign className="size-[18px]" strokeWidth={2.5} />
+    </span>
+  )
+}
+
+const wordmark = "text-[17px] font-semibold leading-none tracking-tight text-foreground"
+
 export function Logo({
   variant = "full",
   className,
   asLink = true,
 }: LogoProps) {
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-
-  const iconSrc = isDark ? iconLight : icon
-
-  const iconImg = (
-    <img src={iconSrc} alt="CreatorHandle" className="size-5 shrink-0" />
-  )
-
-  const fullContent = (
-    <span className={cn("flex items-center gap-3", className)}>
-      <img src={iconSrc} alt="CreatorHandle" className="h-9 w-9 shrink-0" />
-      <span className="font-bold text-sidebar-foreground text-2xl leading-none tracking-tight">
-        CreatorHandle
-      </span>
-    </span>
-  )
-
   const content =
     variant === "icon" ? (
-      <span className={cn("flex items-center", className)}>{iconImg}</span>
+      <span className={cn("flex items-center", className)}>
+        <Mark />
+        <span className="sr-only">CreatorHandle</span>
+      </span>
     ) : variant === "responsive" ? (
       <>
-        <span className="flex items-center gap-2 group-data-[collapsible=icon]:hidden">
-          {iconImg}
-          <span className="font-semibold text-sidebar-foreground text-base leading-none">
-            CreatorHandle
-          </span>
+        <span className="flex items-center gap-2.5 group-data-[collapsible=icon]:hidden">
+          <Mark />
+          <span className={wordmark}>CreatorHandle</span>
         </span>
-        <span className="hidden group-data-[collapsible=icon]:flex items-center">
-          {iconImg}
+        <span className="hidden items-center group-data-[collapsible=icon]:flex">
+          <Mark />
         </span>
       </>
     ) : (
-      fullContent
+      <span className={cn("flex items-center gap-2.5", className)}>
+        <Mark />
+        <span className={wordmark}>CreatorHandle</span>
+      </span>
     )
 
   if (!asLink) {
     return content
   }
 
-  return <Link to="/">{content}</Link>
+  return (
+    <Link to="/" aria-label="CreatorHandle home">
+      {content}
+    </Link>
+  )
 }

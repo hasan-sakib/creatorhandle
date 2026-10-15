@@ -10,7 +10,9 @@ from app.api.deps import (
     SessionDep,
     get_current_active_superuser,
 )
+from app.core import storage
 from app.core.config import settings
+from app.core.media import is_media_path, owns_media
 from app.core.security import get_password_hash, verify_password
 from app.models import (
     Item,
@@ -97,10 +99,25 @@ def update_user_me(
             status_code=400, detail="Set a username before publishing your profile"
         )
     user_data = user_in.model_dump(exclude_unset=True)
+
+    image_fields = [f for f in ("avatar_url", "cover_image_url") if f in user_data]
+    for field in image_fields:
+        new = user_data[field]
+        if is_media_path(new) and not owns_media(current_user.id, new):
+            raise HTTPException(
+                status_code=400, detail="You can only use images you uploaded"
+            )
+    previous = {f: getattr(current_user, f) for f in image_fields}
+
     current_user.sqlmodel_update(user_data)
     session.add(current_user)
     session.commit()
     session.refresh(current_user)
+
+    # Remove images that were replaced or cleared (only ones this user uploaded)
+    for field, old in previous.items():
+        if old != getattr(current_user, field) and owns_media(current_user.id, old):
+            storage.delete_image(old)
     return current_user
 
 

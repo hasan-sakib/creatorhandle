@@ -8,6 +8,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
+import { ImageField } from "@/components/ui/image-field"
 import { Input } from "@/components/ui/input"
 import { TagInput } from "@/components/ui/tag-input"
 
@@ -38,22 +39,14 @@ export function ProjectPortfolioFields({ control }: { control: Control<any> }) {
         name="thumbnail_url"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Thumbnail image link</FormLabel>
-            <FormControl>
-              <Input inputMode="url" placeholder="https://…/thumbnail.jpg" {...field} />
-            </FormControl>
-            {field.value ? (
-              <img
-                src={field.value}
-                alt="Thumbnail preview"
-                loading="lazy"
-                referrerPolicy="no-referrer"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none"
-                }}
-                className="mt-2 aspect-video w-40 rounded-md border object-cover"
-              />
-            ) : null}
+            <FormLabel>Thumbnail</FormLabel>
+            <ImageField
+              kind="thumbnail"
+              label="Project thumbnail"
+              value={field.value ?? ""}
+              onChange={field.onChange}
+              previewClassName="aspect-video w-32"
+            />
             <FormMessage />
           </FormItem>
         )}

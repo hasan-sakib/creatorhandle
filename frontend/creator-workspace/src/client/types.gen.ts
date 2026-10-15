@@ -9,6 +9,13 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type Body_uploads_upload_image = {
+    file: (Blob | File);
+    kind?: 'avatar' | 'cover' | 'thumbnail';
+};
+
+export type kind = 'avatar' | 'cover' | 'thumbnail';
+
 export type BrandCreate = {
     name: string;
     category?: string;
@@ -279,6 +286,12 @@ export type Token = {
 export type UpdatePassword = {
     current_password: string;
     new_password: string;
+};
+
+export type UploadedImage = {
+    url: string;
+    width: number;
+    height: number;
 };
 
 export type UserCreate = {
@@ -682,6 +695,12 @@ export type TasksDeleteTaskData = {
 };
 
 export type TasksDeleteTaskResponse = (Message);
+
+export type UploadsUploadImageData = {
+    formData: Body_uploads_upload_image;
+};
+
+export type UploadsUploadImageResponse = (UploadedImage);
 
 export type UsersReadUsersData = {
     limit?: number;

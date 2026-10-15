@@ -1,7 +1,8 @@
-# Three services behind one origin:
-#   frontend  Caddy: serves both SPAs, proxies /api to backend, handles HTTPS
+# Four services behind one origin:
+#   frontend  Caddy: serves both SPAs, proxies /api to backend and /media to rustfs, handles HTTPS
 #   backend   FastAPI (runs migrations on start)
 #   db        PostgreSQL
+#   rustfs    S3-compatible object storage for uploaded images (private network only)
 # Production adds published ports and the domain via compose.prod.yml.
 
 x-logging: &logging
@@ -32,6 +33,24 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_DB=${POSTGRES_DB?Variable not set}
 
+  # Uploaded images (avatars, covers, project thumbnails). Not published to the
+  # host: the backend writes to it, and Caddy serves public reads at /media/*.
+  rustfs:
+    image: rustfs/rustfs:1.0.1
+    restart: always
+    logging: *logging
+    environment:
+      - RUSTFS_ACCESS_KEY=${S3_ACCESS_KEY?Variable not set}
+      - RUSTFS_SECRET_KEY=${S3_SECRET_KEY?Variable not set}
+    volumes:
+      - rustfs-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
   backend:
     image: '${DOCKER_IMAGE_BACKEND?Variable not set}:${TAG-latest}'
     restart: always
@@ -45,12 +64,17 @@ services:
       db:
         condition: service_healthy
         restart: true
+      rustfs:
+        condition: service_healthy
     # Everything else (SMTP, CORS, Sentry, ...) comes from .env; only the
     # required values are re-declared here so a missing one fails fast.
     env_file:
       - .env
     environment:
       - POSTGRES_SERVER=db
+      - S3_ENDPOINT_URL=http://rustfs:9000
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY?Variable not set}
+      - S3_SECRET_KEY=${S3_SECRET_KEY?Variable not set}
       - FRONTEND_HOST=${FRONTEND_HOST?Variable not set}
       - SECRET_KEY=${SECRET_KEY?Variable not set}
       - FIRST_SUPERUSER=${FIRST_SUPERUSER?Variable not set}
@@ -84,6 +108,7 @@ services:
         - NODE_ENV=production
     depends_on:
       - backend
+      - rustfs
     volumes:
       # Caddy's certificates and state
       - caddy-data:/data
@@ -91,5 +116,6 @@ services:
 
 volumes:
   app-db-data:
+  rustfs-data:
   caddy-data:
   caddy-config:

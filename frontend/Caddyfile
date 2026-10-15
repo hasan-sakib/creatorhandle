@@ -1,5 +1,6 @@
 # One origin serves everything:
 #   /api, /docs, /redoc  -> backend
+#   /media/*             -> uploaded images (object storage, read-only)
 #   /app/*               -> creator-workspace (dashboard)
 #   everything else      -> creator-site (marketing page, /@username profiles)
 #
@@ -35,6 +36,22 @@
 	@backend path /api/* /docs /docs/* /redoc /redoc/*
 	handle @backend {
 		reverse_proxy backend:8000
+	}
+
+	# Uploaded images live in the "media" bucket of the object storage, whose
+	# path-style URLs (/media/images/...) match ours, so no rewrite is needed.
+	# Files have random names and never change, hence the long cache. The
+	# bucket policy only allows anonymous reads of images/* (no listing).
+	handle /media/* {
+		@write not method GET HEAD
+		respond @write 405
+
+		reverse_proxy rustfs:9000 {
+			header_up Host {upstream_hostport}
+			header_down Content-Security-Policy "default-src 'none'; sandbox"
+			header_down -x-amz-request-id
+			header_down -x-request-id
+		}
 	}
 
 	redir /app /app/ permanent

@@ -28,7 +28,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import { ProjectPortfolioFields } from "@/components/workspace/Projects/ProjectPortfolioFields"
-import { blankToNull, tagArray, urlField } from "@/lib/profileFields"
+import { blankToNull, imageField, tagArray, urlField } from "@/lib/profileFields"
 import {
   Select,
   SelectContent,
@@ -48,7 +48,7 @@ const formSchema = z.object({
   brand_id: z.string().nullable().optional(),
   is_featured: z.boolean().optional(),
   live_url: urlField,
-  thumbnail_url: urlField,
+  thumbnail_url: imageField,
   tags: tagArray(6),
 })
 

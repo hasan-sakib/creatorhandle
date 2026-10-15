@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { ExternalLink, Plus, Trash2 } from "lucide-react"
-import { type ReactNode, useState } from "react"
+import type { ReactNode } from "react"
 import { useFieldArray, useForm, type UseFormReturn } from "react-hook-form"
 import { z } from "zod"
 
@@ -10,6 +10,7 @@ import type { AccentKey } from "@/components/accent-color-provider"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
+import { ImageField } from "@/components/ui/image-field"
 import { TagInput } from "@/components/ui/tag-input"
 import { AccentPicker } from "@/components/workspace/UserSettings/AccentPicker"
 import useAuth from "@/hooks/useAuth"
@@ -20,8 +21,8 @@ import {
   NICHE_SUGGESTIONS,
   PLATFORMS,
   blankToNull,
-  isHttpUrl,
   sameList,
+  imageField,
   tagArray,
   urlField,
 } from "@/lib/profileFields"
@@ -60,7 +61,7 @@ function Section({
   onSubmit: () => void
 }) {
   return (
-    <section className="rounded-xl border bg-card p-6 shadow-sm">
+    <section className="rounded-lg border bg-card p-6">
       <h2 className="text-lg font-semibold">{title}</h2>
       <p className="mb-6 mt-1 text-sm text-muted-foreground">{description}</p>
       <form onSubmit={onSubmit} className="space-y-5" noValidate>
@@ -70,14 +71,14 @@ function Section({
             type="submit"
             loading={saving}
             disabled={!form.formState.isDirty}
-            className="rounded-full"
+            
           >
             Save changes
           </LoadingButton>
           <Button
             type="button"
             variant="outline"
-            className="rounded-full"
+            
             disabled={!form.formState.isDirty || saving}
             onClick={() => form.reset()}
           >
@@ -120,25 +121,6 @@ function Field({
 
 const textareaClass =
   "flex min-h-28 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs placeholder:text-muted-foreground focus-visible:border-ring focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 resize-y"
-
-function ImagePreview({ url, alt, className }: { url: string; alt: string; className?: string }) {
-  const [failed, setFailed] = useState<string | null>(null)
-  if (!url || !isHttpUrl(url)) return null
-  const src = url.includes("://") ? url : `https://${url}`
-  if (failed === src) {
-    return <p className="text-xs text-muted-foreground">That image could not be loaded.</p>
-  }
-  return (
-    <img
-      src={src}
-      alt={alt}
-      loading="lazy"
-      referrerPolicy="no-referrer"
-      onError={() => setFailed(src)}
-      className={cn("rounded-lg border object-cover", className)}
-    />
-  )
-}
 
 // ─── 1. About & identity ────────────────────────────────────────────────────
 
@@ -459,7 +441,7 @@ function ServicesCard({ user }: { user: UserPublic }) {
           type="button"
           variant="outline"
           size="sm"
-          className="rounded-full"
+          
           disabled={rows.fields.length >= 8}
           onClick={() => rows.append({ title: "", description: "" })}
         >
@@ -483,8 +465,8 @@ function ServicesCard({ user }: { user: UserPublic }) {
 // ─── 4. Look ────────────────────────────────────────────────────────────────
 
 const lookSchema = z.object({
-  cover_image_url: urlField,
-  avatar_url: urlField,
+  cover_image_url: imageField,
+  avatar_url: imageField,
   accent_color: z.string(),
 })
 type LookData = z.infer<typeof lookSchema>
@@ -518,29 +500,37 @@ function LookCard({ user }: { user: UserPublic }) {
   return (
     <Section
       title="Look & feel"
-      description="Images and the accent color of your public page. Paste links to images you host (your site, a CDN, a public photo)."
+      description="Images and the accent color of your public page. Upload an image, or paste a link to one you host."
       form={form}
       saving={save.isPending}
       onSubmit={onSubmit}
     >
       <Field
-        label="Cover image link"
-        htmlFor="cover_image_url"
-        hint="Wide image shown at the top of your page, around 1600×600 works well."
+        label="Cover image"
+        hint="Wide image at the top of your page. Around 1600×600 works well."
         error={errors.cover_image_url?.message}
       >
-        <Input id="cover_image_url" inputMode="url" placeholder="https://…/cover.jpg" {...form.register("cover_image_url")} />
-        <ImagePreview url={cover} alt="Cover preview" className="mt-2 aspect-[8/3] w-full max-w-md" />
+        <ImageField
+          kind="cover"
+          label="Cover image"
+          value={cover}
+          onChange={(v) => form.setValue("cover_image_url", v, { shouldDirty: true, shouldValidate: true })}
+          previewClassName="aspect-[8/3] w-56"
+        />
       </Field>
 
       <Field
-        label="Profile photo link"
-        htmlFor="avatar_url"
-        hint="Square photo of you or your logo."
+        label="Profile photo"
+        hint="A square photo of you or your logo. It is cropped to a circle."
         error={errors.avatar_url?.message}
       >
-        <Input id="avatar_url" inputMode="url" placeholder="https://…/me.jpg" {...form.register("avatar_url")} />
-        <ImagePreview url={avatar} alt="Profile photo preview" className="mt-2 size-20 rounded-full" />
+        <ImageField
+          kind="avatar"
+          label="Profile photo"
+          value={avatar}
+          onChange={(v) => form.setValue("avatar_url", v, { shouldDirty: true, shouldValidate: true })}
+          previewClassName="size-24 rounded-full"
+        />
       </Field>
 
       <div className="space-y-2">
@@ -569,7 +559,7 @@ const PortfolioSettings = () => {
 
   return (
     <div className="max-w-3xl space-y-6">
-      <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <section className="rounded-lg border bg-card p-6">
         <h2 className="text-lg font-semibold">Your public portfolio</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Visitors see your profile, the niches and services you fill in below, your{" "}

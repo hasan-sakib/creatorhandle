@@ -15,7 +15,7 @@ export default function AppearanceSettings() {
   return (
     <div className="space-y-6 max-w-3xl">
       {/* Accent Color */}
-      <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <section className="rounded-lg border bg-card p-6">
         <h2 className="text-lg font-semibold mb-1">Accent Color</h2>
         <p className="text-sm text-muted-foreground mb-6">
           Choose an accent color for buttons, links, and interactive elements.
@@ -71,7 +71,7 @@ export default function AppearanceSettings() {
       </section>
 
       {/* Theme Mode info */}
-      <section className="rounded-xl border bg-card p-6 shadow-sm">
+      <section className="rounded-lg border bg-card p-6">
         <h2 className="text-lg font-semibold mb-1">Theme Mode</h2>
         <p className="text-sm text-muted-foreground">
           Switch between light and dark mode using the toggle in the sidebar footer.

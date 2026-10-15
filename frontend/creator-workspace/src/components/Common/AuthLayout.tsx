@@ -1,25 +1,27 @@
 import { Appearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"
-import { Footer } from "./Footer"
 
 interface AuthLayoutProps {
   children: React.ReactNode
 }
 
+/** Centered card on a quiet background, like a typical account sign-in page. */
 export function AuthLayout({ children }: AuthLayoutProps) {
   return (
-    <div className="grid min-h-svh lg:grid-cols-2">
-      <div className="bg-muted dark:bg-zinc-900 relative hidden lg:flex lg:items-center lg:justify-center">
-        <Logo variant="full" asLink={false} />
+    <div className="flex min-h-svh flex-col bg-background">
+      <div className="flex justify-end p-4">
+        <Appearance />
       </div>
-      <div className="flex flex-col gap-4 p-6 md:p-10">
-        <div className="flex justify-end">
-          <Appearance />
+      <div className="flex flex-1 items-start justify-center px-4 pb-16 pt-4 sm:items-center sm:pt-0">
+        <div className="w-full max-w-[400px]">
+          <div className="mb-6 flex justify-center">
+            <Logo variant="full" asLink={false} />
+          </div>
+          <div className="rounded-xl border bg-card p-6 sm:p-8">{children}</div>
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            © {new Date().getFullYear()} CreatorHandle
+          </p>
         </div>
-        <div className="flex flex-1 items-center justify-center">
-          <div className="w-full max-w-xs">{children}</div>
-        </div>
-        <Footer />
       </div>
     </div>
   )

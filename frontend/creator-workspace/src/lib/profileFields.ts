@@ -67,6 +67,18 @@ export const urlField = z
     message: "Enter a valid http(s) link",
   })
 
+/** An image we host: /media/images/<owner>/<id>.webp (returned by the upload endpoint). */
+export const isMediaPath = (value: string): boolean =>
+  /^\/media\/images\/[0-9a-f]{16}\/[0-9a-f]{32}\.webp$/.test(value.trim())
+
+/** An uploaded image or an http(s) link. */
+export const imageField = z
+  .string()
+  .max(2048, "Link is too long")
+  .refine((v) => v.trim() === "" || isMediaPath(v) || isHttpUrl(v), {
+    message: "Enter a valid http(s) link or upload an image",
+  })
+
 export const tagArray = (max: number, maxLength = 30) =>
   z
     .array(z.string().max(maxLength, `Each item can be at most ${maxLength} characters`))

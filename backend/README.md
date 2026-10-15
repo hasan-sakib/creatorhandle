@@ -89,6 +89,13 @@ PUT    /api/v1/{resource}/{id}      Update
 DELETE /api/v1/{resource}/{id}      Delete
 ```
 
+### Uploads (`/api/v1/uploads/`) — authentication required
+| Method | Path | Description |
+|---|---|---|
+| POST | `/images` | Upload an avatar, cover or project thumbnail (`multipart/form-data`: `file`, `kind`). Returns `{url, width, height}`; `url` is a site-relative `/media/...` path |
+
+Images are re-encoded to WebP and stored in S3-compatible storage (RustFS). See `app/core/images.py`, `app/core/storage.py` and `app/core/media.py`.
+
 ### Public (`/api/v1/public/`) — no authentication
 | Method | Path | Description |
 |---|---|---|

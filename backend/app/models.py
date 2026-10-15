@@ -15,6 +15,7 @@ from app.core.validators import (
     ServiceList,
     tag_list,
     text as clean_text,
+    image_url as clean_image_url,
     url as clean_url,
 )
 
@@ -99,7 +100,7 @@ class UserUpdateMe(SQLModel):
     youtube: str | None = Field(default=None, max_length=100)
     tiktok: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
-    avatar_url: clean_url() = None  # type: ignore[valid-type]
+    avatar_url: clean_image_url() = None  # type: ignore[valid-type]
     is_published: bool | None = None
 
     # Portfolio details. Omitted = unchanged, [] clears a list, null on a list is rejected.
@@ -113,7 +114,7 @@ class UserUpdateMe(SQLModel):
     services: ServiceList = PydanticField(default_factory=list)
     availability: Availability | None = None
     media_kit_url: clean_url() = None  # type: ignore[valid-type]
-    cover_image_url: clean_url() = None  # type: ignore[valid-type]
+    cover_image_url: clean_image_url() = None  # type: ignore[valid-type]
     accent_color: AccentKey | None = None
 
 
@@ -352,7 +353,7 @@ class ProjectBase(SQLModel):
 
 class ProjectCreate(ProjectBase):
     live_url: clean_url() = None  # type: ignore[valid-type]
-    thumbnail_url: clean_url() = None  # type: ignore[valid-type]
+    thumbnail_url: clean_image_url() = None  # type: ignore[valid-type]
     tags: tag_list(6) = PydanticField(default_factory=list)  # type: ignore[valid-type]
 
 
@@ -365,7 +366,7 @@ class ProjectUpdate(SQLModel):
     brand_id: uuid.UUID | None = None
     is_featured: bool | None = None
     live_url: clean_url() = None  # type: ignore[valid-type]
-    thumbnail_url: clean_url() = None  # type: ignore[valid-type]
+    thumbnail_url: clean_image_url() = None  # type: ignore[valid-type]
     tags: tag_list(6) = PydanticField(default_factory=list)  # type: ignore[valid-type]
 
 

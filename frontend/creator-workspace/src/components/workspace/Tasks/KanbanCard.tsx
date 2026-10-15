@@ -31,7 +31,7 @@ export function KanbanCard({ task, onDragStart }: KanbanCardProps) {
         draggable
         onDragStart={() => onDragStart(task.id)}
         onClick={() => setEditOpen(true)}
-        className="cursor-pointer select-none hover:shadow-md transition-shadow active:opacity-75"
+        className="cursor-pointer select-none transition-colors hover:border-primary/50 active:opacity-75"
       >
         <CardContent className="p-3">
           <p className="text-sm font-medium leading-snug">{task.title}</p>

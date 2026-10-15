@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UploadsUploadImageData, UploadsUploadImageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BrandsService {
     /**
@@ -694,6 +694,28 @@ export class TasksService {
             path: {
                 id: data.id
             },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class UploadsService {
+    /**
+     * Upload Image
+     * Upload an avatar, cover or project thumbnail. Returns the stored image's path.
+     * @param data The data for the request.
+     * @param data.formData
+     * @returns UploadedImage Successful Response
+     * @throws ApiError
+     */
+    public static uploadImage(data: UploadsUploadImageData): CancelablePromise<UploadsUploadImageResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/uploads/images',
+            formData: data.formData,
+            mediaType: 'multipart/form-data',
             errors: {
                 422: 'Validation Error'
             }

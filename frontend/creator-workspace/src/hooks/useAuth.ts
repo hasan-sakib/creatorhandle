@@ -50,7 +50,7 @@ const useAuth = () => {
     onSuccess: () => {
       navigate({ to: "/" })
     },
-    onError: handleError.bind(showErrorToast),
+    // No toast: the sign-in form shows the error inline, next to the fields.
   })
 
   const logout = () => {

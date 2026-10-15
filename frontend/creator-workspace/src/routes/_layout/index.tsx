@@ -46,13 +46,11 @@ function Dashboard() {
   }, [brandsData, projectsData, tasksData])
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Hi, {displayName} 👋
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground font-medium">
-          Welcome back, nice to see you again!
+        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Overview</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {displayName ? `${displayName} · ` : ""}Welcome back, nice to see you again!
         </p>
       </div>
 

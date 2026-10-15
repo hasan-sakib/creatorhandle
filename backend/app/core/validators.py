@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 from pydantic import AfterValidator, BaseModel
 from pydantic import Field as PydanticField
 
+from app.core.media import is_media_path
+
 # Keys of the dashboard accent presets (frontend/creator-workspace
 # components/accent-color-provider.tsx). null means the default teal.
 AccentKey = Literal[
@@ -76,6 +78,16 @@ def _clean_url(value: str | None) -> str | None:
     return value
 
 
+def _clean_image_url(value: str | None) -> str | None:
+    """An uploaded image (our own /media/ path) or an absolute http(s) URL."""
+    value = _clean_text(value)
+    if value is None:
+        return None
+    if is_media_path(value):
+        return value
+    return _clean_url(value)
+
+
 def _clean_tags(max_len: int):
     def _clean(items: list[str]) -> list[str]:
         seen: set[str] = set()
@@ -114,6 +126,12 @@ def text(max_length: int):
 def url(max_length: int = 2048):
     return Annotated[
         str | None, PydanticField(max_length=max_length), AfterValidator(_clean_url)
+    ]
+
+
+def image_url(max_length: int = 2048):
+    return Annotated[
+        str | None, PydanticField(max_length=max_length), AfterValidator(_clean_image_url)
     ]
 
 

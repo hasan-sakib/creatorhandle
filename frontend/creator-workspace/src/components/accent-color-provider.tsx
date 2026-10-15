@@ -77,17 +77,19 @@ const AccentColorContext = createContext<AccentColorContextType | undefined>(und
 
 function applyAccent(key: AccentKey, resolvedTheme: "dark" | "light") {
   const preset = ACCENT_PRESETS[key]
-  const value = preset[resolvedTheme]
   const root = window.document.documentElement
+  // Light mode: darken slightly so white text on filled buttons and the accent
+  // used as text both stay readable (>= 4.5:1). Dark mode: lighter accent, dark text.
+  const value =
+    resolvedTheme === "light"
+      ? `color-mix(in oklch, ${preset.light} 85%, black)`
+      : preset.dark
   root.style.setProperty("--primary", value)
-  root.style.setProperty("--sidebar-primary", value)
   root.style.setProperty("--ring", value)
-  root.style.setProperty("--sidebar", value)
-  root.style.setProperty("--sidebar-foreground", "oklch(0.985 0 0)")
-  root.style.setProperty("--sidebar-primary-foreground", "oklch(0.985 0 0)")
-  root.style.setProperty("--sidebar-accent-foreground", "oklch(0.985 0 0)")
-  root.style.setProperty("--sidebar-accent", `color-mix(in oklch, ${value}, black 18%)`)
-  root.style.setProperty("--sidebar-border", `color-mix(in oklch, ${value}, black 25%)`)
+  root.style.setProperty(
+    "--primary-foreground",
+    resolvedTheme === "light" ? "oklch(0.985 0 0)" : "oklch(0.18 0.01 250)",
+  )
 }
 
 export function AccentColorProvider({ children }: { children: React.ReactNode }) {

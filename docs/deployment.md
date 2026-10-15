@@ -152,6 +152,19 @@ There is no web DB admin tool in the stack. Use `psql`:
 docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec db psql -U postgres app
 ```
 
+## Image uploads (RustFS)
+
+Creators can upload avatars, cover images and project thumbnails. They are stored in a private RustFS (S3-compatible) container and served publicly, read-only, at `https://yourdomain.com/media/...` by Caddy. Add credentials to `deploy/.env` before deploying (the stack will not start without them):
+
+```bash
+S3_ACCESS_KEY=creatorhandle
+S3_SECRET_KEY=<long random secret>     # openssl rand -base64 24
+```
+
+The backend creates the `media` bucket on startup and allows anonymous reads of `images/*` only (no bucket listing, no writes). Uploads are checked, resized and re-encoded as WebP, so they carry no EXIF/GPS data. RustFS and its S3 API are not published on any host port.
+
+**Existing deployments:** add the two `S3_*` variables to `.env`, then redeploy with `up -d --build`. Nothing else changes, and existing image links keep working.
+
 ## Backups
 
 ```bash
@@ -160,7 +173,12 @@ docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec db pg_dump 
 
 # Restore
 cat backup_YYYYMMDD.sql | docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec -T db psql -U postgres app
+
+# Back up uploaded images (the rustfs-data volume; the project prefix is usually "deploy_")
+docker run --rm -v deploy_rustfs-data:/data -v "$(pwd)":/backup busybox tar czf /backup/images_$(date +%Y%m%d).tar.gz -C /data .
 ```
+
+Back up the database and the image volume together: the database stores only the image paths.
 
 ## Migrating from the old Traefik setup
 

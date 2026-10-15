@@ -34,6 +34,7 @@ The backend container automatically runs `alembic upgrade head` and seeds the fi
 | ReDoc | http://localhost:8000/redoc |
 | PostgreSQL | localhost:5432 (any Postgres client) |
 | Mailcatcher | http://localhost:1080 |
+| RustFS console (uploaded images) | http://localhost:9001 (login: `S3_ACCESS_KEY` / `S3_SECRET_KEY` from `deploy/.env`) |
 
 ## Running With Live Reload
 
@@ -171,6 +172,14 @@ bunx playwright test
 # Interactive UI mode
 bunx playwright test --ui
 ```
+
+## Image uploads
+
+Uploads go to `POST /api/v1/uploads/images` (JPEG, PNG, WebP or GIF, up to `MEDIA_MAX_UPLOAD_MB`). The backend decodes the image, strips metadata, resizes it (avatar 512 px square, cover 2400 px, thumbnail 1600 px) and stores it as WebP in RustFS. It returns a site-relative path like `/media/images/<owner>/<id>.webp`, which you save in `avatar_url`, `cover_image_url` or a project's `thumbnail_url`. Caddy proxies `/media/*` to the storage (see `frontend/Caddyfile`), so the same path works in dev and production.
+
+- A user can only attach images they uploaded themselves (the `<owner>` part is an HMAC of the user id), and replaced or removed images are deleted from storage.
+- Uploads need the `rustfs` service. When the `S3_*` settings are empty the backend still starts and uploads return 503; pasting an image link still works.
+- Backend tests that touch uploads need the compose stack (`deploy/scripts/test-local.sh`); they are skipped when storage is not configured.
 
 ## Mailcatcher
 

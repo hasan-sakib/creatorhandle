@@ -11,7 +11,13 @@ from fastapi import APIRouter, HTTPException, Response
 from sqlmodel import SQLModel, col, func, select
 
 from app.api.deps import SessionDep
-from app.core.validators import AccentKey, Availability, Platform, _clean_url
+from app.core.validators import (
+    AccentKey,
+    Availability,
+    Platform,
+    _clean_image_url,
+    _clean_url,
+)
 from app.models import Brand, Project, User
 
 router = APIRouter(prefix="/public", tags=["public"])
@@ -91,6 +97,13 @@ def _safe_url(value: str | None) -> str | None:
         return None
 
 
+def _safe_image_url(value: str | None) -> str | None:
+    try:
+        return _clean_image_url(value)
+    except ValueError:
+        return None
+
+
 def _strings(value: Any) -> list[str]:
     return [v for v in (value or []) if isinstance(v, str)]
 
@@ -157,8 +170,8 @@ def get_creator(session: SessionDep, response: Response, username: str) -> Any:
     return PublicCreator(
         username=user.username or username,
         full_name=user.full_name,
-        avatar_url=_safe_url(user.avatar_url),
-        cover_image_url=_safe_url(user.cover_image_url),
+        avatar_url=_safe_image_url(user.avatar_url),
+        cover_image_url=_safe_image_url(user.cover_image_url),
         headline=user.headline,
         location=user.location,
         languages=_strings(user.languages),
@@ -191,7 +204,7 @@ def get_creator(session: SessionDep, response: Response, username: str) -> Any:
                 is_featured=p.is_featured,
                 brand_name=brand_names.get(p.brand_id) if p.brand_id else None,
                 live_url=_safe_url(p.live_url),
-                thumbnail_url=_safe_url(p.thumbnail_url),
+                thumbnail_url=_safe_image_url(p.thumbnail_url),
                 tags=_strings(p.tags),
             )
             for p in projects

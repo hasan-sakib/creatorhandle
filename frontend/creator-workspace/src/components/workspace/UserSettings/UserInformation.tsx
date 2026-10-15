@@ -139,14 +139,14 @@ const UserInformation = () => {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
 
         {/* ── User Information card ── */}
-        <section className="rounded-xl border bg-card p-6 shadow-sm">
+        <section className="rounded-lg border bg-card p-6">
           <div className="flex items-start justify-between mb-6">
             <h2 className="text-lg font-semibold">User Information</h2>
             {!editMode && (
               <Button
                 type="button"
                 size="sm"
-                className="rounded-full gap-1.5"
+                className="gap-1.5"
                 onClick={toggleEditMode}
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -253,14 +253,14 @@ const UserInformation = () => {
                 type="submit"
                 loading={mutation.isPending}
                 disabled={!form.formState.isDirty}
-                className="rounded-full"
+                
               >
                 Save changes
               </LoadingButton>
               <Button
                 type="button"
                 variant="outline"
-                className="rounded-full"
+                
                 onClick={onCancel}
                 disabled={mutation.isPending}
               >
@@ -271,7 +271,7 @@ const UserInformation = () => {
         </section>
 
         {/* ── Publish website card ── */}
-        <section className="rounded-xl border bg-card p-6 shadow-sm">
+        <section className="rounded-lg border bg-card p-6">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
               <h2 className="text-lg font-semibold">Publish your website</h2>
@@ -300,7 +300,7 @@ const UserInformation = () => {
             <LoadingButton
               type="button"
               variant={currentUser?.is_published ? "outline" : "default"}
-              className="rounded-full shrink-0"
+              className="shrink-0"
               loading={publishMutation.isPending}
               disabled={!currentUser?.username}
               onClick={() => publishMutation.mutate(!currentUser?.is_published)}
@@ -311,7 +311,7 @@ const UserInformation = () => {
         </section>
 
         {/* ── Social Links card ── */}
-        <section className="rounded-xl border bg-card p-6 shadow-sm">
+        <section className="rounded-lg border bg-card p-6">
           <h2 className="text-lg font-semibold mb-6">Social Links</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {SOCIAL_FIELDS.map(({ name, label, Icon, placeholder }) => (

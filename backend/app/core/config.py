@@ -54,6 +54,21 @@ class Settings(BaseSettings):
         # The dashboard app is served under /app on the same origin as the site.
         return f"{self.FRONTEND_HOST.rstrip('/')}/app"
 
+    # Object storage for uploaded images (RustFS / any S3-compatible service).
+    # Uploads are disabled when these are not set.
+    S3_ENDPOINT_URL: str | None = None
+    S3_ACCESS_KEY: str | None = None
+    S3_SECRET_KEY: str | None = None
+    S3_REGION: str = "us-east-1"
+    # The bucket name is part of the public URL (/media/...), see frontend/Caddyfile.
+    S3_BUCKET: str = "media"
+    MEDIA_MAX_UPLOAD_MB: int = 5
+
+    @computed_field  # type: ignore[prop-decorator]
+    @property
+    def media_enabled(self) -> bool:
+        return bool(self.S3_ENDPOINT_URL and self.S3_ACCESS_KEY and self.S3_SECRET_KEY)
+
     PROJECT_NAME: str
     SENTRY_DSN: HttpUrl | None = None
     POSTGRES_SERVER: str

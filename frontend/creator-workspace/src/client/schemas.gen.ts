@@ -57,6 +57,25 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const Body_uploads_upload_imageSchema = {
+    properties: {
+        file: {
+            type: 'string',
+            format: 'binary',
+            title: 'File'
+        },
+        kind: {
+            type: 'string',
+            enum: ['avatar', 'cover', 'thumbnail'],
+            title: 'Kind',
+            default: 'thumbnail'
+        }
+    },
+    type: 'object',
+    required: ['file'],
+    title: 'Body_uploads-upload_image'
+} as const;
+
 export const BrandCreateSchema = {
     properties: {
         name: {
@@ -1760,6 +1779,26 @@ export const UpdatePasswordSchema = {
     type: 'object',
     required: ['current_password', 'new_password'],
     title: 'UpdatePassword'
+} as const;
+
+export const UploadedImageSchema = {
+    properties: {
+        url: {
+            type: 'string',
+            title: 'Url'
+        },
+        width: {
+            type: 'integer',
+            title: 'Width'
+        },
+        height: {
+            type: 'integer',
+            title: 'Height'
+        }
+    },
+    type: 'object',
+    required: ['url', 'width', 'height'],
+    title: 'UploadedImage'
 } as const;
 
 export const UserCreateSchema = {
