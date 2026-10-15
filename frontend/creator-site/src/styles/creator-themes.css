@@ -1,0 +1,317 @@
+/*
+ * Creator portfolio themes.
+ *
+ * The page structure is the same for every creator; a theme only changes how
+ * it looks, by setting the CSS variables below on the wrapper element
+ * <div data-theme="..." data-accent="...">. Components never check which theme
+ * is active: they use the semantic utilities (surface, eyebrow, heading,
+ * rounded-card/-inner/-tile/-pill/-avatar, text-accent-text) that read these
+ * variables, so the same markup renders every look.
+ *
+ * Every variable has a default (the "studio" look) so the page also renders
+ * correctly when no theme is set. Themes must NOT set --primary, --ring or
+ * --accent-*: the creator's accent color composes on top of any theme.
+ *
+ * Token contract (all optional per theme):
+ *   Surfaces   --background --foreground --card --popover --muted
+ *              --muted-foreground --secondary --border   (shadcn tokens)
+ *   Shape      --theme-radius-card -inner -tile -pill -avatar
+ *   Surface    --surface-alpha --surface-blur --surface-saturate
+ *              --surface-border --surface-shadow
+ *   Type       --theme-font-display --theme-font-sans --heading-weight
+ *              --heading-tracking --eyebrow-tracking --eyebrow-transform
+ *              --eyebrow-style
+ *   Background --bg-blobs-opacity --bg-grid-opacity --bg-grid-image
+ *              --bg-grid-size --bg-noise-opacity
+ *   Accent     --accent-text-mix  (how much of the accent colors accent text;
+ *              the rest is the foreground. Calibrated per theme so accent
+ *              text stays >= 4.5:1, see scripts/check-contrast.mjs)
+ */
+
+/* Accent-colored text. 100% = the accent itself (the studio look). */
+[data-accent] {
+  --accent-text: color-mix(
+    in oklch,
+    var(--primary) var(--accent-text-mix, 100%),
+    var(--foreground)
+  );
+}
+
+@utility surface {
+  background-color: color-mix(in oklch, var(--background) var(--surface-alpha, 62%), transparent);
+  backdrop-filter: blur(var(--surface-blur, 18px)) saturate(var(--surface-saturate, 1.4));
+  border: var(--surface-border, 1px solid color-mix(in oklch, var(--foreground) 10%, transparent));
+  box-shadow: var(--surface-shadow, 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent));
+}
+
+/* No backdrop-filter support: use a near-opaque panel so text stays readable */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .surface {
+    background-color: color-mix(in oklch, var(--background) 94%, transparent);
+  }
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  font-weight: 600;
+  text-transform: var(--eyebrow-transform, uppercase);
+  letter-spacing: var(--eyebrow-tracking, 0.18em);
+  font-style: var(--eyebrow-style, normal);
+  color: var(--accent-text, var(--primary));
+}
+
+@utility heading {
+  font-family: var(
+    --theme-font-display,
+    "Bricolage Grotesque Variable",
+    "Inter Variable",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  font-weight: var(--heading-weight, 700);
+  letter-spacing: var(--heading-tracking, -0.025em);
+}
+
+/* ── Theme: studio (default; the look every profile had before themes) ───── */
+/* Intentionally empty: all defaults above are the studio values. */
+[data-theme="studio"] {
+  --accent-text-mix: 90%;
+}
+.dark [data-theme="studio"] {
+  --accent-text-mix: 90%;
+}
+
+/* ── Theme: editorial (magazine: paper and ink, serif headings, hairlines) ─ */
+[data-theme="editorial"] {
+  --background: oklch(0.972 0.014 85);
+  --foreground: oklch(0.22 0.02 60);
+  --card: oklch(0.985 0.01 85);
+  --popover: oklch(0.985 0.01 85);
+  --muted: oklch(0.94 0.016 85);
+  --secondary: oklch(0.94 0.016 85);
+  --muted-foreground: oklch(0.45 0.03 65);
+  --border: oklch(0.85 0.02 80);
+
+  --theme-font-display: "Fraunces Variable", Georgia, "Times New Roman", serif;
+  --heading-weight: 600;
+  --heading-tracking: -0.015em;
+  --eyebrow-transform: none;
+  --eyebrow-tracking: 0.02em;
+  --eyebrow-style: italic;
+
+  --theme-radius-card: 0.25rem;
+  --theme-radius-inner: 0.25rem;
+  --theme-radius-tile: 0.25rem;
+  --theme-radius-pill: 0.25rem;
+  --theme-radius-avatar: 0.5rem;
+
+  --surface-alpha: 100%;
+  --surface-blur: 0px;
+  --surface-saturate: 1;
+  --surface-border: 1px solid var(--border);
+  --surface-shadow: none;
+
+  --bg-blobs-opacity: 0;
+  --bg-grid-opacity: 0;
+  --bg-noise-opacity: 0.32;
+
+  --accent-text-mix: 85%;
+}
+.dark [data-theme="editorial"] {
+  --background: oklch(0.19 0.012 60);
+  --foreground: oklch(0.94 0.018 85);
+  --card: oklch(0.225 0.014 60);
+  --popover: oklch(0.225 0.014 60);
+  --muted: oklch(0.27 0.014 60);
+  --secondary: oklch(0.27 0.014 60);
+  --muted-foreground: oklch(0.72 0.025 80);
+  --border: oklch(1 0.02 85 / 14%);
+  --bg-noise-opacity: 0.2;
+  --accent-text-mix: 85%;
+}
+
+/* ── Theme: aurora (glow: deep indigo, strong accent light, glassy cards) ── */
+[data-theme="aurora"] {
+  --background: oklch(0.975 0.012 290);
+  --foreground: oklch(0.2 0.03 280);
+  --card: oklch(0.99 0.008 290);
+  --popover: oklch(0.99 0.008 290);
+  --muted: oklch(0.94 0.02 290);
+  --secondary: oklch(0.94 0.02 290);
+  --muted-foreground: oklch(0.45 0.04 285);
+  --border: oklch(0.88 0.03 290);
+
+  --theme-font-display: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --heading-weight: 700;
+  --heading-tracking: -0.03em;
+
+  --theme-radius-card: 1.25rem;
+  --theme-radius-inner: 0.875rem;
+
+  --surface-alpha: 55%;
+  --surface-blur: 24px;
+  --surface-saturate: 1.6;
+  --surface-border: 1px solid color-mix(in oklch, var(--accent-raw) 28%, transparent);
+  --surface-shadow: 0 20px 60px -20px color-mix(in oklch, var(--accent-raw) 45%, transparent);
+
+  --bg-blob-strength: 1.5;
+
+  --accent-text-mix: 85%;
+}
+.dark [data-theme="aurora"] {
+  --background: oklch(0.15 0.03 280);
+  --foreground: oklch(0.95 0.01 290);
+  --card: oklch(0.2 0.04 280);
+  --popover: oklch(0.2 0.04 280);
+  --muted: oklch(0.25 0.04 280);
+  --secondary: oklch(0.25 0.04 280);
+  --muted-foreground: oklch(0.74 0.04 285);
+  --border: oklch(1 0.05 290 / 14%);
+  --surface-alpha: 42%;
+  --bg-blob-strength: 1.9;
+  --accent-text-mix: 90%;
+}
+
+/* ── Theme: bold (neo-brutalist: heavy borders, hard shadows, flat color) ── */
+[data-theme="bold"] {
+  --background: oklch(0.97 0.065 95);
+  --foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --muted: oklch(0.93 0.06 95);
+  --secondary: oklch(0.93 0.06 95);
+  --muted-foreground: oklch(0.38 0.03 90);
+  --border: oklch(0.15 0 0);
+
+  --theme-font-display: "Archivo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --heading-weight: 800;
+  --heading-tracking: -0.02em;
+  --eyebrow-tracking: 0.12em;
+
+  --theme-radius-card: 0.375rem;
+  --theme-radius-inner: 0.375rem;
+  --theme-radius-tile: 0.25rem;
+  --theme-radius-pill: 0.375rem;
+  --theme-radius-avatar: 0.75rem;
+
+  --surface-alpha: 100%;
+  --surface-blur: 0px;
+  --surface-saturate: 1;
+  --surface-border: 2px solid var(--foreground);
+  --surface-shadow: 5px 5px 0 var(--foreground);
+
+  --bg-blobs-opacity: 0;
+  --bg-grid-opacity: 1;
+  --bg-grid-size: 32px 32px;
+  --bg-grid-image:
+    linear-gradient(to right, color-mix(in oklch, var(--foreground) 9%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 9%, transparent) 1px, transparent 1px);
+
+  --accent-text-mix: 85%;
+}
+.dark [data-theme="bold"] {
+  --background: oklch(0.15 0.01 270);
+  --foreground: oklch(0.97 0 0);
+  --card: oklch(0.2 0.01 270);
+  --popover: oklch(0.2 0.01 270);
+  --muted: oklch(0.26 0.01 270);
+  --secondary: oklch(0.26 0.01 270);
+  --muted-foreground: oklch(0.75 0.01 270);
+  --border: oklch(0.97 0 0);
+  --accent-text-mix: 90%;
+}
+
+/* ── Theme: soft (friendly: pastel surfaces tinted by the accent, round) ─── */
+[data-theme="soft"] {
+  --background: color-mix(in oklch, var(--accent-raw) 7%, oklch(0.99 0.004 90));
+  --foreground: oklch(0.24 0.03 270);
+  --card: color-mix(in oklch, var(--accent-raw) 3%, oklch(1 0 0));
+  --popover: color-mix(in oklch, var(--accent-raw) 3%, oklch(1 0 0));
+  --muted: color-mix(in oklch, var(--accent-raw) 10%, oklch(0.97 0 0));
+  --secondary: color-mix(in oklch, var(--accent-raw) 10%, oklch(0.97 0 0));
+  --muted-foreground: oklch(0.45 0.03 270);
+  --border: color-mix(in oklch, var(--accent-raw) 20%, transparent);
+
+  --theme-font-display: "Nunito Variable", "Inter Variable", ui-rounded, system-ui, sans-serif;
+  --heading-weight: 800;
+  --heading-tracking: -0.01em;
+  --eyebrow-transform: none;
+  --eyebrow-tracking: 0.02em;
+
+  --theme-radius-card: 2rem;
+  --theme-radius-inner: 1.5rem;
+  --theme-radius-tile: 1rem;
+
+  --surface-alpha: 100%;
+  --surface-blur: 0px;
+  --surface-saturate: 1;
+  --surface-border: 0 solid transparent;
+  --surface-shadow: 0 24px 60px -28px color-mix(in oklch, var(--accent-raw) 38%, transparent);
+
+  --bg-grid-opacity: 0;
+  --bg-blob-strength: 1.2;
+
+  --accent-text-mix: 85%;
+}
+.dark [data-theme="soft"] {
+  --background: color-mix(in oklch, var(--accent-raw) 9%, oklch(0.2 0.01 270));
+  --foreground: oklch(0.95 0.01 270);
+  --card: color-mix(in oklch, var(--accent-raw) 12%, oklch(0.24 0.01 270));
+  --popover: color-mix(in oklch, var(--accent-raw) 12%, oklch(0.24 0.01 270));
+  --muted: color-mix(in oklch, var(--accent-raw) 14%, oklch(0.28 0.01 270));
+  --secondary: color-mix(in oklch, var(--accent-raw) 14%, oklch(0.28 0.01 270));
+  --muted-foreground: oklch(0.76 0.02 270);
+  --border: color-mix(in oklch, var(--accent-raw) 24%, transparent);
+  --accent-text-mix: 75%;
+}
+
+/* ── Theme: mono (technical: monospace headings, grid paper, sharp edges) ── */
+[data-theme="mono"] {
+  --background: oklch(0.985 0.002 250);
+  --foreground: oklch(0.2 0.01 250);
+  --card: oklch(1 0 0);
+  --popover: oklch(1 0 0);
+  --muted: oklch(0.955 0.003 250);
+  --secondary: oklch(0.955 0.003 250);
+  --muted-foreground: oklch(0.44 0.01 250);
+  --border: oklch(0.8 0.005 250);
+
+  --theme-font-display: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --heading-weight: 700;
+  --heading-tracking: -0.03em;
+  --eyebrow-tracking: 0.12em;
+
+  --theme-radius-card: 2px;
+  --theme-radius-inner: 2px;
+  --theme-radius-tile: 2px;
+  --theme-radius-pill: 2px;
+  --theme-radius-avatar: 4px;
+
+  --surface-alpha: 100%;
+  --surface-blur: 0px;
+  --surface-saturate: 1;
+  --surface-border: 1px solid var(--border);
+  --surface-shadow: none;
+
+  --bg-blobs-opacity: 0;
+  --bg-grid-opacity: 1;
+  --bg-grid-size: 24px 24px;
+  --bg-grid-image:
+    linear-gradient(to right, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px);
+
+  --accent-text-mix: 90%;
+}
+.dark [data-theme="mono"] {
+  --background: oklch(0.13 0.012 250);
+  --foreground: oklch(0.93 0.005 250);
+  --card: oklch(0.17 0.012 250);
+  --popover: oklch(0.17 0.012 250);
+  --muted: oklch(0.22 0.012 250);
+  --secondary: oklch(0.22 0.012 250);
+  --muted-foreground: oklch(0.7 0.01 250);
+  --border: oklch(1 0 0 / 16%);
+  --accent-text-mix: 95%;
+}

@@ -7,7 +7,7 @@ export function ProfileFooter({ name }: { name: string }) {
         </p>
         <p>
           Made with{" "}
-          <a href="/" className="font-medium text-primary hover:underline">
+          <a href="/" className="font-medium text-accent-text hover:underline">
             CreatorHandle
           </a>
           . <a href="/app/login" className="hover:text-foreground hover:underline">Create your own page</a>

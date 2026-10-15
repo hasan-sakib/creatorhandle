@@ -1,7 +1,9 @@
 import { Mail } from "lucide-react"
 
 import type { PublicCreator } from "@/client"
+import { EmptyState } from "@/components/creator/EmptyState"
 import { Section } from "@/components/creator/Section"
+import { firstName } from "@/components/creator/sections"
 import { Reveal } from "@/components/home/Reveal"
 import { Button } from "@/components/ui/button"
 import { safeEmail, safeHttpUrl } from "@/lib/safeUrl"
@@ -18,7 +20,16 @@ const COPY: Record<string, string> = {
 }
 
 export function ContactSection({ profile }: { profile: PublicCreator }) {
-  if (!hasContactMethods(profile)) return null
+  if (!hasContactMethods(profile)) {
+    return (
+      <Section id="contact" eyebrow="Contact" title="Let's work together">
+        <EmptyState
+          message={`${firstName(profile)} hasn't added a way to get in touch yet.`}
+          settingsTab="my-profile"
+        />
+      </Section>
+    )
+  }
   const email = safeEmail(profile.contact_email)
   const links = getSocialLinks(profile)
   const mediaKit = safeHttpUrl(profile.media_kit_url)
@@ -27,7 +38,7 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
   return (
     <Section id="contact" eyebrow="Contact" title="Let's work together">
       <Reveal>
-        <div className="glass relative overflow-hidden rounded-3xl p-6 sm:p-10">
+        <div className="surface relative overflow-hidden rounded-card p-6 sm:p-10">
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full opacity-60 blur-3xl"
@@ -39,14 +50,14 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
 
           <div className="relative mt-6 flex flex-wrap gap-3">
             {email && (
-              <Button asChild size="lg" className="rounded-full px-6">
+              <Button asChild size="lg" className="rounded-pill px-6">
                 <a href={`mailto:${email}?subject=${encodeURIComponent(`Collaboration with ${name}`)}`}>
                   <Mail className="size-4" /> {email}
                 </a>
               </Button>
             )}
             {mediaKit && (
-              <Button asChild size="lg" variant="outline" className="rounded-full bg-background/50 px-6">
+              <Button asChild size="lg" variant="outline" className="rounded-pill bg-background/50 px-6">
                 <a href={mediaKit} target="_blank" rel="noopener noreferrer">
                   Download media kit
                 </a>
@@ -62,7 +73,7 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3.5 py-1.5 text-sm transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    className="inline-flex items-center gap-2 rounded-pill border bg-background/60 px-3.5 py-1.5 text-sm transition hover:border-primary hover:text-accent-text focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   >
                     <Icon className="size-4" />
                     <span className="sr-only">{label}: </span>

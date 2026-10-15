@@ -1,8 +1,9 @@
 import pytest
 from fastapi.testclient import TestClient
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core.config import settings
+from app.models import User
 from tests.utils.user import create_random_user_with_headers
 from tests.utils.utils import random_lower_string
 from tests.utils.workspace import workspace_headers
@@ -14,7 +15,7 @@ CREATOR_KEYS = {
     "languages", "about", "bio", "niches", "content_formats", "platforms", "services",
     "availability", "media_kit_url", "accent_color", "website", "twitter", "instagram",
     "youtube", "tiktok", "contact_email", "member_since", "stats", "brands", "projects",
-    "projects_total",
+    "projects_total", "theme", "color_mode", "work_steps", "work_principles", "work_tools",
 }
 BRAND_KEYS = {"id", "name", "category"}
 PROJECT_KEYS = {
@@ -270,3 +271,134 @@ def test_public_response_is_cacheable_but_404_is_not(
     missing = client.get(f"{API}/public/does-not-exist-{username}")
     assert missing.status_code == 404
     assert "max-age" not in missing.headers.get("cache-control", "")
+
+
+WORK_STYLE = {
+    "work_steps": [
+        {"title": "Discover", "description": "A call to understand the brief"},
+        {"title": "Script", "description": None},
+        {"title": "Shoot and edit", "description": "Two revision rounds included"},
+    ],
+    "work_principles": ["Honest reviews", "Clear timelines"],
+    "work_tools": ["Premiere Pro", "Figma"],
+}
+
+
+def test_theme_and_work_style_default_to_empty(client: TestClient, db: Session) -> None:
+    username, _, _ = published_creator(client, db)
+    data = get_public(client, username)
+    assert data["theme"] is None and data["color_mode"] is None
+    assert data["work_steps"] == [] and data["work_principles"] == [] and data["work_tools"] == []
+
+
+def test_theme_color_mode_and_work_style_round_trip(client: TestClient, db: Session) -> None:
+    username, headers, _ = published_creator(
+        client, db, theme="editorial", color_mode="dark", accent_color="rose", **WORK_STYLE
+    )
+    me = client.get(f"{API}/users/me", headers=headers).json()
+    assert me["theme"] == "editorial" and me["color_mode"] == "dark"
+    data = get_public(client, username)
+    assert data["theme"] == "editorial" and data["color_mode"] == "dark"
+    assert data["work_steps"] == WORK_STYLE["work_steps"]  # order is preserved
+    assert data["work_principles"] == WORK_STYLE["work_principles"]
+    assert data["work_tools"] == WORK_STYLE["work_tools"]
+
+
+def test_theme_can_be_cleared_back_to_default(client: TestClient, db: Session) -> None:
+    username, headers, _ = published_creator(client, db, theme="mono", color_mode="light")
+    client.patch(f"{API}/users/me", headers=headers, json={"theme": None, "color_mode": None})
+    data = get_public(client, username)
+    assert data["theme"] is None and data["color_mode"] is None
+
+
+def test_work_steps_are_deduplicated_and_trimmed(client: TestClient, db: Session) -> None:
+    username, headers, _ = published_creator(client, db)
+    client.patch(
+        f"{API}/users/me",
+        headers=headers,
+        json={
+            "work_steps": [{"title": " Plan "}, {"title": "plan"}, {"title": "Film", "description": "  "}],
+            "work_principles": [" Calm ", "calm"],
+        },
+    )
+    data = get_public(client, username)
+    assert data["work_steps"] == [
+        {"title": "Plan", "description": None},
+        {"title": "Film", "description": None},
+    ]
+    assert data["work_principles"] == ["Calm"]
+
+
+@pytest.mark.parametrize(
+    "payload",
+    [
+        {"theme": "neon"},
+        {"theme": "Studio"},
+        {"color_mode": "auto"},
+        {"work_steps": [{"title": ""}]},
+        {"work_steps": [{"title": str(i)} for i in range(7)]},
+        {"work_steps": [{"title": "x", "description": "y" * 241}]},
+        {"work_steps": [{"title": "x" * 61}]},
+        {"work_steps": None},
+        {"work_principles": ["x" * 41]},
+        {"work_principles": [str(i) for i in range(7)]},
+        {"work_tools": [str(i) for i in range(13)]},
+        {"work_tools": None},
+    ],
+)
+def test_invalid_theme_and_work_style_values_are_rejected(
+    client: TestClient, db: Session, payload: dict
+) -> None:
+    _, headers = create_random_user_with_headers(client, db)
+    assert client.patch(f"{API}/users/me", headers=headers, json=payload).status_code == 422, payload
+
+
+def test_omitting_work_style_leaves_it_unchanged(client: TestClient, db: Session) -> None:
+    username, headers, _ = published_creator(client, db, theme="soft", **WORK_STYLE)
+    client.patch(f"{API}/users/me", headers=headers, json={"headline": "Hello"})
+    data = get_public(client, username)
+    assert data["theme"] == "soft" and data["work_steps"] == WORK_STYLE["work_steps"]
+    client.patch(f"{API}/users/me", headers=headers, json={"work_steps": [], "work_tools": []})
+    data = get_public(client, username)
+    assert data["work_steps"] == [] and data["work_tools"] == []
+    assert data["work_principles"] == WORK_STYLE["work_principles"]
+
+
+def test_legacy_junk_in_theme_and_work_style_is_neutralised(
+    client: TestClient, db: Session
+) -> None:
+    """Rows written outside the API (old data, manual edits) must never break or leak."""
+    username, _, _ = published_creator(client, db)
+    user = db.exec(select(User).where(User.username == username)).one()
+    user.theme = "hacked"
+    user.color_mode = "purple"
+    user.work_steps = [
+        {"x": 1},
+        "junk",
+        {"title": 5},
+        {"title": "Keep", "description": ["not text"]},
+        {"title": "Fine", "description": "ok", "secret": "do not return"},
+    ]
+    user.work_principles = ["good", 3, None]
+    user.work_tools = [{"a": 1}, "Figma"]
+    db.add(user)
+    db.commit()
+
+    try:
+        data = get_public(client, username)
+        assert data["theme"] is None and data["color_mode"] is None
+        assert data["work_steps"] == [
+            {"title": "Keep", "description": None},
+            {"title": "Fine", "description": "ok"},
+        ]
+        assert data["work_principles"] == ["good"] and data["work_tools"] == ["Figma"]
+        assert "do not return" not in repr(data)
+    finally:
+        # The test database is shared: leave no malformed row behind for other tests
+        user.theme = None
+        user.color_mode = None
+        user.work_steps = []
+        user.work_principles = []
+        user.work_tools = []
+        db.add(user)
+        db.commit()

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { SafeImage } from "@/components/creator/SafeImage"
 import { useActiveSection } from "@/hooks/useActiveSection"
-import { isDark, setTheme } from "@/lib/theme"
+import { applyMode, currentModeIsDark, setVisitorMode } from "@/lib/profileMode"
 import { cn } from "@/lib/utils"
 
 export interface NavSection {
@@ -16,8 +16,8 @@ interface GlassNavbarProps {
   name: string
   avatarUrl?: string | null
   sections: NavSection[]
-  /** Label and target of the call-to-action button; hidden when there is no contact section. */
-  cta?: { label: string; id: string } | null
+  /** Label and target of the call-to-action button (always shown, same for everyone). */
+  cta: { label: string; id: string }
 }
 
 /** Scrolls to a section and updates the hash without re-mounting the router. */
@@ -34,7 +34,7 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
   const [dark, setDark] = useState(false)
   const active = useActiveSection(sections.map((s) => s.id))
 
-  useEffect(() => setDark(isDark()), [])
+  useEffect(() => setDark(currentModeIsDark()), [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8)
@@ -66,7 +66,9 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
   const toggleTheme = () => {
     const next = !dark
     setDark(next)
-    setTheme(next ? "dark" : "light")
+    const mode = next ? "dark" : "light"
+    setVisitorMode(mode)
+    applyMode(mode)
   }
 
   return (
@@ -80,7 +82,7 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
 
       <div
         className={cn(
-          "glass rounded-2xl px-3 transition-all duration-300 sm:px-4",
+          "surface rounded-inner px-3 transition-all duration-300 sm:px-4",
           scrolled ? "py-1.5 shadow-lg" : "py-2.5",
         )}
       >
@@ -91,7 +93,7 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
             className="flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label={`${name}, back to top`}
           >
-            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-primary to-[var(--accent-alt)] text-xs font-bold text-primary-foreground">
+            <span className="grid size-9 shrink-0 place-items-center overflow-hidden rounded-avatar bg-gradient-to-br from-primary to-[var(--accent-alt)] text-xs font-bold text-primary-foreground">
               <SafeImage
                 src={avatarUrl}
                 alt=""
@@ -101,56 +103,50 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
             <span className="truncate font-display text-base font-semibold tracking-tight">{name}</span>
           </button>
 
-          {sections.length > 0 && (
-            <nav aria-label="Sections" className="hidden items-center gap-0.5 md:flex">
-              {sections.map((s) => (
-                <a
-                  key={s.id}
-                  href={`#${s.id}`}
-                  aria-current={active === s.id ? "location" : undefined}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    onNavigate(s.id)
-                  }}
-                  className={cn(
-                    "rounded-full px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    active === s.id
-                      ? "bg-primary/15 font-medium text-primary"
-                      : "text-muted-foreground hover:text-foreground",
-                  )}
-                >
-                  {s.label}
-                </a>
-              ))}
-            </nav>
-          )}
+          <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
+            {sections.map((s) => (
+              <a
+                key={s.id}
+                href={`#${s.id}`}
+                aria-current={active === s.id ? "location" : undefined}
+                onClick={(e) => {
+                  e.preventDefault()
+                  onNavigate(s.id)
+                }}
+                className={cn(
+                  "rounded-pill px-3 py-1.5 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  active === s.id
+                    ? "bg-primary/15 font-medium text-accent-text"
+                    : "text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {s.label}
+              </a>
+            ))}
+          </nav>
 
           <div className="flex items-center gap-1.5">
             <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Toggle dark mode">
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </Button>
-            {cta && (
-              <Button
-                size="sm"
-                className="hidden rounded-full px-4 sm:inline-flex"
-                onClick={() => onNavigate(cta.id)}
-              >
-                {cta.label}
-              </Button>
-            )}
-            {sections.length > 0 && (
-              <Button
-                variant="ghost"
-                size="icon-sm"
-                className="md:hidden"
-                aria-label={open ? "Close menu" : "Open menu"}
-                aria-expanded={open}
-                aria-controls="profile-mobile-menu"
-                onClick={() => setOpen((o) => !o)}
-              >
-                {open ? <X className="size-4" /> : <Menu className="size-4" />}
-              </Button>
-            )}
+            <Button
+              size="sm"
+              className="hidden rounded-pill px-4 sm:inline-flex"
+              onClick={() => onNavigate(cta.id)}
+            >
+              {cta.label}
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              className="lg:hidden"
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              aria-controls="profile-mobile-menu"
+              onClick={() => setOpen((o) => !o)}
+            >
+              {open ? <X className="size-4" /> : <Menu className="size-4" />}
+            </Button>
           </div>
         </div>
 
@@ -158,7 +154,7 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
           <nav
             id="profile-mobile-menu"
             aria-label="Sections (mobile)"
-            className="mt-2 flex flex-col border-t pt-2 md:hidden"
+            className="mt-2 flex flex-col border-t pt-2 lg:hidden"
           >
             {sections.map((s) => (
               <a
@@ -171,17 +167,15 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
                 aria-current={active === s.id ? "location" : undefined}
                 className={cn(
                   "rounded-lg px-3 py-2.5 text-sm font-medium",
-                  active === s.id ? "bg-primary/15 text-primary" : "text-foreground",
+                  active === s.id ? "bg-primary/15 text-accent-text" : "text-foreground",
                 )}
               >
                 {s.label}
               </a>
             ))}
-            {cta && (
-              <Button className="mt-2 rounded-full" onClick={() => onNavigate(cta.id)}>
-                {cta.label}
-              </Button>
-            )}
+            <Button className="mt-2 rounded-pill" onClick={() => onNavigate(cta.id)}>
+              {cta.label}
+            </Button>
           </nav>
         )}
       </div>

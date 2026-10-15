@@ -31,6 +31,14 @@ AccentKey = Literal[
 
 Availability = Literal["open", "limited", "closed"]
 
+# Look of the public portfolio page. Keep in sync with
+# frontend/creator-site/src/lib/themes.ts and
+# frontend/creator-workspace/src/lib/themePresets.ts.
+ThemeKey = Literal["studio", "editorial", "aurora", "bold", "soft", "mono"]
+
+# The creator's default light/dark choice for their page (visitors can still switch)
+ColorMode = Literal["light", "dark", "system"]
+
 Platform = Literal[
     "YouTube",
     "TikTok",
@@ -146,9 +154,21 @@ class ServiceItem(BaseModel):
     ] = None
 
 
-def _clean_services(items: list[ServiceItem]) -> list[ServiceItem]:
+class WorkStepItem(BaseModel):
+    """One step of how a creator works (their process), in order."""
+
+    title: Annotated[
+        str, PydanticField(min_length=1, max_length=60), AfterValidator(_clean_text)
+    ]
+    description: Annotated[
+        str | None, PydanticField(max_length=240), AfterValidator(_clean_text)
+    ] = None
+
+
+def _dedupe_by_title(items: list):
+    """Keep the first item for each title (case-insensitive), preserving order."""
     seen: set[str] = set()
-    out: list[ServiceItem] = []
+    out = []
     for item in items:
         key = item.title.casefold()
         if key not in seen:
@@ -160,7 +180,13 @@ def _clean_services(items: list[ServiceItem]) -> list[ServiceItem]:
 ServiceList = Annotated[
     list[ServiceItem],
     PydanticField(max_length=8),
-    AfterValidator(_clean_services),
+    AfterValidator(_dedupe_by_title),
+]
+
+WorkStepList = Annotated[
+    list[WorkStepItem],
+    PydanticField(max_length=6),
+    AfterValidator(_dedupe_by_title),
 ]
 
 PlatformList = Annotated[

@@ -2,7 +2,8 @@ import { ArrowRight, Check, Circle } from "lucide-react"
 
 import type { PublicCreator } from "@/client"
 import { hasContactMethods } from "@/components/creator/ContactSection"
-import { hasCreateContent } from "@/components/creator/CreateSection"
+import { hasMakeContent } from "@/components/creator/AboutSection"
+import { hasApproachContent } from "@/components/creator/ApproachSection"
 import { dashboardPath } from "@/lib/urls"
 
 interface Item {
@@ -17,28 +18,35 @@ interface Item {
  * so this explains what is missing and links to where to add it.
  */
 export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
+  const portfolioTab = `${dashboardPath("/settings")}?tab=portfolio`
   const items: Item[] = [
     {
       label: "Headline and About",
       hint: "Tell visitors who you are and what you do",
       done: !!(profile.headline && (profile.about || profile.bio)),
-      href: `${dashboardPath("/settings")}?tab=portfolio`,
+      href: portfolioTab,
     },
     {
-      label: "Content you create",
-      hint: "Niches, formats and platforms",
-      done: hasCreateContent(profile),
-      href: `${dashboardPath("/settings")}?tab=portfolio`,
+      label: "What you make",
+      hint: "Topics, formats and platforms (shown under About)",
+      done: hasMakeContent(profile),
+      href: portfolioTab,
     },
     {
-      label: "Services and availability",
-      hint: "What brands can hire you for",
+      label: "Work style",
+      hint: "Your process steps, principles and tools",
+      done: hasApproachContent(profile),
+      href: portfolioTab,
+    },
+    {
+      label: "Work list",
+      hint: "The services you offer, and your availability",
       done: profile.services.length > 0 && !!profile.availability,
-      href: `${dashboardPath("/settings")}?tab=portfolio`,
+      href: portfolioTab,
     },
     {
-      label: "A Published project",
-      hint: "Only projects with status Published appear in Selected work",
+      label: "Previous work",
+      hint: "Only projects with status Published appear here",
       done: profile.projects.length > 0,
       href: dashboardPath("/projects"),
     },
@@ -46,13 +54,13 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
       label: "A way to contact you",
       hint: "A public email, social links or a media kit",
       done: hasContactMethods(profile),
-      href: dashboardPath("/settings"),
+      href: `${dashboardPath("/settings")}?tab=my-profile`,
     },
     {
-      label: "Cover image and accent color",
+      label: "Cover image and theme",
       hint: "Make the page look like you",
-      done: !!(profile.cover_image_url && profile.accent_color),
-      href: `${dashboardPath("/settings")}?tab=portfolio`,
+      done: !!(profile.cover_image_url && (profile.theme || profile.accent_color)),
+      href: portfolioTab,
     },
   ]
 
@@ -64,21 +72,21 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
       aria-label="Complete your page"
       className="mx-auto max-w-5xl px-4 pt-2 sm:px-6"
     >
-      <div className="glass rounded-3xl p-5 sm:p-6">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">Only you see this</p>
-        <h2 className="mt-1 font-display text-xl font-bold tracking-tight sm:text-2xl">
+      <div className="surface rounded-card p-5 sm:p-6">
+        <p className="eyebrow">Only you see this</p>
+        <h2 className="mt-1 heading text-xl sm:text-2xl">
           Your page is live. Add more to fill it in.
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Sections with nothing to show are hidden from visitors, so they appear here as you complete
-          these ({items.length - remaining.length} of {items.length} done).
+          Every profile has the same sections. Ones you haven't filled in show a short placeholder to
+          visitors ({items.length - remaining.length} of {items.length} done).
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {items.map((item) => (
             <li key={item.label}>
               <a
                 href={item.href}
-                className="flex items-start gap-3 rounded-xl border bg-background/60 p-3 transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                className="flex items-start gap-3 rounded-tile border bg-background/60 p-3 transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 <span
                   className={

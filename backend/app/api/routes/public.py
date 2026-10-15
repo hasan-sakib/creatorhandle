@@ -14,7 +14,9 @@ from app.api.deps import SessionDep
 from app.core.validators import (
     AccentKey,
     Availability,
+    ColorMode,
     Platform,
+    ThemeKey,
     _clean_image_url,
     _clean_url,
 )
@@ -29,9 +31,16 @@ CACHE_CONTROL = "public, max-age=30, stale-while-revalidate=120"
 _ACCENTS = set(get_args(AccentKey))
 _AVAILABILITY = set(get_args(Availability))
 _PLATFORMS = set(get_args(Platform))
+_THEMES = set(get_args(ThemeKey))
+_COLOR_MODES = set(get_args(ColorMode))
 
 
 class PublicOffering(SQLModel):
+    title: str
+    description: str | None = None
+
+
+class PublicWorkStep(SQLModel):
     title: str
     description: str | None = None
 
@@ -76,6 +85,11 @@ class PublicCreator(SQLModel):
     availability: str | None = None
     media_kit_url: str | None = None
     accent_color: str | None = None
+    theme: str | None = None
+    color_mode: str | None = None
+    work_steps: list[PublicWorkStep]
+    work_principles: list[str]
+    work_tools: list[str]
     website: str | None = None
     twitter: str | None = None
     instagram: str | None = None
@@ -108,13 +122,14 @@ def _strings(value: Any) -> list[str]:
     return [v for v in (value or []) if isinstance(v, str)]
 
 
-def _services(value: Any) -> list[PublicOffering]:
-    out: list[PublicOffering] = []
+def _titled_items(value: Any, model: type[SQLModel]) -> list[Any]:
+    """Coerce stored {title, description} dicts; anything malformed is dropped."""
+    out: list[Any] = []
     for item in value or []:
         if isinstance(item, dict) and isinstance(item.get("title"), str):
             description = item.get("description")
             out.append(
-                PublicOffering(
+                model(
                     title=item["title"],
                     description=description if isinstance(description, str) else None,
                 )
@@ -180,10 +195,15 @@ def get_creator(session: SessionDep, response: Response, username: str) -> Any:
         niches=_strings(user.niches),
         content_formats=_strings(user.content_formats),
         platforms=[p for p in _strings(user.platforms) if p in _PLATFORMS],
-        services=_services(user.services),
+        services=_titled_items(user.services, PublicOffering),
         availability=user.availability if user.availability in _AVAILABILITY else None,
         media_kit_url=_safe_url(user.media_kit_url),
         accent_color=user.accent_color if user.accent_color in _ACCENTS else None,
+        theme=user.theme if user.theme in _THEMES else None,
+        color_mode=user.color_mode if user.color_mode in _COLOR_MODES else None,
+        work_steps=_titled_items(user.work_steps, PublicWorkStep),
+        work_principles=_strings(user.work_principles),
+        work_tools=_strings(user.work_tools),
         website=_safe_url(user.website),
         twitter=user.twitter,
         instagram=user.instagram,

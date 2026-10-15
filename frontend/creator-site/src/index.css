@@ -2,12 +2,20 @@
 @import "@fontsource-variable/bricolage-grotesque";
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "./styles/creator-themes.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Bricolage Grotesque Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  /* Creator themes override these through --theme-* (see styles/creator-themes.css) */
+  --font-sans: var(--theme-font-sans, "Inter Variable", ui-sans-serif, system-ui, sans-serif);
+  --font-display: var(--theme-font-display, "Bricolage Grotesque Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif);
+  --radius-card: var(--theme-radius-card, 1.5rem);
+  --radius-inner: var(--theme-radius-inner, 1rem);
+  --radius-tile: var(--theme-radius-tile, 0.75rem);
+  --radius-pill: var(--theme-radius-pill, calc(infinity * 1px));
+  --radius-avatar: var(--theme-radius-avatar, calc(infinity * 1px));
+  --color-accent-text: var(--accent-text, var(--primary));
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -149,7 +157,7 @@
   --accent-raw: var(--accent-light);
   --primary: color-mix(in oklch, var(--accent-light) 85%, black);
   --primary-foreground: oklch(0.985 0 0);
-  --ring: var(--accent-raw);
+  --ring: var(--primary);
   --accent-alt: var(--accent-raw);
 }
 
@@ -166,12 +174,12 @@
   }
 }
 
+/* Alias kept for code that still says "glass"; same as `surface` */
 @utility glass {
-  background-color: color-mix(in oklch, var(--background) 62%, transparent);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  border: 1px solid color-mix(in oklch, var(--foreground) 10%, transparent);
-  box-shadow: 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent);
+  background-color: color-mix(in oklch, var(--background) var(--surface-alpha, 62%), transparent);
+  backdrop-filter: blur(var(--surface-blur, 18px)) saturate(var(--surface-saturate, 1.4));
+  border: var(--surface-border, 1px solid color-mix(in oklch, var(--foreground) 10%, transparent));
+  box-shadow: var(--surface-shadow, 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent));
 }
 
 /* No backdrop-filter support: use a near-opaque panel so text stays readable */

@@ -1167,6 +1167,49 @@ export const PublicCreatorSchema = {
             ],
             title: 'Accent Color'
         },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                '$ref': '#/components/schemas/PublicWorkStep'
+            },
+            type: 'array',
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Tools'
+        },
         website: {
             anyOf: [
                 {
@@ -1267,7 +1310,7 @@ export const PublicCreatorSchema = {
         }
     },
     type: 'object',
-    required: ['username', 'languages', 'niches', 'content_formats', 'platforms', 'services', 'stats', 'brands', 'projects', 'projects_total'],
+    required: ['username', 'languages', 'niches', 'content_formats', 'platforms', 'services', 'work_steps', 'work_principles', 'work_tools', 'stats', 'brands', 'projects', 'projects_total'],
     title: 'PublicCreator'
 } as const;
 
@@ -1383,6 +1426,29 @@ export const PublicStatsSchema = {
     type: 'object',
     required: ['brands_count', 'projects_count'],
     title: 'PublicStats'
+} as const;
+
+export const PublicWorkStepSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'PublicWorkStep'
 } as const;
 
 export const ServiceItemSchema = {
@@ -2064,6 +2130,52 @@ export const UserCreateSchema = {
             ],
             title: 'Accent Color'
         },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Tools'
+        },
         password: {
             type: 'string',
             maxLength: 128,
@@ -2338,6 +2450,52 @@ export const UserPublicSchema = {
                 }
             ],
             title: 'Accent Color'
+        },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Tools'
         },
         id: {
             type: 'string',
@@ -2664,6 +2822,52 @@ export const UserUpdateSchema = {
             ],
             title: 'Accent Color'
         },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 20
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 10
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                additionalProperties: true,
+                type: 'object'
+            },
+            type: 'array',
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Tools'
+        },
         password: {
             anyOf: [
                 {
@@ -2953,6 +3157,54 @@ export const UserUpdateMeSchema = {
                 }
             ],
             title: 'Accent Color'
+        },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['studio', 'editorial', 'aurora', 'bold', 'soft', 'mono']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['light', 'dark', 'system']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                '$ref': '#/components/schemas/WorkStepItem'
+            },
+            type: 'array',
+            maxItems: 6,
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 6,
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            maxItems: 12,
+            title: 'Work Tools'
         }
     },
     type: 'object',
@@ -3006,6 +3258,33 @@ export const ValidationErrorSchema = {
     type: 'object',
     required: ['loc', 'msg', 'type'],
     title: 'ValidationError'
+} as const;
+
+export const WorkStepItemSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 60,
+            minLength: 1,
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 240
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'WorkStepItem',
+    description: 'One step of how a creator works (their process), in order.'
 } as const;
 
 export const WorkspaceCreateSchema = {

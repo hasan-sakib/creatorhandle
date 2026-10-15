@@ -28,10 +28,24 @@
     <!-- Apply the saved theme before first paint (same key as the dashboard) -->
     <script>
       try {
-        var t = localStorage.getItem("vite-ui-theme");
-        var dark =
-          t === "dark" ||
-          ((!t || t === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        var dark;
+        var path = location.pathname;
+        if (path.indexOf("/@") === 0) {
+          // A creator's page: the visitor's own choice, else the creator's
+          // default (cached from the last visit), else the device.
+          var m = localStorage.getItem("ch-profile-mode");
+          if (m !== "light" && m !== "dark") {
+            var look = localStorage.getItem("ch-profile-look:" + decodeURIComponent(path.slice(2).split("/")[0]));
+            m = look ? JSON.parse(look).mode : null;
+          }
+          if (m === "light" || m === "dark") dark = m === "dark";
+          else dark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        } else {
+          var t = localStorage.getItem("vite-ui-theme");
+          dark =
+            t === "dark" ||
+            ((!t || t === "system") && window.matchMedia("(prefers-color-scheme: dark)").matches);
+        }
         document.documentElement.classList.add(dark ? "dark" : "light");
       } catch (e) {}
     </script>

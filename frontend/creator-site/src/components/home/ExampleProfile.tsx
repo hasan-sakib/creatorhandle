@@ -1,4 +1,4 @@
-import { Building2, Star } from "lucide-react"
+import { Building2 } from "lucide-react"
 
 import { Card } from "@/components/ui/card"
 import { categoryPill } from "@/lib/categories"
@@ -111,40 +111,67 @@ export function ProfileCardCompact({ className }: { className?: string }) {
   )
 }
 
-/** Larger page mock-up shown inside a browser frame. */
+const mockNav = ["Home", "About", "Approach", "Services", "Work", "Brands", "Contact"]
+const mockSteps = ["Discover", "Script and plan", "Shoot and edit"]
+
+/**
+ * A compact version of the real portfolio template, drawn with the same
+ * semantic classes the real page uses, so it takes on whatever theme wraps it.
+ */
 export function ProfilePageMock() {
   return (
-    <div className="space-y-6 p-5 sm:p-8">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <Avatar className="size-20 text-xl" />
-        <div>
-          <p className="font-display text-2xl font-bold tracking-tight">Alex Rivera</p>
-          <p className="text-sm text-muted-foreground">@alexrivera</p>
-        </div>
-        <p className="max-w-sm text-sm text-muted-foreground">
-          Tech and workflow creator. Reviews, tutorials and brand collaborations.
-        </p>
-        <StatsPill />
+    <div className="space-y-5 p-4 sm:p-6">
+      <div className="surface flex items-center gap-3 rounded-inner px-3 py-2">
+        <span className="grid size-6 place-items-center rounded-avatar bg-gradient-to-br from-primary to-[var(--accent-alt)] text-[9px] font-bold text-primary-foreground">
+          AR
+        </span>
+        <span className="text-xs font-semibold">Alex Rivera</span>
+        <ul className="ml-auto hidden items-center gap-2.5 text-[10px] text-muted-foreground sm:flex">
+          {mockNav.map((n, i) => (
+            <li key={n} className={i === 0 ? "font-semibold text-accent-text" : undefined}>
+              {n}
+            </li>
+          ))}
+        </ul>
+        <span className="ml-auto rounded-pill bg-primary px-2 py-0.5 text-[9px] font-medium text-primary-foreground sm:ml-0">
+          Work with me
+        </span>
       </div>
 
-      <div>
-        <p className="mb-3 flex items-center gap-2 text-sm font-semibold">
-          <Star className="size-4 fill-amber-400 text-amber-400" /> Featured work
-        </p>
-        <div className="rounded-xl border bg-card p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <p className="font-semibold">Brand One launch video</p>
-            <span className="rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:bg-green-500/15 dark:text-green-300">
-              Published
-            </span>
+      <div className="surface overflow-hidden rounded-card">
+        <div
+          className="h-16 sm:h-20"
+          style={{
+            background:
+              "linear-gradient(135deg, color-mix(in oklch, var(--accent-raw) 40%, transparent), color-mix(in oklch, var(--accent-alt) 40%, transparent))",
+          }}
+        />
+        <div className="-mt-6 flex items-end gap-3 px-4 pb-4">
+          <Avatar className="size-14 rounded-avatar text-base ring-4 ring-background" />
+          <div className="pb-1">
+            <p className="heading text-lg leading-tight">Alex Rivera</p>
+            <p className="text-[11px] text-muted-foreground">Tech YouTuber and gadget reviewer</p>
           </div>
-          <p className="mt-1 text-sm text-muted-foreground">YouTube · Sponsored integration</p>
         </div>
       </div>
 
       <div>
-        <p className="mb-3 text-sm font-semibold">Brands &amp; clients</p>
-        <div className="grid gap-3 sm:grid-cols-3">
+        <p className="eyebrow">Work style</p>
+        <p className="heading mb-2 text-base">How I work</p>
+        <div className="grid grid-cols-3 gap-2">
+          {mockSteps.map((step, i) => (
+            <div key={step} className="surface rounded-inner p-2.5">
+              <p className="heading text-lg text-accent-text/40">{String(i + 1).padStart(2, "0")}</p>
+              <p className="mt-0.5 text-[11px] font-semibold">{step}</p>
+              <div className="mt-1.5 h-1 w-4/5 rounded-full bg-muted-foreground/25" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="eyebrow">Previous work</p>
+        <div className="mt-2 grid grid-cols-3 gap-2">
           {brands.map((brand) => (
             <BrandMiniCard key={brand.name} {...brand} />
           ))}

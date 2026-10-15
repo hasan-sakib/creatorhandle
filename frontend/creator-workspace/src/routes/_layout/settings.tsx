@@ -36,6 +36,7 @@ export const Route = createFileRoute("/_layout/settings")({
 function UserSettings() {
   const { user: currentUser } = useAuth()
   const { tab } = Route.useSearch()
+  const navigate = Route.useNavigate()
   // Superusers don't get the "Danger zone" tab (it's last)
   const finalTabs = currentUser?.is_superuser
     ? tabsConfig.slice(0, -1)
@@ -54,7 +55,10 @@ function UserSettings() {
         </p>
       </div>
 
-      <Tabs defaultValue={finalTabs.some((t) => t.value === tab) ? tab : "my-profile"}>
+      <Tabs
+        value={finalTabs.some((t) => t.value === tab) ? tab : "my-profile"}
+        onValueChange={(value) => navigate({ search: { tab: value }, replace: true })}
+      >
         <TabsList>
           {finalTabs.map((tab) => (
             <TabsTrigger key={tab.value} value={tab.value}>

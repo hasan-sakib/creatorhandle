@@ -11,11 +11,20 @@ from sqlmodel import Field, Relationship, SQLModel
 from app.core.validators import (
     AccentKey,
     Availability,
+    ColorMode,
     PlatformList,
     ServiceList,
+    ThemeKey,
+    WorkStepList,
     tag_list,
-    text as clean_text,
+)
+from app.core.validators import (
     image_url as clean_image_url,
+)
+from app.core.validators import (
+    text as clean_text,
+)
+from app.core.validators import (
     url as clean_url,
 )
 
@@ -67,6 +76,12 @@ class UserBase(SQLModel):
     media_kit_url: str | None = Field(default=None, max_length=2048)
     cover_image_url: str | None = Field(default=None, max_length=2048)
     accent_color: str | None = Field(default=None, max_length=20)
+    # Look of the page and the "work style" content (see validators.py)
+    theme: str | None = Field(default=None, max_length=20)
+    color_mode: str | None = Field(default=None, max_length=10)
+    work_steps: list[dict[str, Any]] = json_list_field()
+    work_principles: list[str] = json_list_field()
+    work_tools: list[str] = json_list_field()
 
 
 # Properties to receive via API on creation
@@ -116,6 +131,11 @@ class UserUpdateMe(SQLModel):
     media_kit_url: clean_url() = None  # type: ignore[valid-type]
     cover_image_url: clean_image_url() = None  # type: ignore[valid-type]
     accent_color: AccentKey | None = None
+    theme: ThemeKey | None = None
+    color_mode: ColorMode | None = None
+    work_steps: WorkStepList = PydanticField(default_factory=list)
+    work_principles: tag_list(6, 40) = PydanticField(default_factory=list)  # type: ignore[valid-type]
+    work_tools: tag_list(12) = PydanticField(default_factory=list)  # type: ignore[valid-type]
 
 
 class UpdatePassword(SQLModel):

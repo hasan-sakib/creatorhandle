@@ -2,6 +2,7 @@ import { ArrowUpRight, ExternalLink, Star } from "lucide-react"
 import { useMemo, useState } from "react"
 
 import type { PublicProject } from "@/client"
+import { EmptyState } from "@/components/creator/EmptyState"
 import { GradientFallback, Section } from "@/components/creator/Section"
 import { SafeImage } from "@/components/creator/SafeImage"
 import { Reveal } from "@/components/home/Reveal"
@@ -23,7 +24,7 @@ function ProjectCard({
     <button
       type="button"
       onClick={() => onOpen(project.id)}
-      className="group flex h-full w-full flex-col overflow-hidden rounded-2xl border bg-card/60 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="group flex h-full w-full flex-col overflow-hidden rounded-inner border bg-card/60 text-left shadow-sm transition duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
       <div className={cn("relative w-full overflow-hidden", large ? "aspect-[16/9]" : "aspect-[16/10]")}>
         <SafeImage
@@ -36,7 +37,7 @@ function ProjectCard({
             </GradientFallback>
           }
         />
-        <span className="absolute left-3 top-3 rounded-full bg-background/80 px-2.5 py-0.5 text-[11px] font-medium backdrop-blur">
+        <span className="absolute left-3 top-3 rounded-pill bg-background/80 px-2.5 py-0.5 text-[11px] font-medium backdrop-blur">
           {project.type}
         </span>
         {project.is_featured && (
@@ -51,7 +52,7 @@ function ProjectCard({
           <h3 className={cn("font-display font-semibold leading-snug", large ? "text-xl" : "text-base")}>
             {project.title}
           </h3>
-          <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+          <ArrowUpRight className="mt-1 size-4 shrink-0 text-muted-foreground transition group-hover:text-accent-text" />
         </div>
         {project.brand_name && <p className="mt-1 text-xs text-muted-foreground">with {project.brand_name}</p>}
         {project.description && (
@@ -60,7 +61,7 @@ function ProjectCard({
         {project.tags.length > 0 && (
           <ul className="mt-auto flex flex-wrap gap-1.5 pt-3">
             {project.tags.slice(0, 3).map((t) => (
-              <li key={t} className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
+              <li key={t} className="rounded-pill bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-accent-text">
                 {t}
               </li>
             ))}
@@ -97,14 +98,14 @@ function ProjectDialog({
             </div>
             <div className="space-y-4 px-6 pb-7 sm:px-8">
               <div className="flex flex-wrap items-center gap-2 text-xs">
-                <span className="rounded-full border px-2.5 py-0.5 font-medium">{project.type}</span>
+                <span className="rounded-pill border px-2.5 py-0.5 font-medium">{project.type}</span>
                 {project.is_featured && (
-                  <span className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-medium">
+                  <span className="inline-flex items-center gap-1 rounded-pill border px-2.5 py-0.5 font-medium">
                     <Star className="size-3 fill-amber-400 text-amber-400" /> Featured
                   </span>
                 )}
               </div>
-              <DialogTitle className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+              <DialogTitle className="heading text-2xl sm:text-3xl">
                 {project.title}
               </DialogTitle>
               {project.brand_name && <p className="text-sm text-muted-foreground">With {project.brand_name}</p>}
@@ -116,14 +117,14 @@ function ProjectDialog({
               {project.tags.length > 0 && (
                 <ul className="flex flex-wrap gap-1.5">
                   {project.tags.map((t) => (
-                    <li key={t} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                    <li key={t} className="rounded-pill bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-accent-text">
                       {t}
                     </li>
                   ))}
                 </ul>
               )}
               {live && (
-                <Button asChild className="rounded-full">
+                <Button asChild className="rounded-pill">
                   <a href={live} target="_blank" rel="noopener noreferrer">
                     View the live piece <ExternalLink className="size-4" />
                   </a>
@@ -152,9 +153,9 @@ function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "rounded-full border px-3 py-1 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "rounded-pill border px-3 py-1 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         active
-          ? "border-primary bg-primary/15 font-medium text-primary"
+          ? "border-primary bg-primary/15 font-medium text-accent-text"
           : "bg-background/50 text-muted-foreground hover:border-primary/50 hover:text-foreground",
       )}
     >
@@ -188,8 +189,16 @@ export function WorkSection({ projects, total, openId, onOpen, onClose }: WorkSe
   const grid = filtering ? filtered : projects.filter((p) => !featuredIds.has(p.id))
   const open = projects.find((p) => p.id === openId) ?? null
 
+  if (projects.length === 0) {
+    return (
+      <Section id="work" eyebrow="Portfolio" title="Previous work">
+        <EmptyState message="No published projects yet." href="/app/projects" />
+      </Section>
+    )
+  }
+
   return (
-    <Section id="work" eyebrow="Portfolio" title="Selected work">
+    <Section id="work" eyebrow="Portfolio" title="Previous work">
       {(types.length > 1 || tags.length > 0) && (
         <div className="mb-8 space-y-3">
           {types.length > 1 && (

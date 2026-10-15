@@ -99,7 +99,7 @@ Images are re-encoded to WebP and stored in S3-compatible storage (RustFS). See 
 ### Public (`/api/v1/public/`) — no authentication
 | Method | Path | Description |
 |---|---|---|
-| GET | `/{username}` | The whole portfolio in one response: profile (headline, about, niches, content formats, platforms, services, availability, links, cover/avatar, accent color), the creator's **Published** projects (featured first, max 60) and the brands tied to them |
+| GET | `/{username}` | The whole portfolio in one response: profile (headline, about, niches, content formats, platforms, services, work style, availability, links, cover/avatar, theme, accent color, default color mode), the creator's **Published** projects (featured first, max 60) and the brands tied to them |
 
 The response schemas (`PublicCreator`, `PublicBrand`, `PublicProject` in `app/api/routes/public.py`) are standalone on purpose, so a new private column can never leak. Brand notes and contacts, project status/deadline, tasks and internal ids are never returned. Unpublished or unknown creators get 404. The response is cacheable for 30 s.
 
@@ -112,8 +112,12 @@ User
   username: str | None (unique, used for public profile URL)
   full_name: str | None
   headline, location, about, availability, accent_color, media_kit_url, cover_image_url: str | None
+  theme: str | None        # studio | editorial | aurora | bold | soft | mono (null = studio)
+  color_mode: str | None   # light | dark | system (null = visitor's device)
   languages, niches, content_formats, platforms: list[str]   # JSONB
-  services: list[{title, description}]                       # JSONB
+  services: list[{title, description}]                       # JSONB (shown as "Work list")
+  work_steps: list[{title, description}]                     # JSONB, max 6 ("Work style")
+  work_principles, work_tools: list[str]                     # JSONB, max 6 / 12
   hashed_password: str | None  # None for Google-only accounts
   is_active: bool
   is_superuser: bool

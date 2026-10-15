@@ -21,9 +21,9 @@ export function Section({ id, eyebrow, title, children, className }: SectionProp
     >
       <Reveal>
         {eyebrow && (
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-primary">{eyebrow}</p>
+          <p className="eyebrow mb-2">{eyebrow}</p>
         )}
-        <h2 id={`${id}-title`} className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
+        <h2 id={`${id}-title`} className="heading text-3xl sm:text-4xl">
           {title}
         </h2>
       </Reveal>

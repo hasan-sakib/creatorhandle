@@ -192,6 +192,11 @@ export type PublicCreator = {
     availability?: (string | null);
     media_kit_url?: (string | null);
     accent_color?: (string | null);
+    theme?: (string | null);
+    color_mode?: (string | null);
+    work_steps: Array<PublicWorkStep>;
+    work_principles: Array<(string)>;
+    work_tools: Array<(string)>;
     website?: (string | null);
     twitter?: (string | null);
     instagram?: (string | null);
@@ -225,6 +230,11 @@ export type PublicProject = {
 export type PublicStats = {
     brands_count: number;
     projects_count: number;
+};
+
+export type PublicWorkStep = {
+    title: string;
+    description?: (string | null);
 };
 
 /**
@@ -323,6 +333,13 @@ export type UserCreate = {
     media_kit_url?: (string | null);
     cover_image_url?: (string | null);
     accent_color?: (string | null);
+    theme?: (string | null);
+    color_mode?: (string | null);
+    work_steps?: Array<{
+        [key: string]: unknown;
+    }>;
+    work_principles?: Array<(string)>;
+    work_tools?: Array<(string)>;
     password: string;
 };
 
@@ -355,6 +372,13 @@ export type UserPublic = {
     media_kit_url?: (string | null);
     cover_image_url?: (string | null);
     accent_color?: (string | null);
+    theme?: (string | null);
+    color_mode?: (string | null);
+    work_steps?: Array<{
+        [key: string]: unknown;
+    }>;
+    work_principles?: Array<(string)>;
+    work_tools?: Array<(string)>;
     id: string;
     created_at?: (string | null);
 };
@@ -399,6 +423,13 @@ export type UserUpdate = {
     media_kit_url?: (string | null);
     cover_image_url?: (string | null);
     accent_color?: (string | null);
+    theme?: (string | null);
+    color_mode?: (string | null);
+    work_steps?: Array<{
+        [key: string]: unknown;
+    }>;
+    work_principles?: Array<(string)>;
+    work_tools?: Array<(string)>;
     password?: (string | null);
 };
 
@@ -427,6 +458,11 @@ export type UserUpdateMe = {
     media_kit_url?: (string | null);
     cover_image_url?: (string | null);
     accent_color?: ('teal' | 'indigo' | 'violet' | 'rose' | 'orange' | 'green' | 'sky' | 'slate' | 'sunset' | 'aurora' | null);
+    theme?: ('studio' | 'editorial' | 'aurora' | 'bold' | 'soft' | 'mono' | null);
+    color_mode?: ('light' | 'dark' | 'system' | null);
+    work_steps?: Array<WorkStepItem>;
+    work_principles?: Array<(string)>;
+    work_tools?: Array<(string)>;
 };
 
 export type ValidationError = {
@@ -490,6 +526,14 @@ export type WorkspaceUpdate = {
     description?: (string | null);
     timezone?: (string | null);
     workspace_type?: (string | null);
+};
+
+/**
+ * One step of how a creator works (their process), in order.
+ */
+export type WorkStepItem = {
+    title: string;
+    description?: (string | null);
 };
 
 export type BrandsReadBrandsData = {

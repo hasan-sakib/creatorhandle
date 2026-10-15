@@ -185,6 +185,49 @@ export const PublicCreatorSchema = {
             ],
             title: 'Accent Color'
         },
+        theme: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Theme'
+        },
+        color_mode: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Color Mode'
+        },
+        work_steps: {
+            items: {
+                '$ref': '#/components/schemas/PublicWorkStep'
+            },
+            type: 'array',
+            title: 'Work Steps'
+        },
+        work_principles: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Principles'
+        },
+        work_tools: {
+            items: {
+                type: 'string'
+            },
+            type: 'array',
+            title: 'Work Tools'
+        },
         website: {
             anyOf: [
                 {
@@ -285,7 +328,7 @@ export const PublicCreatorSchema = {
         }
     },
     type: 'object',
-    required: ['username', 'languages', 'niches', 'content_formats', 'platforms', 'services', 'stats', 'brands', 'projects', 'projects_total'],
+    required: ['username', 'languages', 'niches', 'content_formats', 'platforms', 'services', 'work_steps', 'work_principles', 'work_tools', 'stats', 'brands', 'projects', 'projects_total'],
     title: 'PublicCreator'
 } as const;
 
@@ -401,6 +444,29 @@ export const PublicStatsSchema = {
     type: 'object',
     required: ['brands_count', 'projects_count'],
     title: 'PublicStats'
+} as const;
+
+export const PublicWorkStepSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            title: 'Title'
+        },
+        description: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Description'
+        }
+    },
+    type: 'object',
+    required: ['title'],
+    title: 'PublicWorkStep'
 } as const;
 
 export const ValidationErrorSchema = {

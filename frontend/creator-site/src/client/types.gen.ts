@@ -27,6 +27,11 @@ export type PublicCreator = {
     availability?: (string | null);
     media_kit_url?: (string | null);
     accent_color?: (string | null);
+    theme?: (string | null);
+    color_mode?: (string | null);
+    work_steps: Array<PublicWorkStep>;
+    work_principles: Array<(string)>;
+    work_tools: Array<(string)>;
     website?: (string | null);
     twitter?: (string | null);
     instagram?: (string | null);
@@ -60,6 +65,11 @@ export type PublicProject = {
 export type PublicStats = {
     brands_count: number;
     projects_count: number;
+};
+
+export type PublicWorkStep = {
+    title: string;
+    description?: (string | null);
 };
 
 export type ValidationError = {
