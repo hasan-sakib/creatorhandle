@@ -1,7 +1,9 @@
 import { type KeyboardEvent, useRef } from "react"
-
-import { ACCENT_PRESETS, type AccentKey } from "@/components/accent-color-provider"
 import { cn } from "@/lib/utils"
+import {
+  ACCENT_PRESETS,
+  type AccentKey,
+} from "@/providers/accent-color-provider"
 
 interface AccentPickerProps {
   /** null = "Match theme" (use the theme's default accent). */
@@ -15,18 +17,27 @@ interface AccentPickerProps {
 const KEYS = Object.keys(ACCENT_PRESETS) as AccentKey[]
 
 /** Radio group of colour swatches with arrow-key navigation. */
-export function AccentPicker({ value, onChange, label, matchTheme }: AccentPickerProps) {
+export function AccentPicker({
+  value,
+  onChange,
+  label,
+  matchTheme,
+}: AccentPickerProps) {
   const refs = useRef<Record<string, HTMLButtonElement | null>>({})
   const options: (AccentKey | null)[] = matchTheme ? [null, ...KEYS] : [...KEYS]
   const idOf = (o: AccentKey | null) => o ?? "__auto__"
 
   const move = (from: AccentKey | null, delta: number) => {
-    const next = options[(options.indexOf(from) + delta + options.length) % options.length]
+    const next =
+      options[(options.indexOf(from) + delta + options.length) % options.length]
     onChange(next)
     refs.current[idOf(next)]?.focus()
   }
 
-  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, key: AccentKey | null) => {
+  const onKeyDown = (
+    e: KeyboardEvent<HTMLButtonElement>,
+    key: AccentKey | null,
+  ) => {
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
       e.preventDefault()
       move(key, 1)

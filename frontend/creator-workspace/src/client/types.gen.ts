@@ -237,6 +237,22 @@ export type PublicWorkStep = {
     description?: (string | null);
 };
 
+export type Readiness = {
+    status: 'ok' | 'error';
+    checks: ReadinessChecks;
+};
+
+export type status = 'ok' | 'error';
+
+export type ReadinessChecks = {
+    database: 'ok' | 'error' | 'disabled';
+    storage: 'ok' | 'error' | 'disabled';
+};
+
+export type database = 'ok' | 'error' | 'disabled';
+
+export type storage = 'ok' | 'error' | 'disabled';
+
 /**
  * One thing a creator offers to brands.
  */
@@ -498,8 +514,8 @@ export type WorkspaceMembersPublic = {
 };
 
 export type WorkspaceMemberUpdate = {
-    role?: (string | null);
-    status?: (string | null);
+    role?: ('owner' | 'admin' | 'manager' | 'member' | 'viewer' | null);
+    status?: ('active' | 'inactive' | null);
 };
 
 export type WorkspacePublic = {
@@ -807,6 +823,8 @@ export type UtilsTestEmailData = {
 export type UtilsTestEmailResponse = (Message);
 
 export type UtilsHealthCheckResponse = (boolean);
+
+export type UtilsReadinessResponse = (Readiness);
 
 export type WorkspacesReadWorkspacesResponse = (WorkspacesPublic);
 

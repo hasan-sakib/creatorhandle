@@ -5,6 +5,9 @@ from starlette.middleware.cors import CORSMiddleware
 
 from app.api.main import api_router
 from app.core.config import settings
+from app.core.log import configure_logging, log_requests
+
+configure_logging()
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -29,5 +32,8 @@ if settings.all_cors_origins:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Added last so it wraps everything (incl. CORS) and times the full request
+app.middleware("http")(log_requests)
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

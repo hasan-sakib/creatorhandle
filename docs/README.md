@@ -10,7 +10,7 @@ CreatorHandle is a creator management platform. Each creator gets:
 
 | Layer | Technology |
 |---|---|
-| Backend API | FastAPI 0.115, Python 3.10 |
+| Backend API | FastAPI 0.115, Python 3.12 |
 | ORM / Schema | SQLModel + Pydantic v2 |
 | Database | PostgreSQL 18 |
 | Migrations | Alembic |
@@ -18,7 +18,8 @@ CreatorHandle is a creator management platform. Each creator gets:
 | Dashboard frontend | React 19, TanStack Router v1, TanStack Query v5 |
 | Public frontend | React 19, TanStack Router v1 |
 | Styling | Tailwind CSS v4, shadcn/ui components |
-| Package manager | Bun (frontend), uv (backend) |
+| Package manager | Bun workspaces (frontend), uv (backend) |
+| Quality | ruff, mypy (strict), Biome, tsc, pytest, Playwright, GitHub Actions CI |
 | Web server / reverse proxy | Caddy 2 (one container: auto-HTTPS, serves both SPAs, proxies `/api` and `/media`) |
 | Object storage | RustFS (S3-compatible) for uploaded images |
 | Container runtime | Docker Compose |
@@ -63,12 +64,15 @@ All API routes are mounted under `/api/v1/`. The OpenAPI schema is available at 
 |---|---|---|---|
 | login | `/api/v1/` | None | Token login, Google OAuth, password recovery |
 | users | `/api/v1/users` | JWT | User CRUD (self + superuser admin) |
+| workspaces | `/api/v1/workspaces` | JWT | Workspaces and members (role-based permissions) |
 | brands | `/api/v1/brands` | JWT | Brand management |
 | projects | `/api/v1/projects` | JWT | Project management |
 | tasks | `/api/v1/tasks` | JWT | Task management |
+| collaborators | `/api/v1/collaborators` | JWT | Named collaborators tasks can be assigned to |
+| uploads | `/api/v1/uploads` | JWT | Image uploads to RustFS |
 | items | `/api/v1/items` | JWT | Item management |
 | public | `/api/v1/public` | None | Public creator profile reads |
-| utils | `/api/v1/utils` | Superuser | Health check, test email |
+| utils | `/api/v1/utils` | None / Superuser | `health-check/` (liveness), `ready/` (DB + storage), test email (superuser) |
 | private | `/api/v1/private` | None | Test helpers (local env only) |
 
 ### Authentication
@@ -76,20 +80,25 @@ All API routes are mounted under `/api/v1/`. The OpenAPI schema is available at 
 Two flows are supported:
 
 1. **Email + password** — `POST /api/v1/login/access-token` returns a JWT.
-2. **Google OAuth (implicit flow)** — frontend calls `useGoogleLogin()` from `@react-oauth/google`, receives a Google `access_token`, sends it to `POST /api/v1/login/google`. Backend verifies the token via Google's `/oauth2/v3/userinfo` endpoint and returns an app JWT. Google-only accounts have `hashed_password = NULL`.
+2. **Google OAuth (implicit flow)** — frontend calls `useGoogleLogin()` from `@react-oauth/google`, receives a Google `access_token`, sends it to `POST /api/v1/login/google`. When `GOOGLE_CLIENT_ID` is set the backend first checks, via Google's `tokeninfo` endpoint, that the token was issued to this app, then reads the profile from `/oauth2/v3/userinfo` and returns an app JWT. Google-only accounts have `hashed_password = NULL`.
 
 ### Data Model
 
 ```
-User
- ├── Items (owned by user)
- ├── Brands (owned by user)
- │    └── Projects (belong to brand, owned by user)
- │         └── Tasks (belong to project, owned by user)
- └── Tasks (also directly owned by user)
+User ── WorkspaceMember (role: owner/admin/manager/member/viewer) ── Workspace
+                                                                     ├── Brands
+                                                                     │    └── Projects
+                                                                     │         └── Tasks
+                                                                     ├── Collaborators ── Tasks (assignee)
+                                                                     └── Projects without a brand
+User ── Items (template feature, owned per user)
 ```
 
-All entities use UUID primary keys. Cascade deletes are configured throughout the tree.
+Every user gets a personal workspace on sign-up. Brands, projects, tasks and
+collaborators belong to a workspace (requests carry `X-Workspace-Id`) and may
+only reference records in the same workspace. All entities use UUID primary
+keys; deleting a brand deletes its projects and their tasks, and deleting a
+collaborator unassigns their tasks.
 
 ### Docker Compose Services
 
@@ -97,8 +106,8 @@ All entities use UUID primary keys. Cascade deletes are configured throughout th
 |---|---|---|---|
 | db | postgres:18 | 5432 | Primary datastore |
 | rustfs | rustfs/rustfs | 9001 (dev console) | Object storage for uploaded images; private to the Docker network, public reads go through Caddy at `/media/*` |
-| backend | custom (uv + Python 3.10-slim) | 8000 (dev) | FastAPI, `WEB_CONCURRENCY` workers (default 2); runs Alembic migrations on startup |
-| frontend | custom (bun build + caddy:2-alpine) | 5173→80 (dev), 80/443 (prod) | Serves both Vite apps, proxies `/api`, HTTPS in prod |
+| backend | custom (uv + python:3.12-slim, non-root) | 8000 (dev) | FastAPI, `WEB_CONCURRENCY` workers (default 2); runs Alembic migrations on startup; healthcheck on `/api/v1/utils/ready/` |
+| frontend | custom (bun build + caddy:2.11-alpine) | 5173→80 (dev), 80/443 (prod) | Serves both Vite apps, proxies `/api`, HTTPS in prod |
 | mailcatcher | schickling/mailcatcher | 1025/1080 | Dev SMTP trap |
 | playwright | custom | 9323 | E2E test runner |
 
@@ -108,7 +117,7 @@ All entities use UUID primary keys. Cascade deletes are configured throughout th
 Stage 0 (deps)        — bun install (shared workspace)
 Stage 1 (workspace-build) — builds creator-workspace
 Stage 2 (site-build)  — builds creator-site
-Stage 3 (caddy:2-alpine) — copies both dists and the Caddyfile
+Stage 3 (caddy:2.11-alpine) — copies both dists and the Caddyfile
 ```
 
 Build args: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
@@ -117,38 +126,38 @@ Build args: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
 
 ```
 creatorhandle/
-├── backend/
+├── backend/                 FastAPI service (uv workspace member)
+│   ├── Dockerfile           multi-stage, non-root runtime
 │   ├── app/
-│   │   ├── api/routes/      # FastAPI routers
-│   │   ├── core/            # config, db, security
-│   │   ├── alembic/         # migrations
-│   │   ├── models.py        # SQLModel table + schema models
-│   │   ├── crud.py          # database operations
-│   │   └── main.py          # app factory
-│   ├── tests/               # Pytest tests
-│   └── pyproject.toml
-├── frontend/
-│   ├── creator-workspace/   # dashboard Vite app
-│   │   └── src/
-│   │       ├── client/      # auto-generated OpenAPI client
-│   │       ├── components/  # UI components
-│   │       ├── hooks/       # useAuth, useCustomToast
-│   │       └── routes/      # TanStack Router file-based routes
-│   ├── creator-site/        # public profile Vite app
-│   │   └── src/
-│   │       ├── components/
-│   │       └── routes/      # /@{username} route
-│   └── Caddyfile
-├── deploy/
-│   ├── .env                 # environment variables
-│   ├── compose.yml          # base stack: db, backend, frontend
-│   ├── compose.prod.yml     # production: ports 80/443 + domain
-│   └── compose.override.yml # local dev overrides (ports, mailcatcher, playwright)
-├── docker/
-│   ├── Dockerfile.backend
-│   ├── Dockerfile.frontend
-│   └── Dockerfile.playwright
-└── docs/
+│   │   ├── main.py          app wiring: CORS, Sentry, logging, routers
+│   │   ├── api/             HTTP layer: deps.py, routes/<domain>.py
+│   │   ├── core/            config, db, security, log, storage, media paths
+│   │   ├── domain/          permissions, validators, image processing
+│   │   ├── models/          SQLModel tables + schemas, one module per domain
+│   │   ├── crud/            persistence helpers (users, workspaces, items)
+│   │   ├── emails/          email sending + MJML templates (src/ and built build/)
+│   │   ├── cli/             start-up commands (python -m app.cli.<name>)
+│   │   └── alembic/         migrations
+│   ├── scripts/             container scripts: entrypoint, prestart, tests-start
+│   └── tests/               pytest (api/, crud/, cli/, utils/)
+├── frontend/                Bun workspace
+│   ├── Dockerfile           builds both apps into one Caddy image
+│   ├── Dockerfile.playwright
+│   ├── Caddyfile            single-origin routing (/api, /media, /app, site)
+│   ├── biome.json           lint/format config for all frontend code
+│   ├── creator-workspace/   dashboard SPA (src/{client,components,hooks,lib,providers,routes}, tests/)
+│   ├── creator-site/        public site SPA (src/{client,components,hooks,lib,routes,styles}, scripts/)
+│   └── packages/shared/     @creatorhandle/shared: accents, theme keys, cn()
+├── scripts/                 generate-client.sh, openapi_public.py, test.sh, test-local.sh
+├── docs/                    this folder
+├── .github/workflows/ci.yml lint → type-check → test → build
+├── compose.yml              base stack: db, rustfs, backend, frontend
+├── compose.override.yml     dev (auto-applied): ports, reload, mailcatcher, playwright
+├── compose.prod.yml         production: ports 80/443 + domain
+├── .env.example             every setting, documented (copy to .env)
+├── Makefile                 common commands (`make help`)
+├── package.json, bun.lock   JS workspace
+└── pyproject.toml, uv.lock  Python workspace
 ```
 
 ## Key Environment Variables
@@ -168,3 +177,7 @@ creatorhandle/
 | `MEDIA_MAX_UPLOAD_MB` | Largest accepted image upload (default 5) |
 | `SMTP_HOST` | SMTP server for email (Mailcatcher in dev) |
 | `SENTRY_DSN` | Optional Sentry error tracking |
+| `LOG_LEVEL` | `DEBUG`/`INFO`/`WARNING`/`ERROR`; logs are JSON lines outside `ENVIRONMENT=local` |
+| `WEB_CONCURRENCY` | Uvicorn worker processes (default 2) |
+
+The full, commented list is in [`.env.example`](../.env.example).

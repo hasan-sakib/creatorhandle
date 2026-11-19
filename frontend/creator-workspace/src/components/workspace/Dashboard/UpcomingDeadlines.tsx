@@ -30,11 +30,18 @@ export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
       const d = new Date(p.deadline)
       return d >= today && d <= in7days
     })
-    .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
+    .sort(
+      (a, b) =>
+        new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime(),
+    )
 
   const overdue = projects.filter((p) => {
     if (!p.deadline) return false
-    return new Date(p.deadline) < today && p.platform_status !== "Published" && p.platform_status !== "Cancelled"
+    return (
+      new Date(p.deadline) < today &&
+      p.platform_status !== "Published" &&
+      p.platform_status !== "Cancelled"
+    )
   })
 
   const items = [...overdue, ...upcoming]
@@ -49,19 +56,28 @@ export function UpcomingDeadlines({ projects }: UpcomingDeadlinesProps) {
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No deadlines in the next 7 days.</p>
+          <p className="text-sm text-muted-foreground">
+            No deadlines in the next 7 days.
+          </p>
         ) : (
           <ul className="space-y-3">
             {items.map((p) => {
               const label = p.deadline ? formatDeadline(p.deadline) : ""
               const isOverdue = p.deadline && new Date(p.deadline) < today
               return (
-                <li key={p.id} className="flex items-center justify-between gap-2">
+                <li
+                  key={p.id}
+                  className="flex items-center justify-between gap-2"
+                >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{p.title}</p>
-                    <p className="text-xs text-muted-foreground">{p.platform_status}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {p.platform_status}
+                    </p>
                   </div>
-                  <span className={`shrink-0 text-xs font-medium ${isOverdue ? "text-destructive" : "text-amber-600 dark:text-amber-400"}`}>
+                  <span
+                    className={`shrink-0 text-xs font-medium ${isOverdue ? "text-destructive" : "text-amber-600 dark:text-amber-400"}`}
+                  >
                     {label}
                   </span>
                 </li>

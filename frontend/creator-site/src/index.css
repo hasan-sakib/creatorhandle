@@ -8,8 +8,21 @@
 
 @theme inline {
   /* Creator themes override these through --theme-* (see styles/creator-themes.css) */
-  --font-sans: var(--theme-font-sans, "Inter Variable", ui-sans-serif, system-ui, sans-serif);
-  --font-display: var(--theme-font-display, "Bricolage Grotesque Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif);
+  --font-sans: var(
+    --theme-font-sans,
+    "Inter Variable",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
+  --font-display: var(
+    --theme-font-display,
+    "Bricolage Grotesque Variable",
+    "Inter Variable",
+    ui-sans-serif,
+    system-ui,
+    sans-serif
+  );
   --radius-card: var(--theme-radius-card, 1.5rem);
   --radius-inner: var(--theme-radius-inner, 1rem);
   --radius-tile: var(--theme-radius-tile, 0.75rem);
@@ -176,14 +189,28 @@
 
 /* Alias kept for code that still says "glass"; same as `surface` */
 @utility glass {
-  background-color: color-mix(in oklch, var(--background) var(--surface-alpha, 62%), transparent);
-  backdrop-filter: blur(var(--surface-blur, 18px)) saturate(var(--surface-saturate, 1.4));
-  border: var(--surface-border, 1px solid color-mix(in oklch, var(--foreground) 10%, transparent));
-  box-shadow: var(--surface-shadow, 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent));
+  background-color: color-mix(
+    in oklch,
+    var(--background) var(--surface-alpha, 62%),
+    transparent
+  );
+  backdrop-filter: blur(var(--surface-blur, 18px))
+    saturate(var(--surface-saturate, 1.4));
+  border: var(
+    --surface-border,
+    1px solid color-mix(in oklch, var(--foreground) 10%, transparent)
+  );
+  box-shadow: var(
+    --surface-shadow,
+    0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent)
+  );
 }
 
 /* No backdrop-filter support: use a near-opaque panel so text stays readable */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+@supports not (
+    (backdrop-filter: blur(1px)) or
+    (-webkit-backdrop-filter: blur(1px))
+  ) {
   .glass {
     background-color: color-mix(in oklch, var(--background) 94%, transparent);
   }
@@ -196,21 +223,39 @@
 }
 
 @keyframes aurora-drift-a {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(8vw, 6vh, 0) scale(1.15); }
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(8vw, 6vh, 0) scale(1.15);
+  }
 }
 @keyframes aurora-drift-b {
-  from { transform: translate3d(0, 0, 0) scale(1.1); }
-  to   { transform: translate3d(-9vw, 5vh, 0) scale(0.95); }
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-9vw, 5vh, 0) scale(0.95);
+  }
 }
 @keyframes aurora-drift-c {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(5vw, -8vh, 0) scale(1.2); }
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(5vw, -8vh, 0) scale(1.2);
+  }
 }
 
 /* Static unless the visitor allows motion */
 @media (prefers-reduced-motion: no-preference) {
-  .aurora-a { animation: aurora-drift-a 26s ease-in-out infinite alternate; }
-  .aurora-b { animation: aurora-drift-b 32s ease-in-out infinite alternate; }
-  .aurora-c { animation: aurora-drift-c 38s ease-in-out infinite alternate; }
+  .aurora-a {
+    animation: aurora-drift-a 26s ease-in-out infinite alternate;
+  }
+  .aurora-b {
+    animation: aurora-drift-b 32s ease-in-out infinite alternate;
+  }
+  .aurora-c {
+    animation: aurora-drift-c 38s ease-in-out infinite alternate;
+  }
 }

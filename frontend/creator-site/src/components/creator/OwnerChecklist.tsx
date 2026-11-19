@@ -1,9 +1,9 @@
 import { ArrowRight, Check, Circle } from "lucide-react"
 
 import type { PublicCreator } from "@/client"
-import { hasContactMethods } from "@/components/creator/ContactSection"
 import { hasMakeContent } from "@/components/creator/AboutSection"
 import { hasApproachContent } from "@/components/creator/ApproachSection"
+import { hasContactMethods } from "@/components/creator/ContactSection"
 import { dashboardPath } from "@/lib/urls"
 
 interface Item {
@@ -59,7 +59,10 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
     {
       label: "Cover image and theme",
       hint: "Make the page look like you",
-      done: !!(profile.cover_image_url && (profile.theme || profile.accent_color)),
+      done: !!(
+        profile.cover_image_url &&
+        (profile.theme || profile.accent_color)
+      ),
       href: portfolioTab,
     },
   ]
@@ -78,8 +81,9 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
           Your page is live. Add more to fill it in.
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Every profile has the same sections. Ones you haven't filled in show a short placeholder to
-          visitors ({items.length - remaining.length} of {items.length} done).
+          Every profile has the same sections. Ones you haven't filled in show a
+          short placeholder to visitors ({items.length - remaining.length} of{" "}
+          {items.length} done).
         </p>
         <ul className="mt-4 grid gap-2 sm:grid-cols-2">
           {items.map((item) => (
@@ -95,16 +99,26 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
                       : "mt-0.5 shrink-0 text-muted-foreground"
                   }
                 >
-                  {item.done ? <Check className="size-3.5" strokeWidth={3} /> : <Circle className="size-5" />}
+                  {item.done ? (
+                    <Check className="size-3.5" strokeWidth={3} />
+                  ) : (
+                    <Circle className="size-5" />
+                  )}
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-medium">
                     {item.label}
-                    <span className="sr-only">{item.done ? " (done)" : " (to do)"}</span>
+                    <span className="sr-only">
+                      {item.done ? " (done)" : " (to do)"}
+                    </span>
                   </span>
-                  <span className="block text-xs text-muted-foreground">{item.hint}</span>
+                  <span className="block text-xs text-muted-foreground">
+                    {item.hint}
+                  </span>
                 </span>
-                {!item.done && <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />}
+                {!item.done && (
+                  <ArrowRight className="mt-1 size-4 shrink-0 text-muted-foreground" />
+                )}
               </a>
             </li>
           ))}

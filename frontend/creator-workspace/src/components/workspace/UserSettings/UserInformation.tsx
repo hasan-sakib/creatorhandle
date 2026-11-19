@@ -1,6 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { AtSign, Camera, ExternalLink, Globe, Mail, Music2, Pencil, Youtube } from "lucide-react"
+import {
+  AtSign,
+  Camera,
+  ExternalLink,
+  Globe,
+  Mail,
+  Music2,
+  Pencil,
+  Youtube,
+} from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -18,8 +27,8 @@ import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
 import useAuth from "@/hooks/useAuth"
 import useCustomToast from "@/hooks/useCustomToast"
+import { handleError } from "@/lib/errors"
 import { cn } from "@/lib/utils"
-import { handleError } from "@/utils"
 
 const formSchema = z.object({
   full_name: z.string().max(255).optional(),
@@ -27,7 +36,9 @@ const formSchema = z.object({
   username: z
     .string()
     .max(30)
-    .regex(/^[a-z0-9-]*$/, { message: "Only lowercase letters, numbers, and hyphens" })
+    .regex(/^[a-z0-9-]*$/, {
+      message: "Only lowercase letters, numbers, and hyphens",
+    })
     .optional()
     .or(z.literal("")),
   bio: z.string().max(300).optional().or(z.literal("")),
@@ -42,12 +53,42 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 const SOCIAL_FIELDS = [
-  { name: "website" as const, label: "Website", Icon: Globe, placeholder: "https://yoursite.com" },
-  { name: "twitter" as const, label: "X / Twitter", Icon: AtSign, placeholder: "@handle" },
-  { name: "instagram" as const, label: "Instagram", Icon: Camera, placeholder: "@handle" },
-  { name: "youtube" as const, label: "YouTube", Icon: Youtube, placeholder: "@channel or URL" },
-  { name: "tiktok" as const, label: "TikTok", Icon: Music2, placeholder: "@handle" },
-  { name: "contact_email" as const, label: "Public contact email", Icon: Mail, placeholder: "hello@yoursite.com" },
+  {
+    name: "website" as const,
+    label: "Website",
+    Icon: Globe,
+    placeholder: "https://yoursite.com",
+  },
+  {
+    name: "twitter" as const,
+    label: "X / Twitter",
+    Icon: AtSign,
+    placeholder: "@handle",
+  },
+  {
+    name: "instagram" as const,
+    label: "Instagram",
+    Icon: Camera,
+    placeholder: "@handle",
+  },
+  {
+    name: "youtube" as const,
+    label: "YouTube",
+    Icon: Youtube,
+    placeholder: "@channel or URL",
+  },
+  {
+    name: "tiktok" as const,
+    label: "TikTok",
+    Icon: Music2,
+    placeholder: "@handle",
+  },
+  {
+    name: "contact_email" as const,
+    label: "Public contact email",
+    Icon: Mail,
+    placeholder: "hello@yoursite.com",
+  },
 ]
 
 const UserInformation = () => {
@@ -70,7 +111,8 @@ const UserInformation = () => {
       instagram: currentUser?.instagram ?? "",
       youtube: currentUser?.youtube ?? "",
       tiktok: currentUser?.tiktok ?? "",
-      contact_email: (currentUser as { contact_email?: string | null })?.contact_email ?? "",
+      contact_email:
+        (currentUser as { contact_email?: string | null })?.contact_email ?? "",
     },
   })
 
@@ -92,25 +134,34 @@ const UserInformation = () => {
   const onSubmit = (data: FormData) => {
     const updateData: UserUpdateMe = {}
 
-    if (data.full_name !== currentUser?.full_name) updateData.full_name = data.full_name
+    if (data.full_name !== currentUser?.full_name)
+      updateData.full_name = data.full_name
     if (data.email !== currentUser?.email) updateData.email = data.email
     const newUsername = data.username || null
-    if (newUsername !== (currentUser?.username ?? null)) updateData.username = newUsername
+    if (newUsername !== (currentUser?.username ?? null))
+      updateData.username = newUsername
     const newBio = data.bio || null
     if (newBio !== (currentUser?.bio ?? null)) updateData.bio = newBio
     const newWebsite = data.website || null
-    if (newWebsite !== (currentUser?.website ?? null)) updateData.website = newWebsite
+    if (newWebsite !== (currentUser?.website ?? null))
+      updateData.website = newWebsite
     const newTwitter = data.twitter || null
-    if (newTwitter !== (currentUser?.twitter ?? null)) updateData.twitter = newTwitter
+    if (newTwitter !== (currentUser?.twitter ?? null))
+      updateData.twitter = newTwitter
     const newInstagram = data.instagram || null
-    if (newInstagram !== (currentUser?.instagram ?? null)) updateData.instagram = newInstagram
+    if (newInstagram !== (currentUser?.instagram ?? null))
+      updateData.instagram = newInstagram
     const newYoutube = data.youtube || null
-    if (newYoutube !== (currentUser?.youtube ?? null)) updateData.youtube = newYoutube
+    if (newYoutube !== (currentUser?.youtube ?? null))
+      updateData.youtube = newYoutube
     const newTiktok = data.tiktok || null
-    if (newTiktok !== (currentUser?.tiktok ?? null)) updateData.tiktok = newTiktok
+    if (newTiktok !== (currentUser?.tiktok ?? null))
+      updateData.tiktok = newTiktok
     const newContactEmail = data.contact_email || null
-    const currentContactEmail = (currentUser as { contact_email?: string | null })?.contact_email ?? null
-    if (newContactEmail !== currentContactEmail) updateData.contact_email = newContactEmail
+    const currentContactEmail =
+      (currentUser as { contact_email?: string | null })?.contact_email ?? null
+    if (newContactEmail !== currentContactEmail)
+      updateData.contact_email = newContactEmail
 
     mutation.mutate(updateData)
   }
@@ -124,7 +175,11 @@ const UserInformation = () => {
     mutationFn: (is_published: boolean) =>
       UsersService.updateUserMe({ requestBody: { is_published } }),
     onSuccess: (_, is_published) => {
-      showSuccessToast(is_published ? "Your website is now live" : "Your website is unpublished")
+      showSuccessToast(
+        is_published
+          ? "Your website is now live"
+          : "Your website is unpublished",
+      )
     },
     onError: handleError.bind(showErrorToast),
     onSettled: () => {
@@ -136,8 +191,10 @@ const UserInformation = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-3xl">
-
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 max-w-3xl"
+      >
         {/* ── User Information card ── */}
         <section className="rounded-lg border bg-card p-6">
           <div className="flex items-start justify-between mb-6">
@@ -161,11 +218,21 @@ const UserInformation = () => {
               name="full_name"
               render={({ field }) => (
                 <FormItem>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Full name</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                    Full name
+                  </p>
                   {editMode ? (
-                    <FormControl><Input type="text" {...field} /></FormControl>
+                    <FormControl>
+                      <Input type="text" {...field} />
+                    </FormControl>
                   ) : (
-                    <p className={cn("text-base font-medium", !field.value && "text-sm text-muted-foreground italic font-normal")}>
+                    <p
+                      className={cn(
+                        "text-base font-medium",
+                        !field.value &&
+                          "text-sm text-muted-foreground italic font-normal",
+                      )}
+                    >
                       {field.value || "Not set"}
                     </p>
                   )}
@@ -179,11 +246,17 @@ const UserInformation = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Email</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                    Email
+                  </p>
                   {editMode ? (
-                    <FormControl><Input type="email" {...field} /></FormControl>
+                    <FormControl>
+                      <Input type="email" {...field} />
+                    </FormControl>
                   ) : (
-                    <p className="text-base font-medium truncate">{field.value}</p>
+                    <p className="text-base font-medium truncate">
+                      {field.value}
+                    </p>
                   )}
                   <FormMessage />
                 </FormItem>
@@ -195,21 +268,32 @@ const UserInformation = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Public handle</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                    Public handle
+                  </p>
                   {editMode ? (
                     <>
                       <FormControl>
-                        <Input type="text" placeholder="e.g. johndoe" {...field} />
+                        <Input
+                          type="text"
+                          placeholder="e.g. johndoe"
+                          {...field}
+                        />
                       </FormControl>
                       <p className="text-xs text-muted-foreground">
-                        Profile: {window.location.host}/@{field.value || "yourhandle"}
+                        Profile: {window.location.host}/@
+                        {field.value || "yourhandle"}
                       </p>
                     </>
                   ) : (
-                    <p className={cn(
-                      "text-base font-medium",
-                      field.value ? "text-primary" : "text-sm text-muted-foreground italic font-normal",
-                    )}>
+                    <p
+                      className={cn(
+                        "text-base font-medium",
+                        field.value
+                          ? "text-primary"
+                          : "text-sm text-muted-foreground italic font-normal",
+                      )}
+                    >
                       {field.value ? `@${field.value}` : "Not set"}
                     </p>
                   )}
@@ -223,7 +307,9 @@ const UserInformation = () => {
               name="bio"
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
-                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">Bio</p>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                    Bio
+                  </p>
                   {editMode ? (
                     <>
                       <FormControl>
@@ -234,10 +320,17 @@ const UserInformation = () => {
                           {...field}
                         />
                       </FormControl>
-                      <p className="text-xs text-muted-foreground text-right">{(field.value ?? "").length}/300</p>
+                      <p className="text-xs text-muted-foreground text-right">
+                        {(field.value ?? "").length}/300
+                      </p>
                     </>
                   ) : (
-                    <p className={cn("text-sm leading-relaxed", !field.value && "text-muted-foreground italic")}>
+                    <p
+                      className={cn(
+                        "text-sm leading-relaxed",
+                        !field.value && "text-muted-foreground italic",
+                      )}
+                    >
                       {field.value || "Not set"}
                     </p>
                   )}
@@ -253,14 +346,12 @@ const UserInformation = () => {
                 type="submit"
                 loading={mutation.isPending}
                 disabled={!form.formState.isDirty}
-                
               >
                 Save changes
               </LoadingButton>
               <Button
                 type="button"
                 variant="outline"
-                
                 onClick={onCancel}
                 disabled={mutation.isPending}
               >
@@ -288,7 +379,8 @@ const UserInformation = () => {
                   </a>
                 ) : (
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {window.location.host}/@{currentUser.username} — not live yet
+                    {window.location.host}/@{currentUser.username} — not live
+                    yet
                   </p>
                 )
               ) : (
@@ -323,7 +415,9 @@ const UserInformation = () => {
                   <FormItem className="flex items-start gap-3 p-4 rounded-lg bg-muted/40 border m-0">
                     <Icon className="w-5 h-5 text-muted-foreground mt-0.5 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">{label}</p>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-1.5">
+                        {label}
+                      </p>
                       {editMode ? (
                         <FormControl>
                           <Input
@@ -334,7 +428,13 @@ const UserInformation = () => {
                           />
                         </FormControl>
                       ) : (
-                        <p className={cn("text-sm font-medium truncate", !field.value && "text-muted-foreground italic font-normal")}>
+                        <p
+                          className={cn(
+                            "text-sm font-medium truncate",
+                            !field.value &&
+                              "text-muted-foreground italic font-normal",
+                          )}
+                        >
                           {field.value || "Not set"}
                         </p>
                       )}
@@ -346,7 +446,6 @@ const UserInformation = () => {
             ))}
           </div>
         </section>
-
       </form>
     </Form>
   )

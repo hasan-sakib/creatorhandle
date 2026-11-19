@@ -3,31 +3,20 @@
  * corners, surfaces, background effect); the page structure is identical for
  * every creator. The CSS for each theme lives in styles/creator-themes.css.
  *
- * Keep the keys in sync with ThemeKey in backend/app/core/validators.py and
- * with creator-workspace/src/lib/themePresets.ts.
+ * Keys, names and default accents come from @creatorhandle/shared; keep the
+ * keys in sync with ThemeKey in backend/app/domain/validators.py.
  */
+
+import {
+  DEFAULT_THEME,
+  THEMES,
+  type ThemeDef,
+  type ThemeKey,
+} from "@creatorhandle/shared/themes"
 import { useEffect, useState } from "react"
 
-import type { AccentKey } from "@/lib/accent"
-
-export type ThemeKey = "studio" | "editorial" | "aurora" | "bold" | "soft" | "mono"
-
-export interface ThemeDef {
-  label: string
-  /** Accent used when the creator has not chosen one. */
-  defaultAccent: AccentKey
-}
-
-export const THEMES: Record<ThemeKey, ThemeDef> = {
-  studio: { label: "Studio", defaultAccent: "teal" },
-  editorial: { label: "Editorial", defaultAccent: "rose" },
-  aurora: { label: "Aurora", defaultAccent: "violet" },
-  bold: { label: "Bold", defaultAccent: "orange" },
-  soft: { label: "Soft", defaultAccent: "sky" },
-  mono: { label: "Mono", defaultAccent: "green" },
-}
-
-export const DEFAULT_THEME: ThemeKey = "studio"
+export { DEFAULT_THEME, THEMES }
+export type { ThemeDef, ThemeKey }
 
 /** Unknown or missing values fall back to the default theme. */
 export function resolveTheme(key: string | null | undefined): ThemeKey {
@@ -54,7 +43,10 @@ const FONT_TIMEOUT_MS = 800
  * True once the theme's font is ready (or failed, or took too long). The page
  * waits for this before it is revealed, so the font does not visibly swap.
  */
-export function useThemeFont(theme: string | null | undefined, enabled = true): boolean {
+export function useThemeFont(
+  theme: string | null | undefined,
+  enabled = true,
+): boolean {
   const key = resolveTheme(theme)
   const [readyFor, setReadyFor] = useState<ThemeKey | null>(null)
 

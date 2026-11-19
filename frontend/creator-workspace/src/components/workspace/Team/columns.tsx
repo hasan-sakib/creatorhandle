@@ -32,11 +32,16 @@ function CopyId({ num, id }: { num: number; id: string }) {
 }
 
 export const ROLE_COLORS: Record<string, string> = {
-  Manager: "text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/30 dark:border-purple-700",
-  Designer: "text-pink-700 bg-pink-50 border-pink-200 dark:text-pink-400 dark:bg-pink-900/30 dark:border-pink-700",
-  Developer: "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-700",
-  Writer: "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/30 dark:border-amber-700",
-  Editor: "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-700",
+  Manager:
+    "text-purple-700 bg-purple-50 border-purple-200 dark:text-purple-400 dark:bg-purple-900/30 dark:border-purple-700",
+  Designer:
+    "text-pink-700 bg-pink-50 border-pink-200 dark:text-pink-400 dark:bg-pink-900/30 dark:border-pink-700",
+  Developer:
+    "text-blue-700 bg-blue-50 border-blue-200 dark:text-blue-400 dark:bg-blue-900/30 dark:border-blue-700",
+  Writer:
+    "text-amber-700 bg-amber-50 border-amber-200 dark:text-amber-400 dark:bg-amber-900/30 dark:border-amber-700",
+  Editor:
+    "text-green-700 bg-green-50 border-green-200 dark:text-green-400 dark:bg-green-900/30 dark:border-green-700",
 }
 
 export const columns: ColumnDef<CollaboratorPublic>[] = [
@@ -48,9 +53,7 @@ export const columns: ColumnDef<CollaboratorPublic>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <span className="font-medium">{row.original.name}</span>
-    ),
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: "role",

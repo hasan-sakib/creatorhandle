@@ -1,7 +1,6 @@
 import { CalendarClock, Check } from "lucide-react"
-
-import { Card } from "@/components/ui/card"
 import { ProfileCardCompact } from "@/components/home/ExampleProfile"
+import { Card } from "@/components/ui/card"
 
 /**
  * Hero collage: an example public profile with a couple of dashboard widgets
@@ -12,8 +11,8 @@ export function ProductMock() {
   return (
     <div className="relative mx-auto w-full max-w-lg lg:max-w-none">
       <p className="sr-only">
-        Illustration: an example creator profile page next to dashboard widgets for a brand
-        campaign and a task checklist.
+        Illustration: an example creator profile page next to dashboard widgets
+        for a brand campaign and a task checklist.
       </p>
       <div aria-hidden="true" className="relative pb-2 lg:pb-12 lg:pt-6">
         <ProfileCardCompact className="lg:pb-28" />
@@ -34,7 +33,9 @@ export function ProductMock() {
               <span className="grid size-5 place-items-center rounded-md border border-primary/40 bg-primary/10 text-primary">
                 <Check className="size-3.5" strokeWidth={3} />
               </span>
-              <span className="text-sm font-medium">Draft script revisions</span>
+              <span className="text-sm font-medium">
+                Draft script revisions
+              </span>
             </div>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
               Done

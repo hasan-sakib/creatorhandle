@@ -1,6 +1,7 @@
 import secrets
 import warnings
-from typing import Annotated, Any, Literal
+from pathlib import Path
+from typing import Annotated, Any, Literal, Self
 
 from pydantic import (
     AnyUrl,
@@ -12,7 +13,6 @@ from pydantic import (
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing_extensions import Self
 
 
 def parse_cors(v: Any) -> list[str] | str:
@@ -23,10 +23,15 @@ def parse_cors(v: Any) -> list[str] | str:
     raise ValueError(v)
 
 
+# backend/app/core/config.py -> repo root
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        # Use top level .env file (one level above ./backend/)
-        env_file="../.env",
+        # The project-wide .env at the repo root, independent of the working
+        # directory. In containers it doesn't exist; Compose injects the env.
+        env_file=REPO_ROOT / ".env",
         env_ignore_empty=True,
         extra="ignore",
     )
@@ -36,6 +41,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
     FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    # Text logs when local, JSON lines otherwise (see core/log.py)
+    LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
@@ -135,6 +142,7 @@ class Settings(BaseSettings):
         self._check_default_secret(
             "FIRST_SUPERUSER_PASSWORD", self.FIRST_SUPERUSER_PASSWORD
         )
+        self._check_default_secret("S3_SECRET_KEY", self.S3_SECRET_KEY)
 
         return self
 

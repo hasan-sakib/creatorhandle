@@ -1451,6 +1451,40 @@ export const PublicWorkStepSchema = {
     title: 'PublicWorkStep'
 } as const;
 
+export const ReadinessSchema = {
+    properties: {
+        status: {
+            type: 'string',
+            enum: ['ok', 'error'],
+            title: 'Status'
+        },
+        checks: {
+            '$ref': '#/components/schemas/ReadinessChecks'
+        }
+    },
+    type: 'object',
+    required: ['status', 'checks'],
+    title: 'Readiness'
+} as const;
+
+export const ReadinessChecksSchema = {
+    properties: {
+        database: {
+            type: 'string',
+            enum: ['ok', 'error', 'disabled'],
+            title: 'Database'
+        },
+        storage: {
+            type: 'string',
+            enum: ['ok', 'error', 'disabled'],
+            title: 'Storage'
+        }
+    },
+    type: 'object',
+    required: ['database', 'storage'],
+    title: 'ReadinessChecks'
+} as const;
+
 export const ServiceItemSchema = {
     properties: {
         title: {
@@ -3440,7 +3474,7 @@ export const WorkspaceMemberUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    enum: ['owner', 'admin', 'manager', 'member', 'viewer']
                 },
                 {
                     type: 'null'
@@ -3452,7 +3486,7 @@ export const WorkspaceMemberUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    enum: ['active', 'inactive']
                 },
                 {
                     type: 'null'

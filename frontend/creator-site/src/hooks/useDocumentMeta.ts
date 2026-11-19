@@ -6,7 +6,9 @@ export function useDocumentMeta(title: string, description?: string | null) {
     const previousTitle = document.title
     document.title = title
 
-    let meta = document.querySelector<HTMLMetaElement>('meta[name="description"]')
+    let meta = document.querySelector<HTMLMetaElement>(
+      'meta[name="description"]',
+    )
     const previousDescription = meta?.content
     if (description) {
       if (!meta) {
@@ -19,7 +21,8 @@ export function useDocumentMeta(title: string, description?: string | null) {
 
     return () => {
       document.title = previousTitle
-      if (meta && previousDescription !== undefined) meta.content = previousDescription
+      if (meta && previousDescription !== undefined)
+        meta.content = previousDescription
     }
   }, [title, description])
 }

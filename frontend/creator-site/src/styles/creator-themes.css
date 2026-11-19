@@ -38,14 +38,28 @@
 }
 
 @utility surface {
-  background-color: color-mix(in oklch, var(--background) var(--surface-alpha, 62%), transparent);
-  backdrop-filter: blur(var(--surface-blur, 18px)) saturate(var(--surface-saturate, 1.4));
-  border: var(--surface-border, 1px solid color-mix(in oklch, var(--foreground) 10%, transparent));
-  box-shadow: var(--surface-shadow, 0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent));
+  background-color: color-mix(
+    in oklch,
+    var(--background) var(--surface-alpha, 62%),
+    transparent
+  );
+  backdrop-filter: blur(var(--surface-blur, 18px))
+    saturate(var(--surface-saturate, 1.4));
+  border: var(
+    --surface-border,
+    1px solid color-mix(in oklch, var(--foreground) 10%, transparent)
+  );
+  box-shadow: var(
+    --surface-shadow,
+    0 10px 40px -12px color-mix(in oklch, var(--foreground) 22%, transparent)
+  );
 }
 
 /* No backdrop-filter support: use a near-opaque panel so text stays readable */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+@supports not (
+    (backdrop-filter: blur(1px)) or
+    (-webkit-backdrop-filter: blur(1px))
+  ) {
   .surface {
     background-color: color-mix(in oklch, var(--background) 94%, transparent);
   }
@@ -143,7 +157,9 @@
   --muted-foreground: oklch(0.45 0.04 285);
   --border: oklch(0.88 0.03 290);
 
-  --theme-font-display: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --theme-font-display:
+    "Space Grotesk Variable", "Inter Variable", ui-sans-serif, system-ui,
+    sans-serif;
   --heading-weight: 700;
   --heading-tracking: -0.03em;
 
@@ -153,8 +169,10 @@
   --surface-alpha: 55%;
   --surface-blur: 24px;
   --surface-saturate: 1.6;
-  --surface-border: 1px solid color-mix(in oklch, var(--accent-raw) 28%, transparent);
-  --surface-shadow: 0 20px 60px -20px color-mix(in oklch, var(--accent-raw) 45%, transparent);
+  --surface-border: 1px solid
+    color-mix(in oklch, var(--accent-raw) 28%, transparent);
+  --surface-shadow: 0 20px 60px -20px
+    color-mix(in oklch, var(--accent-raw) 45%, transparent);
 
   --bg-blob-strength: 1.5;
 
@@ -185,7 +203,8 @@
   --muted-foreground: oklch(0.38 0.03 90);
   --border: oklch(0.15 0 0);
 
-  --theme-font-display: "Archivo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --theme-font-display:
+    "Archivo Variable", "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --heading-weight: 800;
   --heading-tracking: -0.02em;
   --eyebrow-tracking: 0.12em;
@@ -206,8 +225,16 @@
   --bg-grid-opacity: 1;
   --bg-grid-size: 32px 32px;
   --bg-grid-image:
-    linear-gradient(to right, color-mix(in oklch, var(--foreground) 9%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 9%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      color-mix(in oklch, var(--foreground) 9%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--foreground) 9%, transparent) 1px,
+      transparent 1px
+    );
 
   --accent-text-mix: 85%;
 }
@@ -234,7 +261,8 @@
   --muted-foreground: oklch(0.45 0.03 270);
   --border: color-mix(in oklch, var(--accent-raw) 20%, transparent);
 
-  --theme-font-display: "Nunito Variable", "Inter Variable", ui-rounded, system-ui, sans-serif;
+  --theme-font-display:
+    "Nunito Variable", "Inter Variable", ui-rounded, system-ui, sans-serif;
   --heading-weight: 800;
   --heading-tracking: -0.01em;
   --eyebrow-transform: none;
@@ -248,7 +276,8 @@
   --surface-blur: 0px;
   --surface-saturate: 1;
   --surface-border: 0 solid transparent;
-  --surface-shadow: 0 24px 60px -28px color-mix(in oklch, var(--accent-raw) 38%, transparent);
+  --surface-shadow: 0 24px 60px -28px
+    color-mix(in oklch, var(--accent-raw) 38%, transparent);
 
   --bg-grid-opacity: 0;
   --bg-blob-strength: 1.2;
@@ -278,7 +307,8 @@
   --muted-foreground: oklch(0.44 0.01 250);
   --border: oklch(0.8 0.005 250);
 
-  --theme-font-display: "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
+  --theme-font-display:
+    "JetBrains Mono Variable", ui-monospace, "SF Mono", Menlo, monospace;
   --heading-weight: 700;
   --heading-tracking: -0.03em;
   --eyebrow-tracking: 0.12em;
@@ -299,8 +329,16 @@
   --bg-grid-opacity: 1;
   --bg-grid-size: 24px 24px;
   --bg-grid-image:
-    linear-gradient(to right, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px),
-    linear-gradient(to bottom, color-mix(in oklch, var(--foreground) 7%, transparent) 1px, transparent 1px);
+    linear-gradient(
+      to right,
+      color-mix(in oklch, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to bottom,
+      color-mix(in oklch, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    );
 
   --accent-text-mix: 90%;
 }

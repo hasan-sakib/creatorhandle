@@ -4,14 +4,14 @@ import { CheckSquare, LayoutGrid, List } from "lucide-react"
 import { Suspense, useCallback, useMemo, useState } from "react"
 
 import { CollaboratorsService, TasksService } from "@/client"
-import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
+import { TableFilters } from "@/components/Common/TableFilters"
 import { Button } from "@/components/ui/button"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 import AddTask from "@/components/workspace/Tasks/AddTask"
 import { columns } from "@/components/workspace/Tasks/columns"
 import { KanbanBoard } from "@/components/workspace/Tasks/KanbanBoard"
-import PendingItems from "@/components/workspace/Pending/PendingItems"
-import { useWorkspace } from "@/components/workspace-provider"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 function getTasksQueryOptions(activeWorkspaceId: string | null) {
   return {
@@ -53,7 +53,9 @@ function TasksContent({
   view: "table" | "kanban"
 }) {
   const { activeWorkspaceId } = useWorkspace()
-  const { data: tasks } = useSuspenseQuery(getTasksQueryOptions(activeWorkspaceId))
+  const { data: tasks } = useSuspenseQuery(
+    getTasksQueryOptions(activeWorkspaceId),
+  )
 
   const filtered = useMemo(() => {
     let data = tasks.data
@@ -80,7 +82,9 @@ function TasksContent({
           <CheckSquare className="h-8 w-8 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold">No tasks yet</h3>
-        <p className="text-muted-foreground">Add your first task to start tracking work</p>
+        <p className="text-muted-foreground">
+          Add your first task to start tracking work
+        </p>
       </div>
     )
   }
@@ -109,21 +113,26 @@ function Tasks() {
   const { activeWorkspaceId } = useWorkspace()
   const { data: collaboratorsData } = useQuery({
     queryKey: ["collaborators", activeWorkspaceId],
-    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+    queryFn: () =>
+      CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
   })
 
   const collaboratorOptions = useMemo(
     () =>
-      (collaboratorsData?.data ?? []).map((c: { id: string; name: string; role: string }) => ({
-        label: `${c.name} (${c.role})`,
-        value: c.id,
-      })),
+      (collaboratorsData?.data ?? []).map(
+        (c: { id: string; name: string; role: string }) => ({
+          label: `${c.name} (${c.role})`,
+          value: c.id,
+        }),
+      ),
     [collaboratorsData],
   )
 
   const [view, setView] = useState<"table" | "kanban">(() => {
     try {
-      return (localStorage.getItem("tasks-view") as "table" | "kanban") ?? "table"
+      return (
+        (localStorage.getItem("tasks-view") as "table" | "kanban") ?? "table"
+      )
     } catch {
       return "table"
     }
@@ -131,15 +140,21 @@ function Tasks() {
 
   const toggleView = useCallback((v: "table" | "kanban") => {
     setView(v)
-    try { localStorage.setItem("tasks-view", v) } catch {}
+    try {
+      localStorage.setItem("tasks-view", v)
+    } catch {}
   }, [])
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Tasks</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Track and manage your to-dos</p>
+          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+            Tasks
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Track and manage your to-dos
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <div className="flex rounded-lg border border-border overflow-hidden">

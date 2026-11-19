@@ -11,24 +11,70 @@ from tests.utils.workspace import workspace_headers
 API = settings.API_V1_STR
 
 CREATOR_KEYS = {
-    "username", "full_name", "avatar_url", "cover_image_url", "headline", "location",
-    "languages", "about", "bio", "niches", "content_formats", "platforms", "services",
-    "availability", "media_kit_url", "accent_color", "website", "twitter", "instagram",
-    "youtube", "tiktok", "contact_email", "member_since", "stats", "brands", "projects",
-    "projects_total", "theme", "color_mode", "work_steps", "work_principles", "work_tools",
+    "username",
+    "full_name",
+    "avatar_url",
+    "cover_image_url",
+    "headline",
+    "location",
+    "languages",
+    "about",
+    "bio",
+    "niches",
+    "content_formats",
+    "platforms",
+    "services",
+    "availability",
+    "media_kit_url",
+    "accent_color",
+    "website",
+    "twitter",
+    "instagram",
+    "youtube",
+    "tiktok",
+    "contact_email",
+    "member_since",
+    "stats",
+    "brands",
+    "projects",
+    "projects_total",
+    "theme",
+    "color_mode",
+    "work_steps",
+    "work_principles",
+    "work_tools",
 }
 BRAND_KEYS = {"id", "name", "category"}
 PROJECT_KEYS = {
-    "id", "title", "type", "description", "is_featured", "brand_name", "live_url",
-    "thumbnail_url", "tags",
+    "id",
+    "title",
+    "type",
+    "description",
+    "is_featured",
+    "brand_name",
+    "live_url",
+    "thumbnail_url",
+    "tags",
 }
 PRIVATE_KEYS = {
-    "notes", "contact_name", "owner_id", "workspace_id", "status", "platform_status",
-    "deadline", "created_at", "brand_id", "email", "id_user", "hashed_password",
+    "notes",
+    "contact_name",
+    "owner_id",
+    "workspace_id",
+    "status",
+    "platform_status",
+    "deadline",
+    "created_at",
+    "brand_id",
+    "email",
+    "id_user",
+    "hashed_password",
 }
 
 
-def published_creator(client: TestClient, db: Session, **profile) -> tuple[str, dict, dict]:
+def published_creator(
+    client: TestClient, db: Session, **profile
+) -> tuple[str, dict, dict]:
     """A published creator; returns (username, auth headers, workspace headers)."""
     _, headers = create_random_user_with_headers(client, db)
     username = random_lower_string()[:20]
@@ -42,7 +88,9 @@ def published_creator(client: TestClient, db: Session, **profile) -> tuple[str, 
 
 
 def make_brand(client: TestClient, ws: dict, name: str, **extra) -> str:
-    r = client.post(f"{API}/brands/", headers=ws, json={"name": name, "category": "Tech", **extra})
+    r = client.post(
+        f"{API}/brands/", headers=ws, json={"name": name, "category": "Tech", **extra}
+    )
     assert r.status_code == 200, r.text
     return r.json()["id"]
 
@@ -169,10 +217,24 @@ def test_public_response_has_exactly_the_expected_keys(
     client: TestClient, db: Session
 ) -> None:
     username, _, ws = published_creator(client, db, **FULL_PROFILE)
-    brand = make_brand(client, ws, "Brand One", notes="private note", contact_name="Pat",
-                       contact_email="pat@brand.example")
-    make_project(client, ws, "Launch", platform_status="Published", brand_id=brand,
-                 deadline="2026-12-01", live_url="https://example.com/v", tags=["a"])
+    brand = make_brand(
+        client,
+        ws,
+        "Brand One",
+        notes="private note",
+        contact_name="Pat",
+        contact_email="pat@brand.example",
+    )
+    make_project(
+        client,
+        ws,
+        "Launch",
+        platform_status="Published",
+        brand_id=brand,
+        deadline="2026-12-01",
+        live_url="https://example.com/v",
+        tags=["a"],
+    )
 
     data = get_public(client, username)
     assert set(data) == CREATOR_KEYS
@@ -243,16 +305,22 @@ def test_project_cannot_link_another_workspaces_brand(
 def test_project_url_and_tag_validation(client: TestClient, db: Session) -> None:
     _, _, ws = published_creator(client, db)
     bad = client.post(
-        f"{API}/projects/", headers=ws, json={"title": "X", "live_url": "javascript:alert(1)"}
+        f"{API}/projects/",
+        headers=ws,
+        json={"title": "X", "live_url": "javascript:alert(1)"},
     )
     assert bad.status_code == 422
     bad = client.post(
         f"{API}/projects/", headers=ws, json={"title": "X", "thumbnail_url": "data:x"}
     )
     assert bad.status_code == 422
-    bad = client.post(f"{API}/projects/", headers=ws, json={"title": "X", "tags": ["t"] * 7})
+    bad = client.post(
+        f"{API}/projects/", headers=ws, json={"title": "X", "tags": ["t"] * 7}
+    )
     assert bad.status_code == 422
-    ok = make_project(client, ws, "Y", tags=[" a ", "A", "b"], live_url="https://example.com")
+    ok = make_project(
+        client, ws, "Y", tags=[" a ", "A", "b"], live_url="https://example.com"
+    )
     assert ok["tags"] == ["a", "b"]
 
 
@@ -288,12 +356,23 @@ def test_theme_and_work_style_default_to_empty(client: TestClient, db: Session) 
     username, _, _ = published_creator(client, db)
     data = get_public(client, username)
     assert data["theme"] is None and data["color_mode"] is None
-    assert data["work_steps"] == [] and data["work_principles"] == [] and data["work_tools"] == []
+    assert (
+        data["work_steps"] == []
+        and data["work_principles"] == []
+        and data["work_tools"] == []
+    )
 
 
-def test_theme_color_mode_and_work_style_round_trip(client: TestClient, db: Session) -> None:
+def test_theme_color_mode_and_work_style_round_trip(
+    client: TestClient, db: Session
+) -> None:
     username, headers, _ = published_creator(
-        client, db, theme="editorial", color_mode="dark", accent_color="rose", **WORK_STYLE
+        client,
+        db,
+        theme="editorial",
+        color_mode="dark",
+        accent_color="rose",
+        **WORK_STYLE,
     )
     me = client.get(f"{API}/users/me", headers=headers).json()
     assert me["theme"] == "editorial" and me["color_mode"] == "dark"
@@ -305,19 +384,29 @@ def test_theme_color_mode_and_work_style_round_trip(client: TestClient, db: Sess
 
 
 def test_theme_can_be_cleared_back_to_default(client: TestClient, db: Session) -> None:
-    username, headers, _ = published_creator(client, db, theme="mono", color_mode="light")
-    client.patch(f"{API}/users/me", headers=headers, json={"theme": None, "color_mode": None})
+    username, headers, _ = published_creator(
+        client, db, theme="mono", color_mode="light"
+    )
+    client.patch(
+        f"{API}/users/me", headers=headers, json={"theme": None, "color_mode": None}
+    )
     data = get_public(client, username)
     assert data["theme"] is None and data["color_mode"] is None
 
 
-def test_work_steps_are_deduplicated_and_trimmed(client: TestClient, db: Session) -> None:
+def test_work_steps_are_deduplicated_and_trimmed(
+    client: TestClient, db: Session
+) -> None:
     username, headers, _ = published_creator(client, db)
     client.patch(
         f"{API}/users/me",
         headers=headers,
         json={
-            "work_steps": [{"title": " Plan "}, {"title": "plan"}, {"title": "Film", "description": "  "}],
+            "work_steps": [
+                {"title": " Plan "},
+                {"title": "plan"},
+                {"title": "Film", "description": "  "},
+            ],
             "work_principles": [" Calm ", "calm"],
         },
     )
@@ -350,15 +439,22 @@ def test_invalid_theme_and_work_style_values_are_rejected(
     client: TestClient, db: Session, payload: dict
 ) -> None:
     _, headers = create_random_user_with_headers(client, db)
-    assert client.patch(f"{API}/users/me", headers=headers, json=payload).status_code == 422, payload
+    assert (
+        client.patch(f"{API}/users/me", headers=headers, json=payload).status_code
+        == 422
+    ), payload
 
 
-def test_omitting_work_style_leaves_it_unchanged(client: TestClient, db: Session) -> None:
+def test_omitting_work_style_leaves_it_unchanged(
+    client: TestClient, db: Session
+) -> None:
     username, headers, _ = published_creator(client, db, theme="soft", **WORK_STYLE)
     client.patch(f"{API}/users/me", headers=headers, json={"headline": "Hello"})
     data = get_public(client, username)
     assert data["theme"] == "soft" and data["work_steps"] == WORK_STYLE["work_steps"]
-    client.patch(f"{API}/users/me", headers=headers, json={"work_steps": [], "work_tools": []})
+    client.patch(
+        f"{API}/users/me", headers=headers, json={"work_steps": [], "work_tools": []}
+    )
     data = get_public(client, username)
     assert data["work_steps"] == [] and data["work_tools"] == []
     assert data["work_principles"] == WORK_STYLE["work_principles"]

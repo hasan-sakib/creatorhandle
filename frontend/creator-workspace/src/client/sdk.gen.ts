@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UploadsUploadImageData, UploadsUploadImageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UploadsUploadImageData, UploadsUploadImageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, UtilsReadinessResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BrandsService {
     /**
@@ -944,6 +944,7 @@ export class UtilsService {
     
     /**
      * Health Check
+     * Liveness: the process is up and serving requests.
      * @returns boolean Successful Response
      * @throws ApiError
      */
@@ -951,6 +952,22 @@ export class UtilsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/utils/health-check/'
+        });
+    }
+    
+    /**
+     * Readiness
+     * Readiness: the database (and object storage, when configured) respond.
+     * @returns Readiness Successful Response
+     * @throws ApiError
+     */
+    public static readiness(): CancelablePromise<UtilsReadinessResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/utils/ready/',
+            errors: {
+                503: 'A dependency is down'
+            }
         });
     }
 }

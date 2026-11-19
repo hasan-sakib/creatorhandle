@@ -4,13 +4,13 @@ set -e
 set -x
 
 # Let the DB start
-python app/backend_pre_start.py
+python -m app.cli.pre_start
 
 # Create the image bucket (no-op when image storage is not configured)
-python app/storage_init.py
+python -m app.cli.storage_init
 
 # Run migrations
 alembic upgrade head
 
 # Create initial data in DB
-python app/initial_data.py
+python -m app.cli.initial_data

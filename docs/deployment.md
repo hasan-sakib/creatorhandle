@@ -2,16 +2,17 @@
 
 ## Overview
 
-Production is three containers managed by Docker Compose:
+Production is four containers managed by Docker Compose:
 
 | Service | What it is |
 |---|---|
 | `frontend` | [Caddy](https://caddyserver.com/): serves both SPAs, proxies `/api`, `/docs` and `/redoc` to the backend, and obtains/renews the TLS certificate for `DOMAIN` automatically (Let's Encrypt) |
 | `backend` | FastAPI. Waits for the DB, runs `alembic upgrade head` and seeds the first superuser on every start, then serves |
 | `db` | PostgreSQL |
+| `rustfs` | S3-compatible storage for uploaded images (private network only; Caddy serves public reads at `/media/*`) |
 
 There is no separate reverse-proxy stack: Caddy owns ports 80 and 443 on the server, so run one CreatorHandle stack per server.
-The deploy files are `deploy/compose.yml` (the services) plus `deploy/compose.prod.yml` (published ports and your domain).
+The deploy files are `compose.yml` (the services) plus `compose.prod.yml` (published ports and your domain).
 
 ## Server Preparation
 
@@ -21,7 +22,13 @@ The deploy files are `deploy/compose.yml` (the services) plus `deploy/compose.pr
 
 ## Step 2: Configure Environment Variables
 
-On the server, set required variables. The recommended approach is to write them into a `.env` file at `/root/code/app/deploy/.env`:
+On the server, create `/root/code/app/.env` from the committed template and fill it in (`.env.example` documents every variable):
+
+```bash
+cp .env.example .env
+```
+
+The backend refuses to start outside `ENVIRONMENT=local` while `SECRET_KEY`, `POSTGRES_PASSWORD`, `FIRST_SUPERUSER_PASSWORD` or `S3_SECRET_KEY` is still `changethis`. The production values look like this:
 
 ```bash
 # Core
@@ -61,6 +68,8 @@ BACKEND_CORS_ORIGINS="https://yourdomain.com"
 
 # Optional
 SENTRY_DSN=
+# Logs are JSON lines outside ENVIRONMENT=local
+LOG_LEVEL=INFO
 # Uvicorn worker processes (default 2; each one costs memory)
 WEB_CONCURRENCY=2
 
@@ -81,7 +90,7 @@ Build and start (production uses `compose.yml` plus `compose.prod.yml`, not `com
 
 ```bash
 cd /root/code/app
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build
+docker compose -f compose.yml -f compose.prod.yml up -d --build
 ```
 
 The backend runs `alembic upgrade head` and creates the first superuser before it starts serving, so allow up to a minute on the first start. Caddy requests the certificate for `DOMAIN` as soon as it can be reached on port 80/443.
@@ -90,14 +99,17 @@ The backend runs `alembic upgrade head` and creates the first superuser before i
 
 ```bash
 # Check all containers are healthy
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml ps
+docker compose -f compose.yml -f compose.prod.yml ps
 
 # Check backend logs
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml logs backend
+docker compose -f compose.yml -f compose.prod.yml logs backend
 
-# Smoke test the API
+# Smoke test: liveness, then readiness (database + storage)
 curl https://yourdomain.com/api/v1/utils/health-check/
+curl https://yourdomain.com/api/v1/utils/ready/
 ```
+
+`/ready/` returns 503 with per-check status (`database`, `storage`) when a dependency is down; the backend container's healthcheck uses it.
 
 Production URLs:
 
@@ -117,6 +129,35 @@ In [Google Cloud Console](https://console.cloud.google.com/) → APIs & Services
 
 Update `GOOGLE_CLIENT_ID` and `VITE_GOOGLE_CLIENT_ID` in `.env`, then rebuild the frontend (the client ID is baked into the bundle at build time).
 
+## Upgrading from the `deploy/` layout (one time)
+
+Until this restructure the Compose files lived in `deploy/` and were run as
+`docker compose -f deploy/compose.yml ...`, which made the Compose project name
+`deploy`. They now live at the repo root with an explicit project name,
+`creatorhandle`. The data volumes are pinned to their old names
+(`deploy_app-db-data`, `deploy_rustfs-data`, `deploy_caddy-*`), so no data
+moves, but the old containers must be stopped once or the new frontend cannot
+bind ports 80/443:
+
+```bash
+cd /root/code/app
+git pull                                   # or rsync the new tree
+mv deploy/.env .env                        # .env now lives at the repo root
+docker compose -p deploy down              # old containers only; NO -v, volumes stay
+docker compose -f compose.yml -f compose.prod.yml up -d --build
+```
+
+## Rotating secrets
+
+Rotate a secret by changing it in `.env` and recreating the affected services.
+
+- `SECRET_KEY`: `docker compose -f compose.yml -f compose.prod.yml up -d backend`. Every user is signed out.
+- `POSTGRES_PASSWORD`: the database keeps its old password until you change it inside Postgres, so do that first:
+  `docker compose -f compose.yml -f compose.prod.yml exec db psql -U postgres -c "ALTER USER postgres WITH PASSWORD '<new>'"`,
+  then update `.env` and run `up -d backend db`.
+- `FIRST_SUPERUSER_PASSWORD` only seeds a new database. To change an existing admin's password, log in and change it in the dashboard settings.
+- `S3_SECRET_KEY`: RustFS reads it at start-up: update `.env`, then `up -d rustfs backend`.
+
 ## Updating the App
 
 ```bash
@@ -125,7 +166,7 @@ cd /root/code/app
 git pull
 
 # Rebuild and restart
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build
+docker compose -f compose.yml -f compose.prod.yml up -d --build
 ```
 
 If there are database schema changes, Alembic runs automatically when the backend container starts.
@@ -135,13 +176,13 @@ If there are database schema changes, Alembic runs automatically when the backen
 Migrations run automatically every time the backend container starts. To run them manually:
 
 ```bash
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec backend alembic upgrade head
+docker compose -f compose.yml -f compose.prod.yml exec backend alembic upgrade head
 ```
 
 To check current migration state:
 
 ```bash
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec backend alembic current
+docker compose -f compose.yml -f compose.prod.yml exec backend alembic current
 ```
 
 ## Database access
@@ -149,12 +190,12 @@ docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec backend ale
 There is no web DB admin tool in the stack. Use `psql`:
 
 ```bash
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec db psql -U postgres app
+docker compose -f compose.yml -f compose.prod.yml exec db psql -U postgres app
 ```
 
 ## Image uploads (RustFS)
 
-Creators can upload avatars, cover images and project thumbnails. They are stored in a private RustFS (S3-compatible) container and served publicly, read-only, at `https://yourdomain.com/media/...` by Caddy. Add credentials to `deploy/.env` before deploying (the stack will not start without them):
+Creators can upload avatars, cover images and project thumbnails. They are stored in a private RustFS (S3-compatible) container and served publicly, read-only, at `https://yourdomain.com/media/...` by Caddy. Add credentials to `.env` before deploying (the stack will not start without them):
 
 ```bash
 S3_ACCESS_KEY=creatorhandle
@@ -169,12 +210,12 @@ The backend creates the `media` bucket on startup and allows anonymous reads of 
 
 ```bash
 # Dump the database
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec db pg_dump -U postgres app > backup_$(date +%Y%m%d).sql
+docker compose -f compose.yml -f compose.prod.yml exec db pg_dump -U postgres app > backup_$(date +%Y%m%d).sql
 
 # Restore
-cat backup_YYYYMMDD.sql | docker compose -f deploy/compose.yml -f deploy/compose.prod.yml exec -T db psql -U postgres app
+cat backup_YYYYMMDD.sql | docker compose -f compose.yml -f compose.prod.yml exec -T db psql -U postgres app
 
-# Back up uploaded images (the rustfs-data volume; the project prefix is usually "deploy_")
+# Back up uploaded images (the volume is named deploy_rustfs-data, see compose.yml)
 docker run --rm -v deploy_rustfs-data:/data -v "$(pwd)":/backup busybox tar czf /backup/images_$(date +%Y%m%d).tar.gz -C /data .
 ```
 
@@ -188,12 +229,12 @@ Older deployments ran a separate Traefik stack (`compose.traefik.yml`) on a shar
 # 1. Stop and remove the old Traefik stack so ports 80/443 are free
 cd /root/code/traefik-public && docker compose -f compose.traefik.yml down
 
-# 2. In deploy/.env: drop STACK_NAME, EMAIL, DASHBOARD_HOST, VITE_APP_DOMAIN, CORS_ALLOW_ORIGIN_REGEX, DNS_PROVIDER
+# 2. In .env: drop STACK_NAME, EMAIL, DASHBOARD_HOST, VITE_APP_DOMAIN, CORS_ALLOW_ORIGIN_REGEX, DNS_PROVIDER
 #    and set FRONTEND_HOST=https://yourdomain.com
 
 # 3. Start the new stack (this also removes the old prestart/adminer containers)
 cd /root/code/app
-docker compose -f deploy/compose.yml -f deploy/compose.prod.yml up -d --build --remove-orphans
+docker compose -f compose.yml -f compose.prod.yml up -d --build --remove-orphans
 
 # 4. Optionally clean up the old network and certificates volume
 docker network rm traefik-public
@@ -201,50 +242,10 @@ docker network rm traefik-public
 
 The database volume is untouched. The `adminer.` and `traefik.` hostnames no longer exist. Caddy issues a fresh certificate on first start.
 
-## Continuous Deployment with GitHub Actions
+## Continuous integration
 
-The repository is set up for automated deployments via a self-hosted GitHub Actions runner.
-
-### Runner Setup
-
-On the remote server:
-
-```bash
-# Create a dedicated user
-sudo adduser github
-sudo usermod -aG docker github
-
-# Install GitHub Actions runner following the official guide
-# https://docs.github.com/en/actions/hosting-your-own-runners/adding-self-hosted-runners
-sudo su - github
-# ... follow the installation instructions ...
-
-# Install as a system service (run as root)
-exit
-cd /home/github/actions-runner
-./svc.sh install github
-./svc.sh start
-```
-
-### GitHub Secrets
-
-Configure these secrets in your repository (Settings → Secrets and variables → Actions):
-
-| Secret | Description |
-|---|---|
-| `DOMAIN_PRODUCTION` | Production domain |
-| `DOMAIN_STAGING` | Staging domain |
-| `STACK_NAME_PRODUCTION` | Docker Compose project name for production |
-| `STACK_NAME_STAGING` | Docker Compose project name for staging |
-| `SECRET_KEY` | JWT signing secret |
-| `POSTGRES_PASSWORD` | Database password |
-| `FIRST_SUPERUSER` | Admin email |
-| `FIRST_SUPERUSER_PASSWORD` | Admin password |
-| `EMAILS_FROM_EMAIL` | From address for outbound emails |
-| `GOOGLE_CLIENT_ID` | Google OAuth client ID |
-| `VITE_GOOGLE_CLIENT_ID` | Same value as `GOOGLE_CLIENT_ID` |
-
-### Deployment Triggers
-
-- Push or merge to `master` → deploys to **staging**
-- Publish a GitHub release → deploys to **production**
+`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+backend lint, mypy, `alembic check` and tests (Postgres + RustFS service
+containers), frontend lint, type-check and build, a check that the generated
+API clients are up to date, and a build of both Docker images. It does not
+push images or deploy; deployment is the manual `up -d --build` above.

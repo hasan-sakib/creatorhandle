@@ -75,36 +75,46 @@ export function TableFilters({
           </SelectContent>
         </Select>
       )}
-      {secondaryFilterOptions && onSecondaryFilterChange && secondaryFilterValue !== undefined && (
-        <Select value={secondaryFilterValue} onValueChange={onSecondaryFilterChange}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={secondaryFilterPlaceholder} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {secondaryFilterOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-      {tertiaryFilterOptions && onTertiaryFilterChange && tertiaryFilterValue !== undefined && (
-        <Select value={tertiaryFilterValue} onValueChange={onTertiaryFilterChange}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder={tertiaryFilterPlaceholder} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All</SelectItem>
-            {tertiaryFilterOptions.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>
-                {opt.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
+      {secondaryFilterOptions &&
+        onSecondaryFilterChange &&
+        secondaryFilterValue !== undefined && (
+          <Select
+            value={secondaryFilterValue}
+            onValueChange={onSecondaryFilterChange}
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder={secondaryFilterPlaceholder} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {secondaryFilterOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      {tertiaryFilterOptions &&
+        onTertiaryFilterChange &&
+        tertiaryFilterValue !== undefined && (
+          <Select
+            value={tertiaryFilterValue}
+            onValueChange={onTertiaryFilterChange}
+          >
+            <SelectTrigger className="w-44">
+              <SelectValue placeholder={tertiaryFilterPlaceholder} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              {tertiaryFilterOptions.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
     </div>
   )
 }

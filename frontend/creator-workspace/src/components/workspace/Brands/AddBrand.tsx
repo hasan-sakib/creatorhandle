@@ -35,14 +35,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   category: z.string().optional(),
   status: z.string().optional(),
   contact_name: z.string().optional(),
-  contact_email: z.string().email({ message: "Invalid email" }).optional().or(z.literal("")),
+  contact_email: z
+    .string()
+    .email({ message: "Invalid email" })
+    .optional()
+    .or(z.literal("")),
   notes: z.string().optional(),
 })
 
@@ -122,7 +126,12 @@ const AddBrand = () => {
                       Name <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Brand name" type="text" {...field} required />
+                      <Input
+                        placeholder="Brand name"
+                        type="text"
+                        {...field}
+                        required
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -186,7 +195,11 @@ const AddBrand = () => {
                   <FormItem>
                     <FormLabel>Contact Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Contact person" type="text" {...field} />
+                      <Input
+                        placeholder="Contact person"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -200,7 +213,11 @@ const AddBrand = () => {
                   <FormItem>
                     <FormLabel>Contact Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="contact@brand.com" type="email" {...field} />
+                      <Input
+                        placeholder="contact@brand.com"
+                        type="email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -214,7 +231,11 @@ const AddBrand = () => {
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Input placeholder="Any notes about this brand" type="text" {...field} />
+                      <Input
+                        placeholder="Any notes about this brand"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

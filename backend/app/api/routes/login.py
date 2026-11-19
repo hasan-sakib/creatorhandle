@@ -5,22 +5,23 @@ import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlmodel import SQLModel
 
 from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
-from sqlmodel import SQLModel
-
-from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
-from app.utils import (
+from app.core.security import (
     generate_password_reset_token,
-    generate_reset_password_email,
-    send_email,
     verify_password_reset_token,
 )
+from app.emails import generate_reset_password_email, send_email
+from app.models import Message, NewPassword, Token, UserPublic, UserUpdate
 
 router = APIRouter(tags=["login"])
+
+GOOGLE_TOKENINFO_URL = "https://oauth2.googleapis.com/tokeninfo"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
 
 @router.post("/login/access-token")
@@ -136,8 +137,19 @@ async def login_with_google(body: GoogleTokenBody, session: SessionDep) -> Token
     Sign in with Google — exchanges a Google access token for an app JWT.
     """
     async with httpx.AsyncClient() as client:
+        if settings.GOOGLE_CLIENT_ID:
+            # Only accept tokens issued to this app's OAuth client; otherwise a
+            # token obtained by any other site the user signed into would work.
+            info_r = await client.get(
+                GOOGLE_TOKENINFO_URL, params={"access_token": body.token}
+            )
+            if (
+                info_r.status_code != 200
+                or info_r.json().get("aud") != settings.GOOGLE_CLIENT_ID
+            ):
+                raise HTTPException(status_code=400, detail="Invalid Google token")
         r = await client.get(
-            "https://www.googleapis.com/oauth2/v3/userinfo",
+            GOOGLE_USERINFO_URL,
             headers={"Authorization": f"Bearer {body.token}"},
         )
     if r.status_code != 200:
@@ -157,5 +169,7 @@ async def login_with_google(body: GoogleTokenBody, session: SessionDep) -> Token
         raise HTTPException(status_code=400, detail="Inactive user")
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     return Token(
-        access_token=security.create_access_token(user.id, expires_delta=access_token_expires)
+        access_token=security.create_access_token(
+            user.id, expires_delta=access_token_expires
+        )
     )

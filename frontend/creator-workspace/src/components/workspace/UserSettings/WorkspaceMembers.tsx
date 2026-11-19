@@ -4,6 +4,7 @@ import { Loader2 } from "lucide-react"
 import { WorkspacesService } from "@/client"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   Select,
   SelectContent,
@@ -11,13 +12,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Button } from "@/components/ui/button"
-import { useWorkspace } from "@/components/workspace-provider"
-import useCustomToast from "@/hooks/useCustomToast"
-import { getInitials } from "@/utils"
 import useAuth from "@/hooks/useAuth"
+import useCustomToast from "@/hooks/useCustomToast"
+import { getInitials } from "@/lib/utils"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 const ROLES = ["owner", "admin", "manager", "member", "viewer"] as const
+type Role = (typeof ROLES)[number]
 const MANAGER_ROLES = ["owner", "admin"]
 
 export default function WorkspaceMembers() {
@@ -33,12 +34,16 @@ export default function WorkspaceMembers() {
     enabled: !!activeWorkspace,
   })
 
-  const canManage = activeWorkspace ? MANAGER_ROLES.includes(activeWorkspace.role ?? "") : false
+  const canManage = activeWorkspace
+    ? MANAGER_ROLES.includes(activeWorkspace.role ?? "")
+    : false
 
   const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ["workspace-members", activeWorkspace?.id] })
+    queryClient.invalidateQueries({
+      queryKey: ["workspace-members", activeWorkspace?.id],
+    })
 
-  const handleRoleChange = async (userId: string, role: string) => {
+  const handleRoleChange = async (userId: string, role: Role) => {
     if (!activeWorkspace) return
     try {
       await WorkspacesService.updateWorkspaceMember({
@@ -56,7 +61,10 @@ export default function WorkspaceMembers() {
   const handleRemove = async (userId: string) => {
     if (!activeWorkspace) return
     try {
-      await WorkspacesService.removeWorkspaceMember({ id: activeWorkspace.id, userId })
+      await WorkspacesService.removeWorkspaceMember({
+        id: activeWorkspace.id,
+        userId,
+      })
       showSuccessToast("Member removed")
       invalidate()
     } catch (err: any) {
@@ -94,13 +102,17 @@ export default function WorkspaceMembers() {
               <p className="text-sm font-medium truncate">
                 {member.full_name || member.email}
               </p>
-              <p className="text-xs text-muted-foreground truncate">{member.email}</p>
+              <p className="text-xs text-muted-foreground truncate">
+                {member.email}
+              </p>
             </div>
             {canManage && member.user_id !== currentUser?.id ? (
               <div className="flex items-center gap-2">
                 <Select
                   value={member.role}
-                  onValueChange={(role) => handleRoleChange(member.user_id, role)}
+                  onValueChange={(role) =>
+                    handleRoleChange(member.user_id, role as Role)
+                  }
                 >
                   <SelectTrigger className="h-8 w-28 text-xs">
                     <SelectValue />

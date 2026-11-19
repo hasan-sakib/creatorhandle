@@ -1,5 +1,5 @@
 import uuid
-from collections.abc import Generator
+from collections.abc import Callable, Generator
 from typing import Annotated
 
 import jwt
@@ -12,7 +12,7 @@ from sqlmodel import Session, select
 from app.core import security
 from app.core.config import settings
 from app.core.db import engine
-from app.core.permissions import has_permission
+from app.domain.permissions import has_permission
 from app.models import TokenPayload, User, Workspace, WorkspaceMember
 
 reusable_oauth2 = OAuth2PasswordBearer(
@@ -90,7 +90,9 @@ def get_current_membership(
 CurrentMembership = Annotated[WorkspaceMember, Depends(get_current_membership)]
 
 
-def require_permission(permission: str):
+def require_permission(
+    permission: str,
+) -> Callable[[WorkspaceMember], WorkspaceMember]:
     """For resource routes (brands/projects/tasks/collaborators) — workspace comes
     from the X-Workspace-Id header."""
 
@@ -125,7 +127,9 @@ def get_membership_by_path_id(
     return membership
 
 
-def require_workspace_permission(permission: str):
+def require_workspace_permission(
+    permission: str,
+) -> Callable[[WorkspaceMember], WorkspaceMember]:
     def _dependency(
         membership: Annotated[WorkspaceMember, Depends(get_membership_by_path_id)],
     ) -> WorkspaceMember:

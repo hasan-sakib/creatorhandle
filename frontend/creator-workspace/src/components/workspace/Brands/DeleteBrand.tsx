@@ -17,7 +17,7 @@ import {
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { LoadingButton } from "@/components/ui/loading-button"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 interface DeleteBrandProps {
   id: string
@@ -62,8 +62,8 @@ const DeleteBrand = ({ id, onSuccess }: DeleteBrandProps) => {
           <DialogHeader>
             <DialogTitle>Delete Brand</DialogTitle>
             <DialogDescription>
-              This brand and all its linked projects will be permanently deleted.
-              Are you sure? You will not be able to undo this action.
+              This brand and all its linked projects will be permanently
+              deleted. Are you sure? You will not be able to undo this action.
             </DialogDescription>
           </DialogHeader>
 

@@ -4,16 +4,17 @@ import { Users2 } from "lucide-react"
 import { Suspense, useMemo, useState } from "react"
 
 import { CollaboratorsService } from "@/client"
-import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
+import { TableFilters } from "@/components/Common/TableFilters"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 import AddCollaborator from "@/components/workspace/Team/AddCollaborator"
 import { columns } from "@/components/workspace/Team/columns"
-import PendingItems from "@/components/workspace/Pending/PendingItems"
-import { useWorkspace } from "@/components/workspace-provider"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 function getCollaboratorsQueryOptions(activeWorkspaceId: string | null) {
   return {
-    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+    queryFn: () =>
+      CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
     queryKey: ["collaborators", activeWorkspaceId],
   }
 }
@@ -41,7 +42,9 @@ function TeamTableContent({
   roleFilter: string
 }) {
   const { activeWorkspaceId } = useWorkspace()
-  const { data: collaborators } = useSuspenseQuery(getCollaboratorsQueryOptions(activeWorkspaceId))
+  const { data: collaborators } = useSuspenseQuery(
+    getCollaboratorsQueryOptions(activeWorkspaceId),
+  )
 
   const filtered = useMemo(() => {
     let data = collaborators.data
@@ -62,7 +65,9 @@ function TeamTableContent({
           <Users2 className="h-8 w-8 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold">No collaborators yet</h3>
-        <p className="text-muted-foreground">Add team members to assign them to tasks</p>
+        <p className="text-muted-foreground">
+          Add team members to assign them to tasks
+        </p>
       </div>
     )
   }
@@ -86,8 +91,12 @@ function Team() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Team</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage collaborators and assign them to tasks</p>
+          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+            Team
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage collaborators and assign them to tasks
+          </p>
         </div>
         <AddCollaborator />
       </div>

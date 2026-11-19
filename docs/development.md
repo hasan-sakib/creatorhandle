@@ -2,25 +2,25 @@
 
 ## Prerequisites
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Bun](https://bun.sh/) — `curl -fsSL https://bun.sh/install | bash`
-- [uv](https://docs.astral.sh/uv/) — `curl -LsSf https://astral.sh/uv/install.sh | sh`
+- [Docker](https://docs.docker.com/get-docker/) with Compose v2
+- [uv](https://docs.astral.sh/uv/) (Python 3.12 is installed by uv as needed)
+- [Bun](https://bun.sh/) 1.4
+- Node 23.6+ only if you run the contrast checker (`bun run test:contrast`)
 
-## First-Time Setup
+## First-time setup
 
 ```bash
-# 1. Clone the repo
 git clone <repo-url> && cd creatorhandle
-
-# 2. Fill in required env vars in deploy/.env
-#    At minimum: SECRET_KEY, POSTGRES_PASSWORD, FIRST_SUPERUSER, FIRST_SUPERUSER_PASSWORD
-#    For Google login: GOOGLE_CLIENT_ID + VITE_GOOGLE_CLIENT_ID
-
-# 3. Start everything
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d
+make setup     # creates .env from .env.example, installs uv + bun deps, git hooks
+# edit .env: at least SECRET_KEY, POSTGRES_PASSWORD, FIRST_SUPERUSER(_PASSWORD), S3_SECRET_KEY
+make up        # builds and starts the stack, waits until it is healthy
 ```
 
-The backend container automatically runs `alembic upgrade head` and seeds the first superuser every time it starts.
+`make help` lists every command. Everything reads the single `.env` at the repo
+root (Compose, the backend when run on the host, Vite, Playwright).
+
+The backend container waits for the database, creates the storage bucket,
+runs `alembic upgrade head` and seeds the first superuser on every start.
 
 ## Service URLs
 
@@ -29,199 +29,130 @@ The backend container automatically runs `alembic upgrade head` and seeds the fi
 | Marketing site | http://localhost:5173 |
 | Dashboard | http://localhost:5173/app/ |
 | Public creator profile | http://localhost:5173/@{username} |
-| Backend API | http://localhost:8000 |
-| Swagger UI | http://localhost:8000/docs |
-| ReDoc | http://localhost:8000/redoc |
-| PostgreSQL | localhost:5432 (any Postgres client) |
-| Mailcatcher | http://localhost:1080 |
-| RustFS console (uploaded images) | http://localhost:9001 (login: `S3_ACCESS_KEY` / `S3_SECRET_KEY` from `deploy/.env`) |
+| Backend API / Swagger | http://localhost:8000, http://localhost:8000/docs |
+| Liveness / readiness | `/api/v1/utils/health-check/`, `/api/v1/utils/ready/` |
+| PostgreSQL | localhost:5432 |
+| Mailcatcher (all dev email) | http://localhost:1080 |
+| RustFS console (uploads) | http://localhost:9001 (login: `S3_ACCESS_KEY` / `S3_SECRET_KEY`) |
 
-## Running With Live Reload
+## Day-to-day
 
-### Backend hot-reload (recommended for backend work)
+| Task | Command |
+|---|---|
+| Start / stop the stack | `make up` / `make down` (volumes are kept) |
+| Backend live-sync | `make dev` (`docker compose watch`; the API reloads on save) |
+| Logs | `make logs` or `make logs s=backend` |
+| Lint, format, type-check | `make lint`, `make format`, `make typecheck` (`make check` = lint + types) |
+| Backend tests | `make test` |
+| E2E tests | `make test-e2e` (stack must be up) |
+| Regenerate API clients | `make client` |
+| New migration | `make migration m="add foo"` then `make migrate` |
+| psql | `make shell-db` |
 
-```bash
-# Backend syncs code changes automatically via compose watch
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml watch
-```
+Pre-commit hooks ([prek](https://prek.j178.dev/)) run ruff, Biome and the API
+client generator; `make setup` installs them. Run all of them with
+`uv run prek run --all-files`.
 
-The override file mounts `backend/` as a volume and runs `fastapi run --reload`, so Python changes are reflected immediately.
+## Backend
 
-### Frontend local dev server
+Code layout (see [backend/README.md](../backend/README.md) for details):
+`app/api` (HTTP routes), `app/core` (config, db, security, logging, storage),
+`app/domain` (permissions, validation, image rules), `app/models` and
+`app/crud` (one module per domain), `app/emails`, `app/cli` (start-up commands).
 
-The Docker frontend is a static Caddy build — it does NOT hot-reload. For frontend development, stop the Docker frontend and run the Vite dev server locally. Each Vite app serves itself at its own root (creator-workspace under `/app/`, because of its `base`); Caddy's path split is not in play, so run only one dev server on port 5173 at a time (or pass `--port` to the second).
-
-```bash
-# Stop the Docker frontend
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml stop frontend
-
-# Run creator-workspace dev server
-cd frontend/creator-workspace
-bun install
-bun run dev   # http://localhost:5173
-
-# OR run creator-site dev server
-cd frontend/creator-site
-bun install
-bun run dev   # starts on a different port (check vite.config.ts)
-```
-
-To rebuild and restart the frontend Docker container after making changes:
+### Running the API on the host
 
 ```bash
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml build --no-cache frontend
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d frontend
+docker compose stop backend   # free port 8000; db and rustfs keep running
+make dev-backend              # fastapi dev with reload, reads ../.env
 ```
 
-## Backend Development
+Uploads are disabled on the host unless you also set `S3_ENDPOINT_URL`
+(RustFS's S3 port is not published in dev).
 
-### Install dependencies locally
+### Migrations
+
+Change a model in `app/models/`, then generate the migration on the host so
+the file lands in your working tree:
 
 ```bash
-cd backend
-uv sync
-source .venv/bin/activate
+make migration m="describe the change"   # alembic revision --autogenerate
+make migrate                             # apply it in the dev container
 ```
 
-### Database migrations
+CI runs `alembic check`, which fails if models and migrations disagree.
 
-Always run migrations inside the backend Docker container so the container's database connection is used:
+### Tests
 
-```bash
-# Shell into the backend container
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml exec backend bash
+`make test` runs pytest inside the backend container against a **separate
+database** (`<POSTGRES_DB>_test`, created and migrated automatically). The
+test session deletes every user it can see when it finishes, so
+`tests/conftest.py` refuses to run against any database whose name does not
+end in `_test`. Coverage HTML is written to `backend/htmlcov/`.
 
-# Auto-generate a migration after changing models.py
-alembic revision --autogenerate -m "describe the change"
+Upload tests talk to RustFS and are skipped when storage is not configured.
 
-# Apply migrations
-alembic upgrade head
+### API clients
 
-# Roll back one step
-alembic downgrade -1
-```
+After changing endpoints or schemas, run `make client` and commit both
+generated clients: `frontend/creator-workspace/src/client` (whole API) and
+`frontend/creator-site/src/client` (public endpoints only, filtered by
+`scripts/openapi_public.py`). CI fails if they are stale.
 
-### Running backend tests
+## Frontend
 
-```bash
-# Via Docker
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml exec backend bash scripts/tests-start.sh
-
-# Stop on first failure
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml exec backend bash scripts/tests-start.sh -x
-```
-
-Test coverage report is written to `backend/htmlcov/index.html`.
-
-### Regenerating the frontend API client
-
-After changing backend endpoints, regenerate the TypeScript client:
-
-```bash
-# From the repo root; needs uv and bun (the backend does not have to be running)
-bun run generate-client      # or: bash deploy/scripts/generate-client.sh
-```
-
-This dumps the OpenAPI schema from the backend code and regenerates two clients:
-`frontend/creator-workspace/src/client` (the whole API) and `frontend/creator-site/src/client`
-(public endpoints only, filtered by `deploy/scripts/openapi_public.py`). Commit both.
-
-## Frontend Development
-
-### Workspace structure
-
-The frontend is a **Bun workspace** with two apps:
+A Bun workspace with two apps and a small shared package:
 
 ```
 frontend/
-├── creator-workspace/   # authenticated dashboard (served at /app)
-└── creator-site/        # marketing page and public portfolios (served at / and /@username)
+├── creator-workspace/   dashboard, served at /app
+├── creator-site/        marketing page + public profiles, served at / and /@username
+└── packages/shared/     @creatorhandle/shared: accent presets, theme keys, cn()
 ```
 
-Install all workspace dependencies from the repo root:
+The Docker `frontend` service is a static Caddy build without hot reload. For
+UI work, stop it and run a Vite dev server (both default to port 5173, so run
+one at a time or pass `--port`):
 
 ```bash
-bun install
+docker compose stop frontend
+make dev-workspace     # http://localhost:5173/app/
+make dev-site          # http://localhost:5173/
 ```
 
-### Adding routes (creator-workspace)
+`VITE_API_URL` in `.env` points the dev servers at the backend
+(`http://localhost:8000`). `VITE_*` values are baked in at build time; after
+changing one, rebuild the image: `docker compose build frontend && docker compose up -d frontend`.
 
-Routes live in `frontend/creator-workspace/src/routes/`. After adding or renaming a file, update `routeTree.gen.ts` to include the new route. TanStack Router's file-based routing is used, but auto-generation is not configured — maintain `routeTree.gen.ts` manually or run the Vite plugin to generate it.
+- Routes are file-based (TanStack Router); `routeTree.gen.ts` is regenerated
+  by the Vite plugin on `dev`/`build`.
+- Links between the two apps must be plain `<a href>` (full navigation), e.g.
+  `<a href={dashboardPath("/login")}>` in creator-site, not the router's `<Link>`.
+- Biome (one config in `frontend/biome.json`) formats and lints both apps.
 
-### Cross-app navigation
+### E2E tests
 
-creator-workspace is served under `/app`, creator-site at the root. Links from one app to the other must use plain HTML `<a href="...">` tags — not TanStack `<Link>` — to trigger a full page navigation across apps:
-
-```tsx
-// Correct — full page navigation to the dashboard (see creator-site/src/lib/urls.ts)
-<a href={dashboardPath("/login")}>Log in</a>
-
-// Wrong — stays within creator-site's router
-<Link to="/login">Log in</Link>
-```
-
-### Running E2E tests
+Playwright tests live in `frontend/creator-workspace/tests` and run against
+the stack on http://localhost:5173 (`make up` first). They create users
+through the dev API.
 
 ```bash
-# Requires backend + frontend Docker containers to be running.
-# The Playwright container is not started by `up`; run it on demand with:
-#   docker compose -f deploy/compose.yml -f deploy/compose.override.yml run --rm playwright
-cd frontend/creator-workspace
-bunx playwright test
-
-# Interactive UI mode
-bunx playwright test --ui
+make test-e2e
+cd frontend/creator-workspace && bun run test:e2e:ui   # interactive
 ```
 
 ## Image uploads
 
-Uploads go to `POST /api/v1/uploads/images` (JPEG, PNG, WebP or GIF, up to `MEDIA_MAX_UPLOAD_MB`). The backend decodes the image, strips metadata, resizes it (avatar 512 px square, cover 2400 px, thumbnail 1600 px) and stores it as WebP in RustFS. It returns a site-relative path like `/media/images/<owner>/<id>.webp`, which you save in `avatar_url`, `cover_image_url` or a project's `thumbnail_url`. Caddy proxies `/media/*` to the storage (see `frontend/Caddyfile`), so the same path works in dev and production.
-
-- A user can only attach images they uploaded themselves (the `<owner>` part is an HMAC of the user id), and replaced or removed images are deleted from storage.
-- Uploads need the `rustfs` service. When the `S3_*` settings are empty the backend still starts and uploads return 503; pasting an image link still works.
-- Backend tests that touch uploads need the compose stack (`deploy/scripts/test-local.sh`); they are skipped when storage is not configured.
-
-## Mailcatcher
-
-All emails sent by the backend (password recovery, etc.) are captured by Mailcatcher during local development. View them at http://localhost:1080.
-
-The backend is pre-configured to use Mailcatcher when `compose.override.yml` is active (`SMTP_HOST=mailcatcher`, `SMTP_PORT=1025`).
-
-## Environment Variables
-
-The `.env` file at `deploy/.env` is the single source of truth for local config. After changing it, restart affected services:
-
-```bash
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d
-```
-
-For `VITE_*` variables (baked into the frontend bundle at build time), a full rebuild is required:
-
-```bash
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml build --no-cache frontend
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml up -d frontend
-```
-
-## Pre-commit Hooks
-
-The project uses [prek](https://prek.j178.dev/) for pre-commit linting (Ruff for Python, Biome for TypeScript/JSON).
-
-```bash
-# Install hooks
-cd backend
-uv run prek install -f
-
-# Run manually on all files
-uv run prek run --all-files
-```
+`POST /api/v1/uploads/images` accepts JPEG, PNG, WebP or GIF up to
+`MEDIA_MAX_UPLOAD_MB`. The backend strips metadata, resizes (avatar 512 px,
+cover 2400 px, thumbnail 1600 px) and stores WebP in RustFS, returning a path
+like `/media/images/<owner>/<id>.webp`. Caddy serves `/media/*` read-only from
+storage, so the same path works in dev and production. Users can only attach
+images they uploaded (the `<owner>` part is an HMAC of their id).
 
 ## Logs
 
-```bash
-# All services
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml logs -f
-
-# Single service
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml logs backend -f
-docker compose -f deploy/compose.yml -f deploy/compose.override.yml logs frontend -f
-```
+Locally logs are plain text; with `ENVIRONMENT` other than `local` they are
+JSON lines. Every request is logged once (method, path, status, duration)
+with a request id that is also returned in the `X-Request-ID` header. Health
+and readiness polls are logged at DEBUG only. Set `LOG_LEVEL` in `.env`.

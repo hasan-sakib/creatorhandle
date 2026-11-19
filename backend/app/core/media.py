@@ -19,7 +19,9 @@ import uuid
 from app.core.config import settings
 
 _BASE = f"/{settings.S3_BUCKET}/images/"
-_PATH = re.compile(rf"^{re.escape(_BASE)}(?P<owner>[0-9a-f]{{16}})/[0-9a-f]{{32}}\.webp$")
+_PATH = re.compile(
+    rf"^{re.escape(_BASE)}(?P<owner>[0-9a-f]{{16}})/[0-9a-f]{{32}}\.webp$"
+)
 
 
 def owner_prefix(user_id: uuid.UUID) -> str:

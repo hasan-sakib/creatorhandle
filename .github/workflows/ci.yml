@@ -1,0 +1,157 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend (lint, types, tests)
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      rustfs:
+        image: rustfs/rustfs:1.0.1
+        env:
+          RUSTFS_ACCESS_KEY: ci-access-key
+          RUSTFS_SECRET_KEY: ci-secret-key
+        ports: ["9000:9000"]
+        options: >-
+          --health-cmd "curl -f http://localhost:9000/health"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      PROJECT_NAME: CreatorHandle
+      ENVIRONMENT: local
+      SECRET_KEY: ci-only-secret
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-only-password
+      POSTGRES_SERVER: localhost
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # tests-start.sh convention: tests use their own *_test database
+      POSTGRES_DB: app_test
+      S3_ENDPOINT_URL: http://localhost:9000
+      S3_ACCESS_KEY: ci-access-key
+      S3_SECRET_KEY: ci-secret-key
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv python install 3.12
+      - run: uv sync --all-packages --frozen
+      - name: Lint
+        run: |
+          uv run ruff check app tests
+          uv run ruff format --check app tests
+      - name: Type-check
+        run: uv run mypy app
+      - name: Prepare test database and storage
+        run: |
+          uv run python -m app.cli.tests_pre_start
+          uv run alembic upgrade head
+          uv run python -m app.cli.storage_init
+      - name: Migrations match models
+        run: uv run alembic check
+      - name: Test
+        run: |
+          uv run coverage run -m pytest tests/
+          uv run coverage report
+
+  frontend:
+    name: Frontend (lint, types, build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4"
+      - uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          restore-keys: bun-${{ runner.os }}-
+      - run: bun install --frozen-lockfile
+      - name: Lint
+        run: bun run lint:ci
+      - name: Type-check
+        run: bun run typecheck
+      - name: Build
+        run: bun run build
+
+  client-drift:
+    name: Generated API clients are up to date
+    runs-on: ubuntu-latest
+    env:
+      # Only needed to import the app and dump its OpenAPI schema (no DB access)
+      PROJECT_NAME: CreatorHandle
+      POSTGRES_SERVER: localhost
+      POSTGRES_USER: postgres
+      FIRST_SUPERUSER: admin@example.com
+      FIRST_SUPERUSER_PASSWORD: ci-only-password
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: uv.lock
+      - run: uv python install 3.12
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.4"
+      - run: bun install --frozen-lockfile
+      - run: bash scripts/generate-client.sh
+      - name: Fail if the committed clients differ
+        run: |
+          git diff --exit-code -- frontend/*/src/client || {
+            echo "::error::Frontend API clients are stale. Run 'make client' and commit the result."
+            exit 1
+          }
+
+  docker:
+    name: Docker images build
+    needs: [backend, frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Backend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          push: false
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend
+      - name: Frontend image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: frontend/Dockerfile
+          push: false
+          build-args: |
+            VITE_API_URL=
+            NODE_ENV=production
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend

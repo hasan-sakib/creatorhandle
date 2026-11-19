@@ -30,7 +30,10 @@ function Group({
         </div>
         <ul className="mt-5 flex flex-wrap gap-2">
           {items.map((item) => (
-            <li key={item} className="rounded-pill border bg-background/60 px-3 py-1 text-sm font-medium">
+            <li
+              key={item}
+              className="rounded-pill border bg-background/60 px-3 py-1 text-sm font-medium"
+            >
               {item}
             </li>
           ))}
@@ -61,16 +64,35 @@ export function AboutSection({ profile }: { profile: PublicCreator }) {
           </p>
         </Reveal>
       ) : (
-        <EmptyState message={`${firstName(profile)} hasn't written an About yet.`} />
+        <EmptyState
+          message={`${firstName(profile)} hasn't written an About yet.`}
+        />
       )}
 
       {hasMakeContent(profile) && (
         <div className="mt-8">
-          <h3 className="mb-4 font-display text-xl font-semibold">What I make</h3>
+          <h3 className="mb-4 font-display text-xl font-semibold">
+            What I make
+          </h3>
           <div className="grid gap-4 md:grid-cols-3">
-            <Group icon={Hash} title="Topics" items={profile.niches} delay={0} />
-            <Group icon={Clapperboard} title="Formats" items={profile.content_formats} delay={100} />
-            <Group icon={Radio} title="Where I publish" items={profile.platforms} delay={200} />
+            <Group
+              icon={Hash}
+              title="Topics"
+              items={profile.niches}
+              delay={0}
+            />
+            <Group
+              icon={Clapperboard}
+              title="Formats"
+              items={profile.content_formats}
+              delay={100}
+            />
+            <Group
+              icon={Radio}
+              title="Where I publish"
+              items={profile.platforms}
+              delay={200}
+            />
           </div>
         </div>
       )}

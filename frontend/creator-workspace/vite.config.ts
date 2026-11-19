@@ -8,6 +8,8 @@ import { defineConfig } from "vite"
 export default defineConfig({
   // The dashboard is served under /app; creator-site owns the site root.
   base: "/app/",
+  // One .env at the repo root for the whole project (only VITE_* is exposed)
+  envDir: path.resolve(__dirname, "../.."),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

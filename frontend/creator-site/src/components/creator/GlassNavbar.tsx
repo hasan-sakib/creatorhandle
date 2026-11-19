@@ -1,8 +1,7 @@
 import { Menu, Moon, Sun, X } from "lucide-react"
 import { useEffect, useState } from "react"
-
-import { Button } from "@/components/ui/button"
 import { SafeImage } from "@/components/creator/SafeImage"
+import { Button } from "@/components/ui/button"
 import { useActiveSection } from "@/hooks/useActiveSection"
 import { applyMode, currentModeIsDark, setVisitorMode } from "@/lib/profileMode"
 import { cn } from "@/lib/utils"
@@ -25,10 +24,19 @@ export function goToSection(id: string) {
   const el = document.getElementById(id)
   if (!el) return
   el.scrollIntoView({ behavior: "smooth", block: "start" })
-  history.replaceState(null, "", `${window.location.pathname}${window.location.search}#${id}`)
+  history.replaceState(
+    null,
+    "",
+    `${window.location.pathname}${window.location.search}#${id}`,
+  )
 }
 
-export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps) {
+export function GlassNavbar({
+  name,
+  avatarUrl,
+  sections,
+  cta,
+}: GlassNavbarProps) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
   const [dark, setDark] = useState(false)
@@ -100,10 +108,15 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
                 fallback={<span aria-hidden="true">{initials || "•"}</span>}
               />
             </span>
-            <span className="truncate font-display text-base font-semibold tracking-tight">{name}</span>
+            <span className="truncate font-display text-base font-semibold tracking-tight">
+              {name}
+            </span>
           </button>
 
-          <nav aria-label="Sections" className="hidden items-center gap-0.5 lg:flex">
+          <nav
+            aria-label="Sections"
+            className="hidden items-center gap-0.5 lg:flex"
+          >
             {sections.map((s) => (
               <a
                 key={s.id}
@@ -126,7 +139,12 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
           </nav>
 
           <div className="flex items-center gap-1.5">
-            <Button variant="ghost" size="icon-sm" onClick={toggleTheme} aria-label="Toggle dark mode">
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              onClick={toggleTheme}
+              aria-label="Toggle dark mode"
+            >
               {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
             </Button>
             <Button
@@ -167,13 +185,18 @@ export function GlassNavbar({ name, avatarUrl, sections, cta }: GlassNavbarProps
                 aria-current={active === s.id ? "location" : undefined}
                 className={cn(
                   "rounded-lg px-3 py-2.5 text-sm font-medium",
-                  active === s.id ? "bg-primary/15 text-accent-text" : "text-foreground",
+                  active === s.id
+                    ? "bg-primary/15 text-accent-text"
+                    : "text-foreground",
                 )}
               >
                 {s.label}
               </a>
             ))}
-            <Button className="mt-2 rounded-pill" onClick={() => onNavigate(cta.id)}>
+            <Button
+              className="mt-2 rounded-pill"
+              onClick={() => onNavigate(cta.id)}
+            >
               {cta.label}
             </Button>
           </nav>

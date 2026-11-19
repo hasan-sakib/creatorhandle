@@ -2,7 +2,7 @@ import { type CSSProperties, type ReactNode, useState } from "react"
 
 import { PortalContainerContext } from "@/components/ui/portal-container"
 import { ACCENTS, resolveAccent } from "@/lib/accent"
-import { THEMES, resolveTheme } from "@/lib/themes"
+import { resolveTheme, THEMES } from "@/lib/themes"
 
 /**
  * Applies the creator's look to everything inside: the theme (colors, fonts,
@@ -23,7 +23,9 @@ export function CreatorScope({
 }) {
   const [container, setContainer] = useState<HTMLElement | null>(null)
   const themeKey = resolveTheme(theme)
-  const accentKey = accent ? resolveAccent(accent) : THEMES[themeKey].defaultAccent
+  const accentKey = accent
+    ? resolveAccent(accent)
+    : THEMES[themeKey].defaultAccent
   const colors = ACCENTS[accentKey]
 
   return (
@@ -31,10 +33,17 @@ export function CreatorScope({
       ref={setContainer}
       data-theme={themeKey}
       data-accent={accentKey}
-      style={{ "--accent-light": colors.light, "--accent-dark": colors.dark } as CSSProperties}
+      style={
+        {
+          "--accent-light": colors.light,
+          "--accent-dark": colors.dark,
+        } as CSSProperties
+      }
       className="relative min-h-screen bg-background text-foreground"
     >
-      <PortalContainerContext.Provider value={container}>{children}</PortalContainerContext.Provider>
+      <PortalContainerContext.Provider value={container}>
+        {children}
+      </PortalContainerContext.Provider>
     </div>
   )
 }

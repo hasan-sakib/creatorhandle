@@ -2,12 +2,19 @@
  * Portfolio themes as shown in the dashboard's theme picker (small swatch
  * previews). The real CSS lives in creator-site/src/styles/creator-themes.css;
  * these values are approximations just for the preview. Keep the keys in sync
- * with ThemeKey in backend/app/core/validators.py and
+ * with ThemeKey in backend/app/domain/validators.py and
  * creator-site/src/lib/themes.ts.
  */
-import type { AccentKey } from "@/components/accent-color-provider"
+import {
+  DEFAULT_THEME,
+  THEMES,
+  type ThemeKey,
+} from "@creatorhandle/shared/themes"
 
-export type ThemeKey = "studio" | "editorial" | "aurora" | "bold" | "soft" | "mono"
+import type { AccentKey } from "@/providers/accent-color-provider"
+
+export { DEFAULT_THEME }
+export type { ThemeKey }
 
 export interface Palette {
   bg: string
@@ -31,13 +38,10 @@ export interface ThemePreset {
   dark: Palette
 }
 
-export const DEFAULT_THEME: ThemeKey = "studio"
-
 export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
   studio: {
-    label: "Studio",
+    ...THEMES.studio,
     blurb: "Clean and glassy, with a soft glow",
-    defaultAccent: "teal",
     fontFamily: "ui-sans-serif, system-ui, sans-serif",
     fontWeight: 700,
     radius: 10,
@@ -47,9 +51,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
     dark: { bg: "#0a0a0a", card: "#171717", fg: "#fafafa", border: "#2a2a2a" },
   },
   editorial: {
-    label: "Editorial",
+    ...THEMES.editorial,
     blurb: "Magazine style: paper, ink and serif type",
-    defaultAccent: "rose",
     fontFamily: "Georgia, 'Times New Roman', serif",
     fontWeight: 600,
     radius: 2,
@@ -59,9 +62,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
     dark: { bg: "#1d1914", card: "#26211a", fg: "#f1eadc", border: "#3a332a" },
   },
   aurora: {
-    label: "Aurora",
+    ...THEMES.aurora,
     blurb: "Glowing, with deep indigo in dark mode",
-    defaultAccent: "violet",
     fontFamily: "ui-sans-serif, system-ui, sans-serif",
     fontWeight: 700,
     radius: 12,
@@ -71,9 +73,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
     dark: { bg: "#100c26", card: "#1a1438", fg: "#f3f0ff", border: "#3b2f73" },
   },
   bold: {
-    label: "Bold",
+    ...THEMES.bold,
     blurb: "Heavy borders, hard shadows, flat colour",
-    defaultAccent: "orange",
     fontFamily: "ui-sans-serif, system-ui, sans-serif",
     fontWeight: 800,
     radius: 3,
@@ -83,9 +84,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
     dark: { bg: "#14141a", card: "#1d1d25", fg: "#f5f5f5", border: "#f5f5f5" },
   },
   soft: {
-    label: "Soft",
+    ...THEMES.soft,
     blurb: "Friendly pastel surfaces and round corners",
-    defaultAccent: "sky",
     fontFamily: "ui-rounded, 'Nunito', system-ui, sans-serif",
     fontWeight: 800,
     radius: 16,
@@ -95,9 +95,8 @@ export const THEME_PRESETS: Record<ThemeKey, ThemePreset> = {
     dark: { bg: "#1b2630", card: "#22303b", fg: "#eef4f8", border: "#34505f" },
   },
   mono: {
-    label: "Mono",
+    ...THEMES.mono,
     blurb: "Technical: monospace type on grid paper",
-    defaultAccent: "green",
     fontFamily: "ui-monospace, 'SF Mono', Menlo, monospace",
     fontWeight: 700,
     radius: 1,
@@ -112,8 +111,16 @@ export const THEME_KEYS = Object.keys(THEME_PRESETS) as ThemeKey[]
 
 export type ColorMode = "system" | "light" | "dark"
 
-export const COLOR_MODE_OPTIONS: { value: ColorMode; label: string; hint: string }[] = [
-  { value: "system", label: "Visitor's device", hint: "Follows each visitor's light or dark setting" },
+export const COLOR_MODE_OPTIONS: {
+  value: ColorMode
+  label: string
+  hint: string
+}[] = [
+  {
+    value: "system",
+    label: "Visitor's device",
+    hint: "Follows each visitor's light or dark setting",
+  },
   { value: "light", label: "Light", hint: "Starts light" },
   { value: "dark", label: "Dark", hint: "Starts dark" },
 ]

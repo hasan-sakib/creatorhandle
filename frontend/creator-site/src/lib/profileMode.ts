@@ -37,7 +37,9 @@ export function resolveMode(creatorMode: string | null | undefined): Mode {
   const visitor = getVisitorMode()
   if (visitor) return visitor
   if (creatorMode === "light" || creatorMode === "dark") return creatorMode
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light"
 }
 
 /** Sets the `dark`/`light` class on <html> (Tailwind's dark variant keys off it). */
@@ -54,16 +56,24 @@ export function restoreSiteMode(): void {
   setSiteTheme(getStoredTheme())
 }
 
-export const currentModeIsDark = (): boolean => document.documentElement.classList.contains("dark") || (!document.documentElement.classList.contains("light") && isDark())
+export const currentModeIsDark = (): boolean =>
+  document.documentElement.classList.contains("dark") ||
+  (!document.documentElement.classList.contains("light") && isDark())
 
 /**
  * Remember the creator's default mode per username so the next visit can set
  * the right background before the page is fetched (see index.html), which
  * avoids a light flash on a dark page.
  */
-export function rememberLook(username: string, creatorMode: string | null | undefined): void {
+export function rememberLook(
+  username: string,
+  creatorMode: string | null | undefined,
+): void {
   try {
-    localStorage.setItem(lookKey(username), JSON.stringify({ mode: creatorMode ?? null }))
+    localStorage.setItem(
+      lookKey(username),
+      JSON.stringify({ mode: creatorMode ?? null }),
+    )
   } catch {
     // ignore
   }

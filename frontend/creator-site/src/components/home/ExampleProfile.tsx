@@ -49,7 +49,9 @@ export function StatsPill() {
     <div className="inline-flex divide-x rounded-xl border bg-card shadow-sm">
       {stats.map((stat) => (
         <div key={stat.label} className="px-4 py-2 text-center sm:px-5">
-          <p className="font-display text-lg font-bold leading-tight">{stat.value}</p>
+          <p className="font-display text-lg font-bold leading-tight">
+            {stat.value}
+          </p>
           <p className="text-[11px] text-muted-foreground">{stat.label}</p>
         </div>
       ))}
@@ -57,7 +59,13 @@ export function StatsPill() {
   )
 }
 
-export function BrandMiniCard({ name, category }: { name: string; category: string }) {
+export function BrandMiniCard({
+  name,
+  category,
+}: {
+  name: string
+  category: string
+}) {
   return (
     <div className="flex items-center gap-3 rounded-xl border bg-card p-3">
       <div className="grid size-9 shrink-0 place-items-center rounded-lg bg-primary/10">
@@ -86,17 +94,23 @@ export function ProfileCardCompact({ className }: { className?: string }) {
         <div className="flex items-center gap-3">
           <Avatar className="size-12 text-sm" />
           <div>
-            <p className="font-display font-semibold leading-tight">Alex Rivera</p>
+            <p className="font-display font-semibold leading-tight">
+              Alex Rivera
+            </p>
             <p className="text-sm text-muted-foreground">@alexrivera</p>
           </div>
         </div>
         <ExampleTag />
       </div>
-      <p className="mt-4 text-sm text-muted-foreground">Tech and workflow creator.</p>
+      <p className="mt-4 text-sm text-muted-foreground">
+        Tech and workflow creator.
+      </p>
       <div className="mt-5">
         <StatsPill />
       </div>
-      <p className="mb-2 mt-5 text-xs font-medium text-muted-foreground">Brands I work with</p>
+      <p className="mb-2 mt-5 text-xs font-medium text-muted-foreground">
+        Brands I work with
+      </p>
       <div className="flex flex-wrap gap-2">
         {brands.map((brand) => (
           <span
@@ -111,7 +125,15 @@ export function ProfileCardCompact({ className }: { className?: string }) {
   )
 }
 
-const mockNav = ["Home", "About", "Approach", "Services", "Work", "Brands", "Contact"]
+const mockNav = [
+  "Home",
+  "About",
+  "Approach",
+  "Services",
+  "Work",
+  "Brands",
+  "Contact",
+]
 const mockSteps = ["Discover", "Script and plan", "Shoot and edit"]
 
 /**
@@ -128,7 +150,10 @@ export function ProfilePageMock() {
         <span className="text-xs font-semibold">Alex Rivera</span>
         <ul className="ml-auto hidden items-center gap-2.5 text-[10px] text-muted-foreground sm:flex">
           {mockNav.map((n, i) => (
-            <li key={n} className={i === 0 ? "font-semibold text-accent-text" : undefined}>
+            <li
+              key={n}
+              className={i === 0 ? "font-semibold text-accent-text" : undefined}
+            >
               {n}
             </li>
           ))}
@@ -150,7 +175,9 @@ export function ProfilePageMock() {
           <Avatar className="size-14 rounded-avatar text-base ring-4 ring-background" />
           <div className="pb-1">
             <p className="heading text-lg leading-tight">Alex Rivera</p>
-            <p className="text-[11px] text-muted-foreground">Tech YouTuber and gadget reviewer</p>
+            <p className="text-[11px] text-muted-foreground">
+              Tech YouTuber and gadget reviewer
+            </p>
           </div>
         </div>
       </div>
@@ -161,7 +188,9 @@ export function ProfilePageMock() {
         <div className="grid grid-cols-3 gap-2">
           {mockSteps.map((step, i) => (
             <div key={step} className="surface rounded-inner p-2.5">
-              <p className="heading text-lg text-accent-text/40">{String(i + 1).padStart(2, "0")}</p>
+              <p className="heading text-lg text-accent-text/40">
+                {String(i + 1).padStart(2, "0")}
+              </p>
               <p className="mt-0.5 text-[11px] font-semibold">{step}</p>
               <div className="mt-1.5 h-1 w-4/5 rounded-full bg-muted-foreground/25" />
             </div>

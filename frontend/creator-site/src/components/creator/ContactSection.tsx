@@ -10,13 +10,19 @@ import { safeEmail, safeHttpUrl } from "@/lib/safeUrl"
 import { getSocialLinks } from "@/lib/socials"
 
 export function hasContactMethods(p: PublicCreator) {
-  return !!(safeEmail(p.contact_email) || getSocialLinks(p).length > 0 || safeHttpUrl(p.media_kit_url))
+  return !!(
+    safeEmail(p.contact_email) ||
+    getSocialLinks(p).length > 0 ||
+    safeHttpUrl(p.media_kit_url)
+  )
 }
 
 const COPY: Record<string, string> = {
   open: "I'm open to new collaborations. Tell me about your brand and what you have in mind.",
-  limited: "My availability is limited right now, but I'd still love to hear from you.",
-  closed: "I'm not taking new work at the moment, but you're welcome to say hello.",
+  limited:
+    "My availability is limited right now, but I'd still love to hear from you.",
+  closed:
+    "I'm not taking new work at the moment, but you're welcome to say hello.",
 }
 
 export function ContactSection({ profile }: { profile: PublicCreator }) {
@@ -42,22 +48,33 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
           <div
             aria-hidden="true"
             className="pointer-events-none absolute -right-20 -top-20 size-72 rounded-full opacity-60 blur-3xl"
-            style={{ background: "color-mix(in oklch, var(--accent-raw) 30%, transparent)" }}
+            style={{
+              background:
+                "color-mix(in oklch, var(--accent-raw) 30%, transparent)",
+            }}
           />
           <p className="relative max-w-xl text-base text-foreground/90 sm:text-lg">
-            {COPY[profile.availability ?? ""] ?? `Get in touch with ${name} about collaborations, sponsorships or projects.`}
+            {COPY[profile.availability ?? ""] ??
+              `Get in touch with ${name} about collaborations, sponsorships or projects.`}
           </p>
 
           <div className="relative mt-6 flex flex-wrap gap-3">
             {email && (
               <Button asChild size="lg" className="rounded-pill px-6">
-                <a href={`mailto:${email}?subject=${encodeURIComponent(`Collaboration with ${name}`)}`}>
+                <a
+                  href={`mailto:${email}?subject=${encodeURIComponent(`Collaboration with ${name}`)}`}
+                >
                   <Mail className="size-4" /> {email}
                 </a>
               </Button>
             )}
             {mediaKit && (
-              <Button asChild size="lg" variant="outline" className="rounded-pill bg-background/50 px-6">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="rounded-pill bg-background/50 px-6"
+              >
                 <a href={mediaKit} target="_blank" rel="noopener noreferrer">
                   Download media kit
                 </a>

@@ -24,10 +24,17 @@ function fromHandle(
   if (!v) return null
   if (/^https?:\/\//i.test(v)) {
     const href = safeHttpUrl(v)
-    return href ? { href, text: new URL(href).host + new URL(href).pathname.replace(/\/$/, "") } : null
+    return href
+      ? {
+          href,
+          text: new URL(href).host + new URL(href).pathname.replace(/\/$/, ""),
+        }
+      : null
   }
   const handle = v.replace(/^@/, "")
-  return HANDLE.test(handle) ? { href: `${base}${handle}`, text: `@${handle}` } : null
+  return HANDLE.test(handle)
+    ? { href: `${base}${handle}`, text: `@${handle}` }
+    : null
 }
 
 export function getSocialLinks(p: PublicCreator): SocialLink[] {
@@ -42,10 +49,30 @@ export function getSocialLinks(p: PublicCreator): SocialLink[] {
   }
 
   const web = safeHttpUrl(p.website)
-  add("website", "Website", Globe, web ? { href: web, text: new URL(web).host } : null)
-  add("youtube", "YouTube", Youtube, fromHandle(p.youtube, "https://youtube.com/@"))
-  add("instagram", "Instagram", Instagram, fromHandle(p.instagram, "https://instagram.com/"))
+  add(
+    "website",
+    "Website",
+    Globe,
+    web ? { href: web, text: new URL(web).host } : null,
+  )
+  add(
+    "youtube",
+    "YouTube",
+    Youtube,
+    fromHandle(p.youtube, "https://youtube.com/@"),
+  )
+  add(
+    "instagram",
+    "Instagram",
+    Instagram,
+    fromHandle(p.instagram, "https://instagram.com/"),
+  )
   add("tiktok", "TikTok", Music2, fromHandle(p.tiktok, "https://tiktok.com/@"))
-  add("twitter", "X / Twitter", Twitter, fromHandle(p.twitter, "https://x.com/"))
+  add(
+    "twitter",
+    "X / Twitter",
+    Twitter,
+    fromHandle(p.twitter, "https://x.com/"),
+  )
   return out
 }

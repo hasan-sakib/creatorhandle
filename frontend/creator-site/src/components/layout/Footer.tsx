@@ -30,9 +30,14 @@ export function Footer({ variant = "powered" }: FooterProps) {
       <div className="mx-auto flex max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6 md:flex-row md:items-start md:justify-between">
         <div className="max-w-xs">
           <Logo variant="full" />
-          <p className="mt-3 text-sm text-muted-foreground">Manage your creator brand.</p>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Manage your creator brand.
+          </p>
         </div>
-        <nav aria-label="Footer" className="flex flex-wrap gap-x-8 gap-y-3 text-sm">
+        <nav
+          aria-label="Footer"
+          className="flex flex-wrap gap-x-8 gap-y-3 text-sm"
+        >
           {links.map((link) => (
             <a
               key={link.href}

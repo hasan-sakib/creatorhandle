@@ -7,8 +7,8 @@ import { QuickActions } from "@/components/workspace/Dashboard/QuickActions"
 import { StatsGrid } from "@/components/workspace/Dashboard/StatsGrid"
 import { TaskStatusBreakdown } from "@/components/workspace/Dashboard/TaskStatusBreakdown"
 import { UpcomingDeadlines } from "@/components/workspace/Dashboard/UpcomingDeadlines"
-import { useWorkspace } from "@/components/workspace-provider"
 import useAuth from "@/hooks/useAuth"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 export const Route = createFileRoute("/_layout/")({
   component: Dashboard,
@@ -48,9 +48,12 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Overview</h1>
+        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+          Overview
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {displayName ? `${displayName} · ` : ""}Welcome back, nice to see you again!
+          {displayName ? `${displayName} · ` : ""}Welcome back, nice to see you
+          again!
         </p>
       </div>
 

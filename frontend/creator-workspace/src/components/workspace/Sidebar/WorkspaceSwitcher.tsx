@@ -1,4 +1,4 @@
-import { Check, ChevronsUpDown, Building2 } from "lucide-react"
+import { Building2, Check, ChevronsUpDown } from "lucide-react"
 
 import {
   DropdownMenu,
@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useWorkspace } from "@/components/workspace-provider"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 export function WorkspaceSwitcher() {
   const { workspaces, activeWorkspace, setActiveWorkspaceId } = useWorkspace()
@@ -41,7 +41,9 @@ export function WorkspaceSwitcher() {
             onClick={() => setActiveWorkspaceId(workspace.id)}
           >
             <span className="flex-1 truncate">{workspace.name}</span>
-            {workspace.id === activeWorkspace?.id && <Check className="size-4" />}
+            {workspace.id === activeWorkspace?.id && (
+              <Check className="size-4" />
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

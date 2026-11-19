@@ -37,7 +37,9 @@ def _to_public(workspace: Workspace, role: str) -> WorkspacePublic:
     )
 
 
-def _member_to_public(member: WorkspaceMember, user: User | None) -> WorkspaceMemberPublic:
+def _member_to_public(
+    member: WorkspaceMember, user: User | None
+) -> WorkspaceMemberPublic:
     return WorkspaceMemberPublic(
         id=member.id,
         workspace_id=member.workspace_id,
@@ -108,7 +110,9 @@ def create_workspace(
 def read_workspace(
     session: SessionDep,
     id: uuid.UUID,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("workspace.view"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("workspace.view"))
+    ],
 ) -> Any:
     workspace = session.get(Workspace, id)
     if not workspace:
@@ -122,7 +126,9 @@ def update_workspace(
     session: SessionDep,
     id: uuid.UUID,
     workspace_in: WorkspaceUpdate,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("workspace.update"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("workspace.update"))
+    ],
 ) -> Any:
     workspace = session.get(Workspace, id)
     if not workspace:
@@ -139,7 +145,9 @@ def update_workspace(
 def delete_workspace(
     session: SessionDep,
     id: uuid.UUID,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("workspace.delete"))],
+    _membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("workspace.delete"))
+    ],
 ) -> Message:
     workspace = session.get(Workspace, id)
     if not workspace:
@@ -153,7 +161,9 @@ def delete_workspace(
 def read_workspace_members(
     session: SessionDep,
     id: uuid.UUID,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("members.view"))],
+    _membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("members.view"))
+    ],
 ) -> Any:
     members = session.exec(
         select(WorkspaceMember).where(
@@ -171,7 +181,9 @@ def update_workspace_member(
     id: uuid.UUID,
     user_id: uuid.UUID,
     member_in: WorkspaceMemberUpdate,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("members.update"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("members.update"))
+    ],
 ) -> Any:
     target = session.exec(
         select(WorkspaceMember).where(
@@ -181,13 +193,19 @@ def update_workspace_member(
     if not target:
         raise HTTPException(status_code=404, detail="Member not found")
 
-    demoting_last_owner = (
-        target.role == "owner"
-        and member_in.role is not None
-        and member_in.role != "owner"
-        and _active_owner_count(session, id) <= 1
+    # Ownership is only granted or changed by owners (admins hold members.update
+    # too, and could otherwise promote themselves or demote an owner).
+    touches_owner = target.role == "owner" or member_in.role == "owner"
+    if touches_owner and membership.role != "owner":
+        raise HTTPException(
+            status_code=403, detail="Only an owner can change ownership"
+        )
+
+    stops_being_owner = target.role == "owner" and (
+        (member_in.role is not None and member_in.role != "owner")
+        or (member_in.status is not None and member_in.status != "active")
     )
-    if demoting_last_owner:
+    if stops_being_owner and _active_owner_count(session, id) <= 1:
         raise HTTPException(
             status_code=400, detail="Cannot demote the last owner of a workspace"
         )
@@ -205,7 +223,9 @@ def remove_workspace_member(
     session: SessionDep,
     id: uuid.UUID,
     user_id: uuid.UUID,
-    membership: Annotated[WorkspaceMember, Depends(require_workspace_permission("members.remove"))],
+    _membership: Annotated[
+        WorkspaceMember, Depends(require_workspace_permission("members.remove"))
+    ],
 ) -> Message:
     target = session.exec(
         select(WorkspaceMember).where(

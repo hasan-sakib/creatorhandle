@@ -8,7 +8,11 @@ export function safeHttpUrl(value: string | null | undefined): string | null {
   if (!v || /\s/.test(v)) return null
   try {
     const url = new URL(v)
-    if ((url.protocol !== "http:" && url.protocol !== "https:") || !url.hostname) return null
+    if (
+      (url.protocol !== "http:" && url.protocol !== "https:") ||
+      !url.hostname
+    )
+      return null
     return url.toString()
   } catch {
     return null

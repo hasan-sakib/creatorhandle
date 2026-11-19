@@ -3,9 +3,12 @@
 !.vscode/extensions.json
 .idea/
 
-# Tooling
+# Tooling (local AI/editor helpers; never committed)
 .copier/
 .agents/
+.cmem-projects/
+agent-transcripts/
+.github/copilot-instructions.md
 
 # Dependencies
 node_modules/
@@ -14,7 +17,6 @@ node_modules/
 .env
 .env.*
 !.env.example
-deploy/.env
 
 # Python
 __pycache__/
@@ -25,17 +27,26 @@ venv/
 .python-version
 
 # Test artifacts
-/test-results/
-/playwright-report/
-/blob-report/
-/playwright/.cache/
+test-results/
+playwright-report/
+blob-report/
+**/playwright/.cache/
+**/playwright/.auth/
 backend/htmlcov/
+.coverage
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
 
 # Build output
 frontend/dist/
+.tanstack/
+*.tsbuildinfo
 *.egg-info/
 dist/
 build/
+# Compiled email templates are read by the backend at runtime
+!backend/app/emails/templates/build/
 
 # OS
 .DS_Store

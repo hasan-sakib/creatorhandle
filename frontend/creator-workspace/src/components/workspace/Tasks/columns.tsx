@@ -82,7 +82,8 @@ export const columns: ColumnDef<TaskPublic>[] = [
         <span
           className={cn(
             "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border",
-            priorityColors[priority] ?? "text-gray-500 bg-gray-50 border-gray-200",
+            priorityColors[priority] ??
+              "text-gray-500 bg-gray-50 border-gray-200",
           )}
         >
           {priority}
@@ -94,7 +95,9 @@ export const columns: ColumnDef<TaskPublic>[] = [
     accessorKey: "due_date",
     header: "Due Date",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.due_date || "—"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.original.due_date || "—"}
+      </span>
     ),
   },
   {
