@@ -23,7 +23,8 @@ function Mark({ className }: { className?: string }) {
   )
 }
 
-const wordmark = "text-[17px] font-semibold leading-none tracking-tight text-foreground"
+const wordmark =
+  "text-[17px] font-semibold leading-none tracking-tight text-foreground"
 
 export function Logo({
   variant = "full",

@@ -14,8 +14,9 @@ export function NotFound({ username }: NotFoundProps) {
       <div className="space-y-2">
         <h1 className="text-2xl font-bold">Creator not found</h1>
         <p className="text-muted-foreground max-w-sm">
-          There's no creator with the handle <span className="font-medium text-foreground">@{username}</span>.
-          They may not have set up their public profile yet.
+          There's no creator with the handle{" "}
+          <span className="font-medium text-foreground">@{username}</span>. They
+          may not have set up their public profile yet.
         </p>
       </div>
       <Button asChild variant="outline">

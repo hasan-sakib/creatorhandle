@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router"
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import AppearanceSettings from "@/components/workspace/UserSettings/AppearanceSettings"
 import ChangePassword from "@/components/workspace/UserSettings/ChangePassword"
 import DeleteAccount from "@/components/workspace/UserSettings/DeleteAccount"
 import PortfolioSettings from "@/components/workspace/UserSettings/PortfolioSettings"
 import UserInformation from "@/components/workspace/UserSettings/UserInformation"
 import WorkspaceMembers from "@/components/workspace/UserSettings/WorkspaceMembers"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import useAuth from "@/hooks/useAuth"
 
 const tabsConfig = [
@@ -49,7 +48,9 @@ function UserSettings() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Settings</h1>
+        <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+          Settings
+        </h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Manage your account settings and preferences
         </p>
@@ -57,7 +58,9 @@ function UserSettings() {
 
       <Tabs
         value={finalTabs.some((t) => t.value === tab) ? tab : "my-profile"}
-        onValueChange={(value) => navigate({ search: { tab: value }, replace: true })}
+        onValueChange={(value) =>
+          navigate({ search: { tab: value }, replace: true })
+        }
       >
         <TabsList>
           {finalTabs.map((tab) => (

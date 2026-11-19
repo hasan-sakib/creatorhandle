@@ -1,9 +1,9 @@
 import { CalendarDays, Languages, MapPin } from "lucide-react"
 
 import type { PublicCreator } from "@/client"
-import { GradientFallback } from "@/components/creator/Section"
-import { SafeImage } from "@/components/creator/SafeImage"
 import { goToSection } from "@/components/creator/GlassNavbar"
+import { SafeImage } from "@/components/creator/SafeImage"
+import { GradientFallback } from "@/components/creator/Section"
 import { Button } from "@/components/ui/button"
 import { safeHttpUrl } from "@/lib/safeUrl"
 import { getSocialLinks } from "@/lib/socials"
@@ -24,10 +24,14 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
     .slice(0, 2)
     .join("")
     .toUpperCase()
-  const availability = profile.availability ? AVAILABILITY[profile.availability] : null
+  const availability = profile.availability
+    ? AVAILABILITY[profile.availability]
+    : null
   const socials = getSocialLinks(profile).filter((s) => s.key !== "website")
   const mediaKit = safeHttpUrl(profile.media_kit_url)
-  const since = profile.member_since ? new Date(profile.member_since).getFullYear() : null
+  const since = profile.member_since
+    ? new Date(profile.member_since).getFullYear()
+    : null
   const stats = [
     { label: "Projects", value: profile.stats.projects_count },
     { label: "Brands", value: profile.stats.brands_count },
@@ -35,7 +39,10 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
   ].filter((s) => s.value > 0)
 
   return (
-    <header id="home" className="mx-auto max-w-5xl px-4 pb-4 pt-24 sm:px-6 sm:pt-28">
+    <header
+      id="home"
+      className="mx-auto max-w-5xl px-4 pb-4 pt-24 sm:px-6 sm:pt-28"
+    >
       <div className="surface overflow-hidden rounded-card">
         <div className="relative h-44 sm:h-60">
           <SafeImage
@@ -67,11 +74,20 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 sm:pb-2">
-              <Button className="rounded-pill px-5" onClick={() => goToSection("contact")}>
-                {profile.availability === "closed" ? "Get in touch" : "Work with me"}
+              <Button
+                className="rounded-pill px-5"
+                onClick={() => goToSection("contact")}
+              >
+                {profile.availability === "closed"
+                  ? "Get in touch"
+                  : "Work with me"}
               </Button>
               {mediaKit && (
-                <Button asChild variant="outline" className="rounded-pill bg-background/50 px-5">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="rounded-pill bg-background/50 px-5"
+                >
                   <a href={mediaKit} target="_blank" rel="noopener noreferrer">
                     Media kit
                   </a>
@@ -83,11 +99,17 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
           <div className="mt-6">
             <h1 className="heading text-4xl sm:text-5xl">{name}</h1>
             {profile.headline && (
-              <p className="mt-2 max-w-2xl text-lg text-muted-foreground sm:text-xl">{profile.headline}</p>
+              <p className="mt-2 max-w-2xl text-lg text-muted-foreground sm:text-xl">
+                {profile.headline}
+              </p>
             )}
 
             <ul className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
-              {profile.full_name && <li className="font-medium text-foreground">@{profile.username}</li>}
+              {profile.full_name && (
+                <li className="font-medium text-foreground">
+                  @{profile.username}
+                </li>
+              )}
               {profile.location && (
                 <li className="flex items-center gap-1.5">
                   <MapPin className="size-4" /> {profile.location}
@@ -95,19 +117,24 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
               )}
               {profile.languages.length > 0 && (
                 <li className="flex items-center gap-1.5">
-                  <Languages className="size-4" /> {profile.languages.join(", ")}
+                  <Languages className="size-4" />{" "}
+                  {profile.languages.join(", ")}
                 </li>
               )}
               {since && (
                 <li className="flex items-center gap-1.5">
-                  <CalendarDays className="size-4" /> On CreatorHandle since {since}
+                  <CalendarDays className="size-4" /> On CreatorHandle since{" "}
+                  {since}
                 </li>
               )}
             </ul>
 
             {availability && (
               <p className="mt-4 inline-flex items-center gap-2 rounded-pill border bg-background/60 px-3 py-1 text-sm font-medium">
-                <span className={cn("size-2 rounded-full", availability.dot)} aria-hidden="true" />
+                <span
+                  className={cn("size-2 rounded-full", availability.dot)}
+                  aria-hidden="true"
+                />
                 {availability.label}
               </p>
             )}
@@ -115,7 +142,10 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
             {(socials.length > 0 || stats.length > 0) && (
               <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
                 {socials.length > 0 && (
-                  <ul className="flex flex-wrap gap-2" aria-label="Social links">
+                  <ul
+                    className="flex flex-wrap gap-2"
+                    aria-label="Social links"
+                  >
                     {socials.map(({ key, label, href, text, Icon }) => (
                       <li key={key}>
                         <a
@@ -136,8 +166,12 @@ export function ProfileHero({ profile }: { profile: PublicCreator }) {
                   <dl className="inline-flex divide-x rounded-inner border bg-background/60">
                     {stats.map((s) => (
                       <div key={s.label} className="px-5 py-2 text-center">
-                        <dd className="font-display text-xl font-bold leading-tight">{s.value}</dd>
-                        <dt className="text-[11px] text-muted-foreground">{s.label}</dt>
+                        <dd className="font-display text-xl font-bold leading-tight">
+                          {s.value}
+                        </dd>
+                        <dt className="text-[11px] text-muted-foreground">
+                          {s.label}
+                        </dt>
                       </div>
                     ))}
                   </dl>

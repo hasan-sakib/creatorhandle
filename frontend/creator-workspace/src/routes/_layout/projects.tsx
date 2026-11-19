@@ -4,12 +4,12 @@ import { FolderKanban } from "lucide-react"
 import { Suspense, useMemo, useState } from "react"
 
 import { ProjectsService, TasksService } from "@/client"
-import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
+import { TableFilters } from "@/components/Common/TableFilters"
+import PendingItems from "@/components/workspace/Pending/PendingItems"
 import AddProject from "@/components/workspace/Projects/AddProject"
 import { columns } from "@/components/workspace/Projects/columns"
-import PendingItems from "@/components/workspace/Pending/PendingItems"
-import { useWorkspace } from "@/components/workspace-provider"
+import { useWorkspace } from "@/providers/workspace-provider"
 
 function getProjectsQueryOptions(activeWorkspaceId: string | null) {
   return {
@@ -41,7 +41,9 @@ function ProjectsTableContent({
   statusFilter: string
 }) {
   const { activeWorkspaceId } = useWorkspace()
-  const { data: projects } = useSuspenseQuery(getProjectsQueryOptions(activeWorkspaceId))
+  const { data: projects } = useSuspenseQuery(
+    getProjectsQueryOptions(activeWorkspaceId),
+  )
 
   const { data: tasksData } = useQuery({
     queryKey: ["tasks", activeWorkspaceId],
@@ -82,7 +84,9 @@ function ProjectsTableContent({
           <FolderKanban className="h-8 w-8 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-semibold">No projects yet</h3>
-        <p className="text-muted-foreground">Create your first content project to get started</p>
+        <p className="text-muted-foreground">
+          Create your first content project to get started
+        </p>
       </div>
     )
   }
@@ -106,8 +110,12 @@ function Projects() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Projects</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Manage your content projects</p>
+          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+            Projects
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage your content projects
+          </p>
         </div>
         <AddProject />
       </div>

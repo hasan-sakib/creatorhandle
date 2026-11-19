@@ -6,8 +6,8 @@ from sqlmodel import SQLModel
 from app.api.deps import CurrentUser
 from app.core import storage
 from app.core.config import settings
-from app.core.images import ImageError, Kind, process_image
 from app.core.media import new_media_path
+from app.domain.images import ImageError, Kind, process_image
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
 
@@ -49,5 +49,7 @@ def upload_image(
     try:
         storage.put_image(path, webp)
     except storage.StorageUnavailable:
-        raise HTTPException(status_code=503, detail="Image storage is unavailable") from None
+        raise HTTPException(
+            status_code=503, detail="Image storage is unavailable"
+        ) from None
     return UploadedImage(url=path, width=width, height=height)

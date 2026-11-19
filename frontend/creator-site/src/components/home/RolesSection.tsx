@@ -5,13 +5,28 @@ import { cn } from "@/lib/utils"
 
 const roles = ["Owner", "Admin", "Manager", "Member", "Viewer"] as const
 
-// Mirrors the permission matrix in the backend (app/core/permissions.py).
+// Mirrors the permission matrix in the backend (app/domain/permissions.py).
 const rows: { label: string; allowed: boolean[] }[] = [
-  { label: "View everything in the workspace", allowed: [true, true, true, true, true] },
-  { label: "Create and edit brands, projects and tasks", allowed: [true, true, true, true, false] },
-  { label: "Delete brands, projects and tasks", allowed: [true, true, true, false, false] },
-  { label: "Manage members and workspace settings", allowed: [true, true, false, false, false] },
-  { label: "Delete the workspace", allowed: [true, false, false, false, false] },
+  {
+    label: "View everything in the workspace",
+    allowed: [true, true, true, true, true],
+  },
+  {
+    label: "Create and edit brands, projects and tasks",
+    allowed: [true, true, true, true, false],
+  },
+  {
+    label: "Delete brands, projects and tasks",
+    allowed: [true, true, true, false, false],
+  },
+  {
+    label: "Manage members and workspace settings",
+    allowed: [true, true, false, false, false],
+  },
+  {
+    label: "Delete the workspace",
+    allowed: [true, false, false, false, false],
+  },
 ]
 
 export function RolesSection() {
@@ -23,8 +38,8 @@ export function RolesSection() {
             Built for teams, too
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Create workspaces and give each person the access they need. Add collaborators and
-            assign them tasks.
+            Create workspaces and give each person the access they need. Add
+            collaborators and assign them tasks.
           </p>
         </Reveal>
 
@@ -33,11 +48,18 @@ export function RolesSection() {
             <table className="w-full min-w-[640px] text-sm">
               <thead>
                 <tr className="border-b bg-muted/40">
-                  <th scope="col" className="px-5 py-4 text-left font-medium text-muted-foreground">
+                  <th
+                    scope="col"
+                    className="px-5 py-4 text-left font-medium text-muted-foreground"
+                  >
                     Permission
                   </th>
                   {roles.map((role) => (
-                    <th key={role} scope="col" className="px-3 py-4 text-center font-display font-semibold">
+                    <th
+                      key={role}
+                      scope="col"
+                      className="px-3 py-4 text-center font-display font-semibold"
+                    >
                       {role}
                     </th>
                   ))}
@@ -53,12 +75,19 @@ export function RolesSection() {
                       <td key={roles[j]} className="px-3 py-4 text-center">
                         {yes ? (
                           <>
-                            <Check className="mx-auto size-4 text-primary" strokeWidth={3} aria-hidden="true" />
+                            <Check
+                              className="mx-auto size-4 text-primary"
+                              strokeWidth={3}
+                              aria-hidden="true"
+                            />
                             <span className="sr-only">Yes</span>
                           </>
                         ) : (
                           <>
-                            <Minus className="mx-auto size-4 text-muted-foreground/40" aria-hidden="true" />
+                            <Minus
+                              className="mx-auto size-4 text-muted-foreground/40"
+                              aria-hidden="true"
+                            />
                             <span className="sr-only">No</span>
                           </>
                         )}

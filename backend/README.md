@@ -12,43 +12,43 @@ FastAPI application with SQLModel ORM, PostgreSQL, JWT authentication, and Googl
 | Alembic | Schema migrations |
 | uv | Python package management |
 | Pytest | Testing |
-| Ruff | Linting + formatting |
+| Ruff, mypy (strict) | Linting, formatting, type-checking |
 
 ## Directory Structure
 
 ```
 backend/
+├── Dockerfile                multi-stage image, non-root runtime
+├── pyproject.toml            deps + ruff/mypy/coverage config (uv workspace member)
+├── alembic.ini
 ├── app/
+│   ├── main.py               app wiring: logging, CORS, request logs, Sentry, routers
 │   ├── api/
-│   │   ├── deps.py          # FastAPI dependencies (auth, session)
-│   │   ├── main.py          # API router aggregation
-│   │   └── routes/
-│   │       ├── login.py     # JWT + Google OAuth endpoints
-│   │       ├── users.py     # User CRUD
-│   │       ├── brands.py    # Brand management
-│   │       ├── projects.py  # Project management
-│   │       ├── tasks.py     # Task management
-│   │       ├── items.py     # Item management
-│   │       ├── public.py    # Public creator profile (no auth)
-│   │       ├── utils.py     # Health check, test email
-│   │       └── private.py   # Test helpers (local env only)
-│   ├── core/
-│   │   ├── config.py        # Settings (loaded from env vars)
-│   │   ├── db.py            # Database engine + session
-│   │   └── security.py      # Password hashing, JWT generation
-│   ├── alembic/
-│   │   └── versions/        # Migration scripts
-│   ├── models.py            # All SQLModel table + schema models
-│   ├── crud.py              # Database operations
-│   ├── main.py              # App factory, CORS, Sentry
-│   ├── initial_data.py      # Seeds first superuser
-│   └── backend_pre_start.py # Waits for DB, runs on container start
-├── tests/
-├── scripts/
-│   ├── prestart.sh          # Alembic upgrade + initial_data
-│   └── tests-start.sh       # Wait for DB, run pytest
-└── pyproject.toml
+│   │   ├── deps.py           session, current user, workspace membership/permission deps
+│   │   ├── main.py           router aggregation
+│   │   └── routes/           one module per resource (thin HTTP layer)
+│   ├── core/                 infrastructure only
+│   │   ├── config.py         typed settings from env / repo-root .env
+│   │   ├── db.py             engine
+│   │   ├── security.py       password hashing, access + reset tokens
+│   │   ├── log.py            logging setup + request logging middleware
+│   │   ├── storage.py        S3 (RustFS) client
+│   │   └── media.py          /media path layout and ownership
+│   ├── domain/               business rules
+│   │   ├── permissions.py    roles -> permissions, member statuses
+│   │   ├── validators.py     profile/portfolio field validation, theme/accent keys
+│   │   └── images.py         upload decoding, resizing, WebP encoding
+│   ├── models/               SQLModel tables + API schemas, one module per domain
+│   ├── crud/                 persistence helpers (user, workspace, item)
+│   ├── emails/               email rendering/sending; templates/{src,build}
+│   ├── cli/                  start-up commands: pre_start, storage_init, initial_data, tests_pre_start
+│   └── alembic/versions/     migrations
+├── scripts/                  entrypoint.sh, prestart.sh, tests-start.sh, test.sh
+└── tests/                    api/routes, crud, cli, utils (helpers), conftest.py
 ```
+
+`from app.models import X` and `from app import crud` re-export everything,
+so imports don't depend on which module a class lives in.
 
 ## API Endpoints
 
@@ -77,12 +77,23 @@ All routes are under `/api/v1/`.
 | PATCH | `/{user_id}` | Superuser | Update any user |
 | DELETE | `/{user_id}` | Superuser | Delete any user |
 
-### Brands, Projects, Tasks, Items
+### Workspaces (`/api/v1/workspaces/`)
 
-Standard CRUD pattern for each resource:
+List/create workspaces, read/update/delete one (`/{id}`), and manage members
+(`/{id}/members`, `/{id}/members/{user_id}`). Member roles are
+owner/admin/manager/member/viewer (see `app/domain/permissions.py`); only an
+owner can grant ownership or change an owner, and the last owner can't be
+demoted, deactivated or removed.
+
+### Brands, Projects, Tasks, Collaborators, Items
+
+Standard CRUD pattern for each resource. Brands, projects, tasks and
+collaborators are scoped to the workspace in the `X-Workspace-Id` header, and
+references between them (a project's brand, a task's project, collaborator or
+assignee) must belong to that same workspace.
 
 ```
-GET    /api/v1/{resource}/          List owned records (paginated)
+GET    /api/v1/{resource}/          List records in the workspace (paginated)
 POST   /api/v1/{resource}/          Create record
 GET    /api/v1/{resource}/{id}      Get by ID
 PUT    /api/v1/{resource}/{id}      Update
@@ -94,7 +105,14 @@ DELETE /api/v1/{resource}/{id}      Delete
 |---|---|---|
 | POST | `/images` | Upload an avatar, cover or project thumbnail (`multipart/form-data`: `file`, `kind`). Returns `{url, width, height}`; `url` is a site-relative `/media/...` path |
 
-Images are re-encoded to WebP and stored in S3-compatible storage (RustFS). See `app/core/images.py`, `app/core/storage.py` and `app/core/media.py`.
+Images are re-encoded to WebP and stored in S3-compatible storage (RustFS). See `app/domain/images.py`, `app/core/storage.py` and `app/core/media.py`.
+
+### Utils (`/api/v1/utils/`)
+| Method | Path | Auth | Description |
+|---|---|---|---|
+| GET | `/health-check/` | None | Liveness: always `true` |
+| GET | `/ready/` | None | Readiness: database (and storage, if configured); 503 with per-check status when one is down |
+| POST | `/test-email/` | Superuser | Send a test email |
 
 ### Public (`/api/v1/public/`) — no authentication
 | Method | Path | Description |
@@ -105,95 +123,47 @@ The response schemas (`PublicCreator`, `PublicBrand`, `PublicProject` in `app/ap
 
 ## Data Models
 
-```python
-User
-  id: UUID (PK)
-  email: str (unique)
-  username: str | None (unique, used for public profile URL)
-  full_name: str | None
-  headline, location, about, availability, accent_color, media_kit_url, cover_image_url: str | None
-  theme: str | None        # studio | editorial | aurora | bold | soft | mono (null = studio)
-  color_mode: str | None   # light | dark | system (null = visitor's device)
-  languages, niches, content_formats, platforms: list[str]   # JSONB
-  services: list[{title, description}]                       # JSONB (shown as "Work list")
-  work_steps: list[{title, description}]                     # JSONB, max 6 ("Work style")
-  work_principles, work_tools: list[str]                     # JSONB, max 6 / 12
-  hashed_password: str | None  # None for Google-only accounts
-  is_active: bool
-  is_superuser: bool
-  created_at: datetime
-
-Brand
-  id: UUID (PK)
-  name: str
-  description: str | None
-  owner_id: UUID (FK → User)
-
-Project
-  id: UUID (PK)
-  name: str
-  description: str | None
-  status: str
-  brand_id: UUID (FK → Brand)
-  owner_id: UUID (FK → User)
-
-Task
-  id: UUID (PK)
-  title: str
-  description: str | None
-  status: str
-  project_id: UUID (FK → Project)
-  owner_id: UUID (FK → User)
-
-Item
-  id: UUID (PK)
-  title: str
-  description: str | None
-  owner_id: UUID (FK → User)
-```
-
-Relationships use cascade deletes: deleting a User deletes all their Brands, Projects, Tasks, and Items. Deleting a Brand deletes its Projects. Deleting a Project deletes its Tasks.
+Defined in `app/models/` (one module per domain). In short: a **User** joins
+**Workspaces** through **WorkspaceMember** (role + status) and gets a personal
+workspace on sign-up. **Brands**, **Projects**, **Tasks** and
+**Collaborators** belong to a workspace; a project may link a brand, a task
+may link a project, a collaborator and an assignee. Deleting a brand deletes
+its projects and their tasks; deleting a collaborator unassigns their tasks.
+**Item** is the original template's example resource (per user). The User
+row also holds the public portfolio fields (headline, about, niches,
+services, work style, theme, accent, ...); `hashed_password` is null for
+Google-only accounts.
 
 ## Local Setup
 
 ```bash
-cd backend
-uv sync
-source .venv/bin/activate
+uv sync --all-packages        # from the repo root; creates .venv (Python 3.12)
 ```
+
+Lint, format and type-check with `make lint`, `make format`, `make typecheck`
+(ruff + mypy strict).
 
 ## Running Tests
 
 ```bash
-# Via Docker (uses real database)
-docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash scripts/tests-start.sh
-
-# With extra pytest args
-docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash scripts/tests-start.sh -x -v
+make test                     # pytest in the dev container, with coverage
 ```
 
-Coverage report: `backend/htmlcov/index.html`
+Tests run against a separate `<POSTGRES_DB>_test` database that
+`scripts/tests-start.sh` creates and migrates. The test session deletes all
+users when it ends, so `tests/conftest.py` refuses to run against a database
+whose name doesn't end in `_test`. Coverage report: `backend/htmlcov/index.html`.
 
 ## Database Migrations
 
 ```bash
-# Shell into the backend container
-docker compose -f ../deploy/compose.yml -f ../deploy/compose.override.yml exec backend bash
-
-# Generate a migration after changing models.py
-alembic revision --autogenerate -m "add column foo to bar"
-
-# Apply all pending migrations
-alembic upgrade head
-
-# Check current state
-alembic current
-
-# Rollback one step
-alembic downgrade -1
+make migration m="add column foo to bar"   # autogenerate on the host (db must be up)
+make migrate                               # alembic upgrade head in the container
+docker compose exec backend alembic current
+docker compose exec backend alembic downgrade -1
 ```
 
-Always commit the generated migration file to the repository.
+Always commit the generated migration file. CI runs `alembic check`.
 
 ## Configuration
 
@@ -202,8 +172,9 @@ Settings are loaded from environment variables via Pydantic Settings (`app/core/
 | Variable | Default | Description |
 |---|---|---|
 | `SECRET_KEY` | — | JWT signing key |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | 10080 (7 days) | Token lifetime |
-| `GOOGLE_CLIENT_ID` | `""` | Google OAuth client ID |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | 11520 (8 days) | Token lifetime |
+| `GOOGLE_CLIENT_ID` | `""` | Google OAuth client ID; when set, Google tokens must be issued to it |
+| `LOG_LEVEL` | `INFO` | Text logs locally, JSON lines elsewhere |
 | `POSTGRES_SERVER` | `localhost` | DB host |
 | `POSTGRES_PORT` | 5432 | DB port |
 | `POSTGRES_DB` | `app` | DB name |
@@ -211,8 +182,11 @@ Settings are loaded from environment variables via Pydantic Settings (`app/core/
 | `ENVIRONMENT` | `local` | `local` / `staging` / `production` |
 | `SMTP_HOST` | — | SMTP server for emails |
 
-In non-local environments, `SECRET_KEY` and `POSTGRES_PASSWORD` must not be the default placeholder values — the app raises an error on startup if they are.
+`.env` is read from the repo root regardless of the working directory; every
+variable is documented in `/.env.example`. In non-local environments
+`SECRET_KEY`, `POSTGRES_PASSWORD`, `FIRST_SUPERUSER_PASSWORD` and
+`S3_SECRET_KEY` must not be `changethis`; the app refuses to start if they are.
 
 ## Email Templates
 
-Password recovery emails use MJML templates in `app/email-templates/`. Edit `.mjml` source files in `src/`, then export to HTML using the [VS Code MJML extension](https://github.com/mjmlio/vscode-mjml) and save the output to `build/`.
+Password recovery emails use MJML templates in `app/emails/templates/`. Edit `.mjml` source files in `src/`, then export to HTML using the [VS Code MJML extension](https://github.com/mjmlio/vscode-mjml) and save the output to `build/`.

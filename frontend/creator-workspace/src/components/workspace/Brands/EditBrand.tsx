@@ -35,14 +35,18 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   category: z.string().optional(),
   status: z.string().optional(),
   contact_name: z.string().optional(),
-  contact_email: z.string().email({ message: "Invalid email" }).optional().or(z.literal("")),
+  contact_email: z
+    .string()
+    .email({ message: "Invalid email" })
+    .optional()
+    .or(z.literal("")),
   notes: z.string().optional(),
 })
 
@@ -117,7 +121,9 @@ const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>Edit Brand</DialogTitle>
-              <DialogDescription>Update the brand details below.</DialogDescription>
+              <DialogDescription>
+                Update the brand details below.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <FormField
@@ -193,7 +199,11 @@ const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
                   <FormItem>
                     <FormLabel>Contact Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Contact person" type="text" {...field} />
+                      <Input
+                        placeholder="Contact person"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -207,7 +217,11 @@ const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
                   <FormItem>
                     <FormLabel>Contact Email</FormLabel>
                     <FormControl>
-                      <Input placeholder="contact@brand.com" type="email" {...field} />
+                      <Input
+                        placeholder="contact@brand.com"
+                        type="email"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -221,7 +235,11 @@ const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
                   <FormItem>
                     <FormLabel>Notes</FormLabel>
                     <FormControl>
-                      <Input placeholder="Any notes about this brand" type="text" {...field} />
+                      <Input
+                        placeholder="Any notes about this brand"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

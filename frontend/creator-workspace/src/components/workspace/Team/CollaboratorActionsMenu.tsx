@@ -15,7 +15,9 @@ interface CollaboratorActionsMenuProps {
   collaborator: CollaboratorPublic
 }
 
-export const CollaboratorActionsMenu = ({ collaborator }: CollaboratorActionsMenuProps) => {
+export const CollaboratorActionsMenu = ({
+  collaborator,
+}: CollaboratorActionsMenuProps) => {
   const [open, setOpen] = useState(false)
 
   return (
@@ -26,8 +28,14 @@ export const CollaboratorActionsMenu = ({ collaborator }: CollaboratorActionsMen
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <EditCollaborator collaborator={collaborator} onSuccess={() => setOpen(false)} />
-        <DeleteCollaborator id={collaborator.id} onSuccess={() => setOpen(false)} />
+        <EditCollaborator
+          collaborator={collaborator}
+          onSuccess={() => setOpen(false)}
+        />
+        <DeleteCollaborator
+          id={collaborator.id}
+          onSuccess={() => setOpen(false)}
+        />
       </DropdownMenuContent>
     </DropdownMenu>
   )

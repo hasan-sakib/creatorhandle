@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
@@ -99,9 +99,16 @@ const AddCollaborator = () => {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Name <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. Alice Johnson" type="text" {...field} required />
+                      <Input
+                        placeholder="e.g. Alice Johnson"
+                        type="text"
+                        {...field}
+                        required
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -112,7 +119,9 @@ const AddCollaborator = () => {
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Role <span className="text-destructive">*</span>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
@@ -121,7 +130,9 @@ const AddCollaborator = () => {
                       </FormControl>
                       <SelectContent>
                         {ROLES.map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -132,9 +143,13 @@ const AddCollaborator = () => {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" disabled={mutation.isPending}>Cancel</Button>
+                <Button variant="outline" disabled={mutation.isPending}>
+                  Cancel
+                </Button>
               </DialogClose>
-              <LoadingButton type="submit" loading={mutation.isPending}>Save</LoadingButton>
+              <LoadingButton type="submit" loading={mutation.isPending}>
+                Save
+              </LoadingButton>
             </DialogFooter>
           </form>
         </Form>

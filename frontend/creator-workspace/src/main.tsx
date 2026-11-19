@@ -1,18 +1,18 @@
+import { GoogleOAuthProvider } from "@react-oauth/google"
 import {
   MutationCache,
   QueryCache,
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query"
-import { GoogleOAuthProvider } from "@react-oauth/google"
 import { createRouter, RouterProvider } from "@tanstack/react-router"
 import { StrictMode } from "react"
 import ReactDOM from "react-dom/client"
 import { ApiError, OpenAPI } from "./client"
-import { AccentColorProvider } from "./components/accent-color-provider"
-import { ThemeProvider } from "./components/theme-provider"
-import { ACTIVE_WORKSPACE_KEY } from "./components/workspace-provider"
 import { Toaster } from "./components/ui/sonner"
+import { AccentColorProvider } from "./providers/accent-color-provider"
+import { ThemeProvider } from "./providers/theme-provider"
+import { ACTIVE_WORKSPACE_KEY } from "./providers/workspace-provider"
 import "./index.css"
 import { routeTree } from "./routeTree.gen"
 

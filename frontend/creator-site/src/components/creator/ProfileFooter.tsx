@@ -1,3 +1,5 @@
+import { dashboardPath } from "@/lib/urls"
+
 export function ProfileFooter({ name }: { name: string }) {
   return (
     <footer className="relative mx-auto max-w-5xl px-4 pb-10 pt-6 sm:px-6">
@@ -10,7 +12,13 @@ export function ProfileFooter({ name }: { name: string }) {
           <a href="/" className="font-medium text-accent-text hover:underline">
             CreatorHandle
           </a>
-          . <a href="/app/login" className="hover:text-foreground hover:underline">Create your own page</a>
+          .{" "}
+          <a
+            href={dashboardPath("/login")}
+            className="hover:text-foreground hover:underline"
+          >
+            Create your own page
+          </a>
         </p>
       </div>
     </footer>

@@ -35,7 +35,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 import { ROLES } from "./AddCollaborator"
 
 const formSchema = z.object({
@@ -50,7 +50,10 @@ interface EditCollaboratorProps {
   onSuccess: () => void
 }
 
-const EditCollaborator = ({ collaborator, onSuccess }: EditCollaboratorProps) => {
+const EditCollaborator = ({
+  collaborator,
+  onSuccess,
+}: EditCollaboratorProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
@@ -94,7 +97,9 @@ const EditCollaborator = ({ collaborator, onSuccess }: EditCollaboratorProps) =>
           <form onSubmit={form.handleSubmit((d) => mutation.mutate(d))}>
             <DialogHeader>
               <DialogTitle>Edit Collaborator</DialogTitle>
-              <DialogDescription>Update the collaborator details.</DialogDescription>
+              <DialogDescription>
+                Update the collaborator details.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <FormField
@@ -102,7 +107,9 @@ const EditCollaborator = ({ collaborator, onSuccess }: EditCollaboratorProps) =>
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Name <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input type="text" {...field} />
                     </FormControl>
@@ -115,14 +122,20 @@ const EditCollaborator = ({ collaborator, onSuccess }: EditCollaboratorProps) =>
                 name="role"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Role <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Role <span className="text-destructive">*</span>
+                    </FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select role" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select role" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         {ROLES.map((r) => (
-                          <SelectItem key={r} value={r}>{r}</SelectItem>
+                          <SelectItem key={r} value={r}>
+                            {r}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -133,9 +146,13 @@ const EditCollaborator = ({ collaborator, onSuccess }: EditCollaboratorProps) =>
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" disabled={mutation.isPending}>Cancel</Button>
+                <Button variant="outline" disabled={mutation.isPending}>
+                  Cancel
+                </Button>
               </DialogClose>
-              <LoadingButton type="submit" loading={mutation.isPending}>Save</LoadingButton>
+              <LoadingButton type="submit" loading={mutation.isPending}>
+                Save
+              </LoadingButton>
             </DialogFooter>
           </form>
         </Form>

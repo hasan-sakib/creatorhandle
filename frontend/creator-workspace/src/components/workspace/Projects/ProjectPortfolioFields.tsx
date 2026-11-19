@@ -17,7 +17,6 @@ import { TagInput } from "@/components/ui/tag-input"
  * a thumbnail, and tags. Shared by the Add and Edit project dialogs.
  * The form's values must include live_url, thumbnail_url (strings) and tags (string[]).
  */
-// biome-ignore lint/suspicious/noExplicitAny: shared by two forms with different value types
 export function ProjectPortfolioFields({ control }: { control: Control<any> }) {
   return (
     <>
@@ -28,7 +27,11 @@ export function ProjectPortfolioFields({ control }: { control: Control<any> }) {
           <FormItem>
             <FormLabel>Link to the live piece</FormLabel>
             <FormControl>
-              <Input inputMode="url" placeholder="https://youtube.com/watch?v=…" {...field} />
+              <Input
+                inputMode="url"
+                placeholder="https://youtube.com/watch?v=…"
+                {...field}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -64,7 +67,9 @@ export function ProjectPortfolioFields({ control }: { control: Control<any> }) {
               max={6}
               placeholder="e.g. Review, Sponsored"
             />
-            <FormDescription>Shown on your public page. Up to 6.</FormDescription>
+            <FormDescription>
+              Shown on your public page. Up to 6.
+            </FormDescription>
             <FormMessage />
           </FormItem>
         )}

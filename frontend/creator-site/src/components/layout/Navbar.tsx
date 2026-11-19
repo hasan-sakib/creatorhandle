@@ -59,7 +59,11 @@ export function Navbar({ marketing = false }: NavbarProps) {
       )}
 
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
-        <a href="/" className="flex items-center" aria-label="CreatorHandle home">
+        <a
+          href="/"
+          className="flex items-center"
+          aria-label="CreatorHandle home"
+        >
           <Logo variant="full" />
         </a>
 
@@ -87,7 +91,12 @@ export function Navbar({ marketing = false }: NavbarProps) {
           >
             {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
           </Button>
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+          <Button
+            asChild
+            variant="ghost"
+            size="sm"
+            className="hidden sm:inline-flex"
+          >
             <a href={dashboardPath("/login")}>Sign in</a>
           </Button>
           <Button asChild size="sm" className="rounded-full px-4">
@@ -103,14 +112,22 @@ export function Navbar({ marketing = false }: NavbarProps) {
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
             >
-              {menuOpen ? <X className="size-4" /> : <Menu className="size-4" />}
+              {menuOpen ? (
+                <X className="size-4" />
+              ) : (
+                <Menu className="size-4" />
+              )}
             </Button>
           )}
         </div>
       </div>
 
       {marketing && menuOpen && (
-        <nav id="mobile-menu" aria-label="Mobile" className="border-t md:hidden">
+        <nav
+          id="mobile-menu"
+          aria-label="Mobile"
+          className="border-t md:hidden"
+        >
           <div className="mx-auto flex max-w-6xl flex-col px-4 py-3 sm:px-6">
             {sectionLinks.map((link) => (
               <a

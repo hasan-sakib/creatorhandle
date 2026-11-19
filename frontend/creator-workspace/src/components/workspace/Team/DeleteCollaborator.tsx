@@ -17,7 +17,7 @@ import {
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { LoadingButton } from "@/components/ui/loading-button"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 interface DeleteCollaboratorProps {
   id: string
@@ -59,14 +59,21 @@ const DeleteCollaborator = ({ id, onSuccess }: DeleteCollaboratorProps) => {
           <DialogHeader>
             <DialogTitle>Delete Collaborator</DialogTitle>
             <DialogDescription>
-              This collaborator will be removed. Tasks assigned to them will become unassigned. This cannot be undone.
+              This collaborator will be removed. Tasks assigned to them will
+              become unassigned. This cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="mt-4">
             <DialogClose asChild>
-              <Button variant="outline" disabled={mutation.isPending}>Cancel</Button>
+              <Button variant="outline" disabled={mutation.isPending}>
+                Cancel
+              </Button>
             </DialogClose>
-            <LoadingButton variant="destructive" type="submit" loading={mutation.isPending}>
+            <LoadingButton
+              variant="destructive"
+              type="submit"
+              loading={mutation.isPending}
+            >
               Delete
             </LoadingButton>
           </DialogFooter>

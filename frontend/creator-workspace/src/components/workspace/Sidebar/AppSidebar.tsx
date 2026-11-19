@@ -1,4 +1,12 @@
-import { Briefcase, Building2, CheckSquare, FolderKanban, Home, Users, Users2 } from "lucide-react"
+import {
+  Briefcase,
+  Building2,
+  CheckSquare,
+  FolderKanban,
+  Home,
+  Users,
+  Users2,
+} from "lucide-react"
 
 import { SidebarAppearance } from "@/components/Common/Appearance"
 import { Logo } from "@/components/Common/Logo"

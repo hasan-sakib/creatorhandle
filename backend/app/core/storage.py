@@ -3,6 +3,7 @@
 import json
 import logging
 from functools import lru_cache
+from typing import Any
 
 import boto3
 from botocore.config import Config
@@ -19,7 +20,7 @@ class StorageUnavailable(Exception):
 
 
 @lru_cache
-def _client():
+def _client() -> Any:
     if not settings.media_enabled:
         raise StorageUnavailable("Image storage is not configured")
     return boto3.client(
@@ -66,6 +67,14 @@ def ensure_bucket() -> None:
         ],
     }
     client.put_bucket_policy(Bucket=settings.S3_BUCKET, Policy=json.dumps(policy))
+
+
+def check_bucket() -> None:
+    """Raise StorageUnavailable unless the bucket is reachable (readiness probe)."""
+    try:
+        _client().head_bucket(Bucket=settings.S3_BUCKET)
+    except (BotoCoreError, ClientError) as e:
+        raise StorageUnavailable("Image storage is unavailable") from e
 
 
 def put_image(path: str, data: bytes) -> None:

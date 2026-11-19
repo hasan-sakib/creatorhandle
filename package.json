@@ -1,15 +1,20 @@
 {
-  "name": "fastapi-full-stack-template",
+  "name": "creatorhandle",
   "private": true,
   "workspaces": [
     "frontend/creator-workspace",
-    "frontend/creator-site"
+    "frontend/creator-site",
+    "frontend/packages/*"
   ],
   "scripts": {
-    "dev": "bun run --filter creator-workspace dev",
-    "lint": "bun run --filter creator-workspace lint",
-    "test": "bun run --filter creator-workspace test",
-    "test:ui": "bun run --filter creator-workspace test:ui",
-    "generate-client": "bash deploy/scripts/generate-client.sh"
+    "dev:workspace": "bun run --filter creator-workspace dev",
+    "dev:site": "bun run --filter creator-site dev",
+    "build": "bun run --filter '*' build",
+    "typecheck": "bun run --filter '*' typecheck",
+    "lint": "bun run --filter '*' lint",
+    "lint:ci": "bun run --filter '*' lint:ci",
+    "test:e2e": "bun run --filter creator-workspace test:e2e",
+    "test:contrast": "bun run --filter creator-site test:contrast",
+    "generate-client": "bash scripts/generate-client.sh"
   }
 }

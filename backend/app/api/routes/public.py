@@ -11,7 +11,7 @@ from fastapi import APIRouter, HTTPException, Response
 from sqlmodel import SQLModel, col, func, select
 
 from app.api.deps import SessionDep
-from app.core.validators import (
+from app.domain.validators import (
     AccentKey,
     Availability,
     ColorMode,
@@ -161,7 +161,11 @@ def get_creator(session: SessionDep, response: Response, username: str) -> Any:
     projects = session.exec(
         select(Project)
         .where(*published)
-        .order_by(col(Project.is_featured).desc(), col(Project.created_at).desc(), Project.id)
+        .order_by(
+            col(Project.is_featured).desc(),
+            col(Project.created_at).desc(),
+            col(Project.id),
+        )
         .limit(MAX_PROJECTS)
     ).all()
 

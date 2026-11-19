@@ -3,9 +3,12 @@ import { createFileRoute, redirect } from "@tanstack/react-router"
 import { Suspense } from "react"
 
 import { type UserPublic, UsersService } from "@/client"
-import AddUser from "@/components/workspace/Admin/AddUser"
-import { columns, type UserTableData } from "@/components/workspace/Admin/columns"
 import { DataTable } from "@/components/Common/DataTable"
+import AddUser from "@/components/workspace/Admin/AddUser"
+import {
+  columns,
+  type UserTableData,
+} from "@/components/workspace/Admin/columns"
 import PendingUsers from "@/components/workspace/Pending/PendingUsers"
 import useAuth from "@/hooks/useAuth"
 
@@ -60,7 +63,9 @@ function Admin() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Users</h1>
+          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+            Users
+          </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Manage user accounts and permissions
           </p>

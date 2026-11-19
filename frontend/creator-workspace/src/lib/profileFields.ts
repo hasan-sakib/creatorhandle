@@ -2,7 +2,7 @@ import { z } from "zod"
 
 /**
  * Shared rules for the public portfolio fields. These mirror the backend
- * (backend/app/core/validators.py), which is the real gate.
+ * (backend/app/domain/validators.py), which is the real gate.
  */
 
 export const PLATFORMS = [
@@ -18,8 +18,16 @@ export const PLATFORMS = [
 ] as const
 
 export const AVAILABILITY_OPTIONS = [
-  { value: "open", label: "Open to collaborations", hint: "Shows a green badge" },
-  { value: "limited", label: "Limited availability", hint: "Shows an amber badge" },
+  {
+    value: "open",
+    label: "Open to collaborations",
+    hint: "Shows a green badge",
+  },
+  {
+    value: "limited",
+    label: "Limited availability",
+    hint: "Shows an amber badge",
+  },
   { value: "closed", label: "Not taking new work", hint: "Shows a grey badge" },
 ] as const
 
@@ -54,7 +62,9 @@ export function isHttpUrl(value: string): boolean {
   if (!v.includes("://") && (v.includes(":") || v.startsWith("/"))) return false
   try {
     const url = new URL(v.includes("://") ? v : `https://${v}`)
-    return (url.protocol === "http:" || url.protocol === "https:") && !!url.hostname
+    return (
+      (url.protocol === "http:" || url.protocol === "https:") && !!url.hostname
+    )
   } catch {
     return false
   }
@@ -81,14 +91,22 @@ export const imageField = z
 
 export const tagArray = (max: number, maxLength = 30) =>
   z
-    .array(z.string().max(maxLength, `Each item can be at most ${maxLength} characters`))
+    .array(
+      z
+        .string()
+        .max(maxLength, `Each item can be at most ${maxLength} characters`),
+    )
     .max(max, `Up to ${max} items`)
 
 /** "" -> null, otherwise trimmed. */
-export const blankToNull = (value: string | null | undefined): string | null => {
+export const blankToNull = (
+  value: string | null | undefined,
+): string | null => {
   const v = (value ?? "").trim()
   return v === "" ? null : v
 }
 
-export const sameList = (a: readonly unknown[] | null | undefined, b: readonly unknown[] | null | undefined) =>
-  JSON.stringify(a ?? []) === JSON.stringify(b ?? [])
+export const sameList = (
+  a: readonly unknown[] | null | undefined,
+  b: readonly unknown[] | null | undefined,
+) => JSON.stringify(a ?? []) === JSON.stringify(b ?? [])

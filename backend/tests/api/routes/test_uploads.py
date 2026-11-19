@@ -34,7 +34,9 @@ def jpeg_with_exif(width=80, height=40) -> bytes:
     return out.getvalue()
 
 
-def upload(client: TestClient, headers: dict, data: bytes, kind="thumbnail", name="x.png"):
+def upload(
+    client: TestClient, headers: dict, data: bytes, kind="thumbnail", name="x.png"
+):
     return client.post(
         f"{API}/uploads/images",
         headers=headers,
@@ -70,7 +72,9 @@ def test_upload_returns_a_public_webp(client: TestClient, db: Session) -> None:
     assert img.format == "WEBP"
 
 
-def test_metadata_is_stripped_and_rotation_applied(client: TestClient, db: Session) -> None:
+def test_metadata_is_stripped_and_rotation_applied(
+    client: TestClient, db: Session
+) -> None:
     _, headers = create_random_user_with_headers(client, db)
     body = upload(client, headers, jpeg_with_exif(80, 40), name="photo.jpg").json()
     img = stored_image(body["url"])
@@ -82,7 +86,10 @@ def test_images_are_resized_but_never_upscaled(client: TestClient, db: Session) 
     _, headers = create_random_user_with_headers(client, db)
     big = png(3000, 2000)
     thumb = upload(client, headers, big, kind="thumbnail").json()
-    assert max(thumb["width"], thumb["height"]) == 1600 and thumb["width"] > thumb["height"]
+    assert (
+        max(thumb["width"], thumb["height"]) == 1600
+        and thumb["width"] > thumb["height"]
+    )
     cover = upload(client, headers, big, kind="cover").json()
     assert cover["width"] == 2400
     avatar = upload(client, headers, big, kind="avatar").json()
@@ -108,7 +115,10 @@ def test_gif_is_accepted(client: TestClient, db: Session) -> None:
     "data,name",
     [
         (b"just some text, not an image", "notes.png"),
-        (b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>', "x.svg"),
+        (
+            b'<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>',
+            "x.svg",
+        ),
         (b"%PDF-1.4 fake", "a.pdf"),
         (png()[:40], "truncated.png"),
     ],
@@ -121,7 +131,9 @@ def test_non_images_and_corrupt_files_are_rejected(
     assert r.status_code == 415, r.text
 
 
-def test_empty_and_oversized_uploads_are_rejected(client: TestClient, db: Session) -> None:
+def test_empty_and_oversized_uploads_are_rejected(
+    client: TestClient, db: Session
+) -> None:
     _, headers = create_random_user_with_headers(client, db)
     assert upload(client, headers, b"").status_code == 400
     too_big = b"\x89PNG" + b"0" * (settings.MEDIA_MAX_UPLOAD_MB * 1024 * 1024 + 10)
@@ -134,9 +146,12 @@ def test_upload_requires_login_and_valid_kind(client: TestClient, db: Session) -
     assert upload(client, headers, png(), kind="banner").status_code == 422
 
 
-def test_bucket_is_not_listable_and_only_images_are_public(client: TestClient) -> None:
+def test_bucket_is_not_listable_and_only_images_are_public() -> None:
     assert public_get(f"/{settings.S3_BUCKET}/").status_code in (403, 404)
-    assert public_get(f"/{settings.S3_BUCKET}/other/file.webp").status_code in (403, 404)
+    assert public_get(f"/{settings.S3_BUCKET}/other/file.webp").status_code in (
+        403,
+        404,
+    )
 
 
 def test_user_can_use_own_upload_as_avatar_and_public_page_shows_it(
@@ -154,7 +169,9 @@ def test_cannot_use_someone_elses_upload(client: TestClient, db: Session) -> Non
     _, other_headers = create_random_user_with_headers(client, db)
     url = upload(client, owner_headers, png()).json()["url"]
 
-    r = client.patch(f"{API}/users/me", headers=other_headers, json={"cover_image_url": url})
+    r = client.patch(
+        f"{API}/users/me", headers=other_headers, json={"cover_image_url": url}
+    )
     assert r.status_code == 400
     # the original is untouched and still public
     assert public_get(url).status_code == 200
@@ -194,14 +211,18 @@ def test_external_urls_still_work_and_are_never_deleted(
 ) -> None:
     _, headers = create_random_user_with_headers(client, db)
     r = client.patch(
-        f"{API}/users/me", headers=headers, json={"avatar_url": "https://example.com/me.png"}
+        f"{API}/users/me",
+        headers=headers,
+        json={"avatar_url": "https://example.com/me.png"},
     )
     assert r.status_code == 200
     r = client.patch(f"{API}/users/me", headers=headers, json={"avatar_url": None})
     assert r.status_code == 200
 
 
-def test_project_thumbnail_ownership_and_cleanup(client: TestClient, db: Session) -> None:
+def test_project_thumbnail_ownership_and_cleanup(
+    client: TestClient, db: Session
+) -> None:
     _, headers, ws = published_creator(client, db)
     _, other_headers = create_random_user_with_headers(client, db)
     mine = upload(client, headers, png()).json()["url"]
@@ -217,21 +238,34 @@ def test_project_thumbnail_ownership_and_cleanup(client: TestClient, db: Session
 
     # replacing deletes the old thumbnail
     newer = upload(client, headers, png(color=(1, 2, 3))).json()["url"]
-    r = client.put(f"{API}/projects/{project['id']}", headers=ws, json={"thumbnail_url": newer})
+    r = client.put(
+        f"{API}/projects/{project['id']}", headers=ws, json={"thumbnail_url": newer}
+    )
     assert r.status_code == 200
     assert public_get(mine).status_code in (403, 404)
 
     # deleting the project deletes its thumbnail
-    assert client.delete(f"{API}/projects/{project['id']}", headers=ws).status_code == 200
+    assert (
+        client.delete(f"{API}/projects/{project['id']}", headers=ws).status_code == 200
+    )
     assert public_get(newer).status_code in (403, 404)
     assert public_get(foreign).status_code == 200  # others' files are untouched
 
 
-def test_public_response_returns_project_thumbnail_path(client: TestClient, db: Session) -> None:
+def test_public_response_returns_project_thumbnail_path(
+    client: TestClient, db: Session
+) -> None:
     username, headers, ws = published_creator(client, db)
     thumb = upload(client, headers, png()).json()["url"]
     brand = make_brand(client, ws, "Brand")
-    make_project(client, ws, "Shown", platform_status="Published", brand_id=brand, thumbnail_url=thumb)
+    make_project(
+        client,
+        ws,
+        "Shown",
+        platform_status="Published",
+        brand_id=brand,
+        thumbnail_url=thumb,
+    )
     data = client.get(f"{API}/public/{username}").json()
     assert data["projects"][0]["thumbnail_url"] == thumb
 

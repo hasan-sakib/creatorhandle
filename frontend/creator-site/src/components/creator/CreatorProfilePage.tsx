@@ -4,23 +4,31 @@ import { useEffect, useLayoutEffect } from "react"
 import { PublicService } from "@/client"
 import { AboutSection } from "@/components/creator/AboutSection"
 import { ApproachSection } from "@/components/creator/ApproachSection"
-import { CreatorScope } from "@/components/creator/CreatorScope"
-import { PageBackground } from "@/components/creator/PageBackground"
 import { BrandsSection } from "@/components/creator/BrandsSection"
-import { ContactSection, hasContactMethods } from "@/components/creator/ContactSection"
+import {
+  ContactSection,
+  hasContactMethods,
+} from "@/components/creator/ContactSection"
+import { CreatorScope } from "@/components/creator/CreatorScope"
 import { GlassNavbar } from "@/components/creator/GlassNavbar"
 import { NotFound } from "@/components/creator/NotFound"
 import { OwnerChecklist } from "@/components/creator/OwnerChecklist"
 import { OwnerContext } from "@/components/creator/owner-context"
+import { PageBackground } from "@/components/creator/PageBackground"
 import { ProfileFooter } from "@/components/creator/ProfileFooter"
 import { ProfileHero } from "@/components/creator/ProfileHero"
-import { LEGACY_HASHES, NAV_SECTIONS } from "@/components/creator/sections"
 import { ServicesSection } from "@/components/creator/ServicesSection"
+import { LEGACY_HASHES, NAV_SECTIONS } from "@/components/creator/sections"
 import { WorkSection } from "@/components/creator/WorkSection"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useDocumentMeta } from "@/hooks/useDocumentMeta"
 import { useIsProfileOwner } from "@/hooks/useIsProfileOwner"
-import { applyMode, rememberLook, resolveMode, restoreSiteMode } from "@/lib/profileMode"
+import {
+  applyMode,
+  rememberLook,
+  resolveMode,
+  restoreSiteMode,
+} from "@/lib/profileMode"
 import { useThemeFont } from "@/lib/themes"
 
 interface CreatorProfilePageProps {
@@ -33,7 +41,12 @@ interface CreatorProfilePageProps {
 
 function LoadingState() {
   return (
-    <div className="mx-auto max-w-5xl px-4 pt-28 sm:px-6" aria-busy="true" aria-label="Loading profile">
+    // biome-ignore lint/a11y/useAriaPropsSupportedByRole: kept as-is during the restructure; role="status" is the proper follow-up
+    <div
+      className="mx-auto max-w-5xl px-4 pt-28 sm:px-6"
+      aria-busy="true"
+      aria-label="Loading profile"
+    >
       <Skeleton className="h-60 w-full rounded-card" />
       <div className="-mt-14 px-6">
         <Skeleton className="size-28 rounded-avatar ring-4 ring-background" />
@@ -74,9 +87,15 @@ export function CreatorProfilePage({
   const fontReady = useThemeFont(data?.theme, !!data)
 
   const name = data ? data.full_name || `@${data.username}` : username
-  const blurb = data ? [data.headline, (data.about || data.bio)?.slice(0, 140)].filter(Boolean).join(" · ") : null
+  const blurb = data
+    ? [data.headline, (data.about || data.bio)?.slice(0, 140)]
+        .filter(Boolean)
+        .join(" · ")
+    : null
   useDocumentMeta(
-    data ? `${name}${data.headline ? ` – ${data.headline}` : ""} | CreatorHandle` : "CreatorHandle",
+    data
+      ? `${name}${data.headline ? ` – ${data.headline}` : ""} | CreatorHandle`
+      : "CreatorHandle",
     blurb,
   )
 
@@ -108,8 +127,12 @@ export function CreatorProfilePage({
             <NotFound username={username} />
           ) : (
             <div className="mx-auto max-w-md px-4 py-32 text-center">
-              <h1 className="font-display text-2xl font-bold">Something went wrong</h1>
-              <p className="mt-2 text-muted-foreground">We couldn't load this profile. Please try again.</p>
+              <h1 className="font-display text-2xl font-bold">
+                Something went wrong
+              </h1>
+              <p className="mt-2 text-muted-foreground">
+                We couldn't load this profile. Please try again.
+              </p>
               <button
                 type="button"
                 onClick={() => refetch()}
@@ -134,7 +157,11 @@ export function CreatorProfilePage({
           name={name}
           avatarUrl={data.avatar_url}
           sections={[...NAV_SECTIONS]}
-          cta={{ label: data.availability === "closed" ? "Get in touch" : "Work with me", id: "contact" }}
+          cta={{
+            label:
+              data.availability === "closed" ? "Get in touch" : "Work with me",
+            id: "contact",
+          }}
         />
         <main id="profile-main" className="relative">
           <ProfileHero profile={data} />

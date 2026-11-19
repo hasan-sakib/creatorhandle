@@ -5,7 +5,12 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type TaskCreate, CollaboratorsService, ProjectsService, TasksService } from "@/client"
+import {
+  CollaboratorsService,
+  ProjectsService,
+  type TaskCreate,
+  TasksService,
+} from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -35,7 +40,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -65,7 +70,8 @@ const AddTask = () => {
 
   const { data: collaboratorsData } = useQuery({
     queryKey: ["collaborators"],
-    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+    queryFn: () =>
+      CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
     enabled: isOpen,
   })
 
@@ -137,7 +143,12 @@ const AddTask = () => {
                       Title <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Task title" type="text" {...field} required />
+                      <Input
+                        placeholder="Task title"
+                        type="text"
+                        {...field}
+                        required
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -158,7 +169,9 @@ const AddTask = () => {
                       </FormControl>
                       <SelectContent>
                         {STATUSES.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -181,7 +194,9 @@ const AddTask = () => {
                       </FormControl>
                       <SelectContent>
                         {PRIORITIES.map((p) => (
-                          <SelectItem key={p} value={p}>{p}</SelectItem>
+                          <SelectItem key={p} value={p}>
+                            {p}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -211,7 +226,9 @@ const AddTask = () => {
                   <FormItem>
                     <FormLabel>Project</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? null : v)
+                      }
                       value={field.value ?? "__none__"}
                     >
                       <FormControl>
@@ -240,7 +257,9 @@ const AddTask = () => {
                   <FormItem>
                     <FormLabel>Assign To</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? null : v)
+                      }
                       value={field.value ?? "__none__"}
                     >
                       <FormControl>
@@ -250,11 +269,13 @@ const AddTask = () => {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="__none__">Unassigned</SelectItem>
-                        {collaboratorsData?.data.map((c: { id: string; name: string; role: string }) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.name} — {c.role}
-                          </SelectItem>
-                        ))}
+                        {collaboratorsData?.data.map(
+                          (c: { id: string; name: string; role: string }) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name} — {c.role}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -269,7 +290,11 @@ const AddTask = () => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Task description" type="text" {...field} />
+                      <Input
+                        placeholder="Task description"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

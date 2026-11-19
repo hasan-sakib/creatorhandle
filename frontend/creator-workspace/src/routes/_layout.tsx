@@ -11,15 +11,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import AppSidebar from "@/components/workspace/Sidebar/AppSidebar"
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar"
+import AppSidebar from "@/components/workspace/Sidebar/AppSidebar"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import { WorkspaceProvider } from "@/components/workspace-provider"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/utils"
+import { WorkspaceProvider } from "@/providers/workspace-provider"
 
 export const Route = createFileRoute("/_layout")({
   component: Layout,
@@ -45,9 +45,16 @@ function HeaderUser() {
           id="header-user-menu"
         >
           <Avatar className="size-7">
-            <AvatarImage src={user?.avatar_url ?? undefined} alt={displayName} />
+            <AvatarImage
+              src={user?.avatar_url ?? undefined}
+              alt={displayName}
+            />
             <AvatarFallback className="bg-muted text-[11px] font-semibold text-muted-foreground">
-              {user ? getInitials(displayName) : <UserIcon className="size-3" />}
+              {user ? (
+                getInitials(displayName)
+              ) : (
+                <UserIcon className="size-3" />
+              )}
             </AvatarFallback>
           </Avatar>
           <span className="hidden max-w-48 truncate text-sm font-medium sm:block">
@@ -65,7 +72,11 @@ function HeaderUser() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={logout} id="header-logout-btn" className="text-destructive focus:text-destructive">
+        <DropdownMenuItem
+          onClick={logout}
+          id="header-logout-btn"
+          className="text-destructive focus:text-destructive"
+        >
           <LogOut className="mr-2 size-4" />
           Log Out
         </DropdownMenuItem>

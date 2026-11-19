@@ -21,6 +21,7 @@ export function KanbanColumn({
   accentClass,
 }: KanbanColumnProps) {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: mouse drop target only; tasks can also be moved from their edit dialog
     <div
       className="flex flex-col gap-2 min-h-48 rounded-xl bg-muted/40 p-3"
       onDragOver={onDragOver}
@@ -29,7 +30,9 @@ export function KanbanColumn({
       <div className="flex items-center gap-2 mb-1">
         <span className={`h-2 w-2 rounded-full shrink-0 ${accentClass}`} />
         <h3 className="text-sm font-semibold">{title}</h3>
-        <span className="ml-auto text-xs text-muted-foreground tabular-nums">{tasks.length}</span>
+        <span className="ml-auto text-xs text-muted-foreground tabular-nums">
+          {tasks.length}
+        </span>
       </div>
       {tasks.map((task) => (
         <KanbanCard key={task.id} task={task} onDragStart={onDragStart} />

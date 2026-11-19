@@ -11,8 +11,14 @@ const GRAIN =
 
 export function PageBackground() {
   return (
-    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-0 overflow-hidden">
-      <div className="absolute inset-0" style={{ opacity: "var(--bg-blobs-opacity, 1)" }}>
+    <div
+      aria-hidden="true"
+      className="pointer-events-none fixed inset-0 -z-0 overflow-hidden"
+    >
+      <div
+        className="absolute inset-0"
+        style={{ opacity: "var(--bg-blobs-opacity, 1)" }}
+      >
         <div
           className="aurora-blob aurora-a -left-[12vmax] -top-[14vmax] size-[52vmax]"
           style={{
@@ -47,7 +53,10 @@ export function PageBackground() {
       />
       <div
         className="absolute inset-0 mix-blend-multiply dark:invert dark:mix-blend-screen"
-        style={{ opacity: "var(--bg-noise-opacity, 0)", backgroundImage: GRAIN }}
+        style={{
+          opacity: "var(--bg-noise-opacity, 0)",
+          backgroundImage: GRAIN,
+        }}
       />
     </div>
   )

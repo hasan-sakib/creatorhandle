@@ -3,7 +3,12 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type TaskPublic, CollaboratorsService, ProjectsService, TasksService } from "@/client"
+import {
+  CollaboratorsService,
+  ProjectsService,
+  type TaskPublic,
+  TasksService,
+} from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -32,7 +37,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -55,7 +60,11 @@ interface TaskEditDialogProps {
 const STATUSES = ["To Do", "In Progress", "Done"]
 const PRIORITIES = ["Low", "Medium", "High"]
 
-export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps) {
+export function TaskEditDialog({
+  task,
+  open,
+  onOpenChange,
+}: TaskEditDialogProps) {
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
 
@@ -67,7 +76,8 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
 
   const { data: collaboratorsData } = useQuery({
     queryKey: ["collaborators"],
-    queryFn: () => CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
+    queryFn: () =>
+      CollaboratorsService.readCollaborators({ skip: 0, limit: 100 }),
     enabled: open,
   })
 
@@ -117,7 +127,9 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
           <form onSubmit={form.handleSubmit((d) => mutation.mutate(d))}>
             <DialogHeader>
               <DialogTitle>Edit Task</DialogTitle>
-              <DialogDescription>Update the task details below.</DialogDescription>
+              <DialogDescription>
+                Update the task details below.
+              </DialogDescription>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <FormField
@@ -125,7 +137,9 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                 name="title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Title <span className="text-destructive">*</span></FormLabel>
+                    <FormLabel>
+                      Title <span className="text-destructive">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input placeholder="Task title" type="text" {...field} />
                     </FormControl>
@@ -141,10 +155,16 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                     <FormLabel>Status</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                        {STATUSES.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -159,10 +179,16 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                     <FormLabel>Priority</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Select priority" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select priority" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                        {PRIORITIES.map((p) => (
+                          <SelectItem key={p} value={p}>
+                            {p}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -175,7 +201,9 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Due Date</FormLabel>
-                    <FormControl><Input type="date" {...field} /></FormControl>
+                    <FormControl>
+                      <Input type="date" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -187,16 +215,22 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                   <FormItem>
                     <FormLabel>Project</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? null : v)
+                      }
                       value={field.value ?? "__none__"}
                     >
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Link to a project (optional)" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Link to a project (optional)" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="__none__">None</SelectItem>
                         {projectsData?.data.map((p) => (
-                          <SelectItem key={p.id} value={p.id}>{p.title}</SelectItem>
+                          <SelectItem key={p.id} value={p.id}>
+                            {p.title}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -211,17 +245,25 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                   <FormItem>
                     <FormLabel>Assign To</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? null : v)
+                      }
                       value={field.value ?? "__none__"}
                     >
                       <FormControl>
-                        <SelectTrigger><SelectValue placeholder="Assign to a team member (optional)" /></SelectTrigger>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Assign to a team member (optional)" />
+                        </SelectTrigger>
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="__none__">Unassigned</SelectItem>
-                        {collaboratorsData?.data.map((c: { id: string; name: string; role: string }) => (
-                          <SelectItem key={c.id} value={c.id}>{c.name} — {c.role}</SelectItem>
-                        ))}
+                        {collaboratorsData?.data.map(
+                          (c: { id: string; name: string; role: string }) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name} — {c.role}
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -235,7 +277,11 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Task description" type="text" {...field} />
+                      <Input
+                        placeholder="Task description"
+                        type="text"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -244,9 +290,13 @@ export function TaskEditDialog({ task, open, onOpenChange }: TaskEditDialogProps
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" disabled={mutation.isPending}>Cancel</Button>
+                <Button variant="outline" disabled={mutation.isPending}>
+                  Cancel
+                </Button>
               </DialogClose>
-              <LoadingButton type="submit" loading={mutation.isPending}>Save</LoadingButton>
+              <LoadingButton type="submit" loading={mutation.isPending}>
+                Save
+              </LoadingButton>
             </DialogFooter>
           </form>
         </Form>

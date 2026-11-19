@@ -12,17 +12,24 @@ interface SectionProps {
 }
 
 /** Consistent heading + spacing for each portfolio section. `id` is the nav anchor. */
-export function Section({ id, eyebrow, title, children, className }: SectionProps) {
+export function Section({
+  id,
+  eyebrow,
+  title,
+  children,
+  className,
+}: SectionProps) {
   return (
     <section
       id={id}
       aria-labelledby={`${id}-title`}
-      className={cn("relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16", className)}
+      className={cn(
+        "relative mx-auto max-w-5xl px-4 py-12 sm:px-6 sm:py-16",
+        className,
+      )}
     >
       <Reveal>
-        {eyebrow && (
-          <p className="eyebrow mb-2">{eyebrow}</p>
-        )}
+        {eyebrow && <p className="eyebrow mb-2">{eyebrow}</p>}
         <h2 id={`${id}-title`} className="heading text-3xl sm:text-4xl">
           {title}
         </h2>
@@ -33,7 +40,13 @@ export function Section({ id, eyebrow, title, children, className }: SectionProp
 }
 
 /** Accent-tinted gradient used where an image is missing. */
-export function GradientFallback({ children, className }: { children?: ReactNode; className?: string }) {
+export function GradientFallback({
+  children,
+  className,
+}: {
+  children?: ReactNode
+  className?: string
+}) {
   return (
     <div
       aria-hidden="true"

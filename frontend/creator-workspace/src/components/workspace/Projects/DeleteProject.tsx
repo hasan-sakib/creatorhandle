@@ -17,7 +17,7 @@ import {
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { LoadingButton } from "@/components/ui/loading-button"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
 
 interface DeleteProjectProps {
   id: string
@@ -62,8 +62,8 @@ const DeleteProject = ({ id, onSuccess }: DeleteProjectProps) => {
           <DialogHeader>
             <DialogTitle>Delete Project</DialogTitle>
             <DialogDescription>
-              This project and all its tasks will be permanently deleted.
-              Are you sure? You will not be able to undo this action.
+              This project and all its tasks will be permanently deleted. Are
+              you sure? You will not be able to undo this action.
             </DialogDescription>
           </DialogHeader>
 

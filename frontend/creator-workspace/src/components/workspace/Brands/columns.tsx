@@ -45,15 +45,15 @@ export const columns: ColumnDef<BrandPublic>[] = [
   {
     accessorKey: "name",
     header: "Name",
-    cell: ({ row }) => (
-      <span className="font-medium">{row.original.name}</span>
-    ),
+    cell: ({ row }) => <span className="font-medium">{row.original.name}</span>,
   },
   {
     accessorKey: "category",
     header: "Category",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.category || "—"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.original.category || "—"}
+      </span>
     ),
   },
   {

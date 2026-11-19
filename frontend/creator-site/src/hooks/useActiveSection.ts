@@ -5,6 +5,7 @@ export function useActiveSection(ids: string[]): string | null {
   const [active, setActive] = useState<string | null>(null)
   const key = ids.join("|")
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the stable form of `ids`
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return
     const elements = ids
@@ -22,7 +23,6 @@ export function useActiveSection(ids: string[]): string | null {
     )
     for (const el of elements) observer.observe(el)
     return () => observer.disconnect()
-    // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the stable form of `ids`
   }, [key])
 
   return active

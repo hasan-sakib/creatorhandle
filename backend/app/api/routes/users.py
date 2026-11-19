@@ -14,6 +14,7 @@ from app.core import storage
 from app.core.config import settings
 from app.core.media import is_media_path, owns_media
 from app.core.security import get_password_hash, verify_password
+from app.emails import generate_new_account_email, send_email
 from app.models import (
     Item,
     Message,
@@ -26,7 +27,6 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
-from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -44,7 +44,9 @@ def read_users(session: SessionDep, skip: int = 0, limit: int = 100) -> Any:
     count_statement = select(func.count()).select_from(User)
     count = session.exec(count_statement).one()
 
-    statement = select(User).order_by(User.created_at.desc()).offset(skip).limit(limit)
+    statement = (
+        select(User).order_by(col(User.created_at).desc()).offset(skip).limit(limit)
+    )
     users = session.exec(statement).all()
 
     return UsersPublic(data=users, count=count)
@@ -128,7 +130,12 @@ def update_password_me(
     """
     Update own password.
     """
-    verified, _ = verify_password(body.current_password, current_user.hashed_password)
+    # hashed_password is None for Google-only accounts; that pre-existing case is
+    # not handled here (see docs). The ignore keeps runtime behavior unchanged.
+    verified, _ = verify_password(
+        body.current_password,
+        current_user.hashed_password,  # type: ignore[arg-type]
+    )
     if not verified:
         raise HTTPException(status_code=400, detail="Incorrect password")
     if body.current_password == body.new_password:
@@ -247,7 +254,7 @@ def delete_user(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
     statement = delete(Item).where(col(Item.owner_id) == user_id)
-    session.exec(statement)  # type: ignore
+    session.exec(statement)
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")

@@ -2,7 +2,7 @@ import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import func, select
+from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep, require_permission
 from app.models import (
@@ -21,7 +21,9 @@ router = APIRouter(prefix="/collaborators", tags=["collaborators"])
 @router.get("/", response_model=CollaboratorsPublic)
 def read_collaborators(
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.view"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("collaborators.view"))
+    ],
     skip: int = 0,
     limit: int = 100,
 ) -> Any:
@@ -34,7 +36,7 @@ def read_collaborators(
     statement = (
         select(Collaborator)
         .where(Collaborator.workspace_id == membership.workspace_id)
-        .order_by(Collaborator.created_at.desc())
+        .order_by(col(Collaborator.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
@@ -45,7 +47,9 @@ def read_collaborators(
 @router.get("/{id}", response_model=CollaboratorPublic)
 def read_collaborator(
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.view"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("collaborators.view"))
+    ],
     id: uuid.UUID,
 ) -> Any:
     collaborator = session.get(Collaborator, id)
@@ -61,7 +65,9 @@ def create_collaborator(
     *,
     session: SessionDep,
     current_user: CurrentUser,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.create"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("collaborators.create"))
+    ],
     collaborator_in: CollaboratorCreate,
 ) -> Any:
     collaborator = Collaborator.model_validate(
@@ -78,7 +84,9 @@ def create_collaborator(
 def update_collaborator(
     *,
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.update"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("collaborators.update"))
+    ],
     id: uuid.UUID,
     collaborator_in: CollaboratorUpdate,
 ) -> Any:
@@ -98,7 +106,9 @@ def update_collaborator(
 @router.delete("/{id}")
 def delete_collaborator(
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("collaborators.delete"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("collaborators.delete"))
+    ],
     id: uuid.UUID,
 ) -> Message:
     collaborator = session.get(Collaborator, id)

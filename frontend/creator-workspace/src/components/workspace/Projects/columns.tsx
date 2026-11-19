@@ -56,7 +56,9 @@ export const columns: ColumnDef<ProjectPublic>[] = [
     accessorKey: "type",
     header: "Platform",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.type || "—"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.original.type || "—"}
+      </span>
     ),
   },
   {
@@ -80,7 +82,9 @@ export const columns: ColumnDef<ProjectPublic>[] = [
     accessorKey: "deadline",
     header: "Deadline",
     cell: ({ row }) => (
-      <span className="text-sm text-muted-foreground">{row.original.deadline || "—"}</span>
+      <span className="text-sm text-muted-foreground">
+        {row.original.deadline || "—"}
+      </span>
     ),
   },
   {
@@ -88,9 +92,12 @@ export const columns: ColumnDef<ProjectPublic>[] = [
     header: "Progress",
     cell: ({ row, table }) => {
       const meta = table.options.meta as Record<string, unknown> | undefined
-      const progressMap = meta?.progressMap as Record<string, { done: number; total: number }> | undefined
+      const progressMap = meta?.progressMap as
+        | Record<string, { done: number; total: number }>
+        | undefined
       const prog = progressMap?.[row.original.id]
-      if (!prog || prog.total === 0) return <span className="text-xs text-muted-foreground">—</span>
+      if (!prog || prog.total === 0)
+        return <span className="text-xs text-muted-foreground">—</span>
       const pct = Math.round((prog.done / prog.total) * 100)
       return (
         <div className="flex items-center gap-2 min-w-24">

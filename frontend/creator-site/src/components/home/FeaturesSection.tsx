@@ -54,7 +54,10 @@ const board = [
       { name: "Write caption", priority: "bg-green-400" },
     ],
   },
-  { column: "Done", tasks: [{ name: "Send invoice", priority: "bg-green-400" }] },
+  {
+    column: "Done",
+    tasks: [{ name: "Send invoice", priority: "bg-green-400" }],
+  },
 ]
 
 const swatches = [
@@ -79,7 +82,8 @@ export function FeaturesSection() {
             Everything you need to run the business side
           </h2>
           <p className="mt-4 text-muted-foreground">
-            Track the work, keep your team aligned and show it off, all from one place.
+            Track the work, keep your team aligned and show it off, all from one
+            place.
           </p>
         </Reveal>
 
@@ -92,7 +96,10 @@ export function FeaturesSection() {
           >
             <div aria-hidden="true" className="grid grid-cols-3 gap-2 sm:gap-3">
               {board.map((col) => (
-                <div key={col.column} className="min-w-0 rounded-xl border bg-background p-2 sm:p-3">
+                <div
+                  key={col.column}
+                  className="min-w-0 rounded-xl border bg-background p-2 sm:p-3"
+                >
                   <p className="mb-2 truncate text-[10px] font-medium uppercase tracking-wide text-muted-foreground sm:text-[11px]">
                     {col.column}
                   </p>
@@ -102,7 +109,12 @@ export function FeaturesSection() {
                         key={task.name}
                         className="flex items-center gap-1.5 rounded-lg border bg-card px-2 py-2 text-xs font-medium shadow-sm sm:gap-2 sm:px-2.5"
                       >
-                        <span className={cn("size-2 shrink-0 rounded-full", task.priority)} />
+                        <span
+                          className={cn(
+                            "size-2 shrink-0 rounded-full",
+                            task.priority,
+                          )}
+                        />
                         <span className="truncate">{task.name}</span>
                       </div>
                     ))}
@@ -132,7 +144,9 @@ export function FeaturesSection() {
                     <span
                       className={cn(
                         "size-2 rounded-full",
-                        brand.active ? "bg-green-500" : "bg-muted-foreground/40",
+                        brand.active
+                          ? "bg-green-500"
+                          : "bg-muted-foreground/40",
                       )}
                     />
                     {brand.name}
@@ -155,18 +169,25 @@ export function FeaturesSection() {
             title="Project tracking"
             text="Log each project by type, status and deadline, and mark your best work as featured."
           >
-            <div aria-hidden="true" className="flex flex-wrap gap-1.5 text-[11px] font-medium">
-              {["Planning", "In Progress", "Review", "Published"].map((status, i) => (
-                <span
-                  key={status}
-                  className={cn(
-                    "rounded-full border px-2.5 py-1",
-                    i === 1 ? "border-primary bg-primary/10 text-primary" : "text-muted-foreground",
-                  )}
-                >
-                  {status}
-                </span>
-              ))}
+            <div
+              aria-hidden="true"
+              className="flex flex-wrap gap-1.5 text-[11px] font-medium"
+            >
+              {["Planning", "In Progress", "Review", "Published"].map(
+                (status, i) => (
+                  <span
+                    key={status}
+                    className={cn(
+                      "rounded-full border px-2.5 py-1",
+                      i === 1
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "text-muted-foreground",
+                    )}
+                  >
+                    {status}
+                  </span>
+                ),
+              )}
             </div>
           </FeatureCard>
 
@@ -176,7 +197,10 @@ export function FeaturesSection() {
             text="See upcoming deadlines and how much of your work is done the moment you sign in."
             delay={100}
           >
-            <div aria-hidden="true" className="rounded-lg border bg-background p-3">
+            <div
+              aria-hidden="true"
+              className="rounded-lg border bg-background p-3"
+            >
               <div className="mb-2 flex justify-between text-xs text-muted-foreground">
                 <span>Tasks done</span>
                 <span>Example</span>
@@ -194,8 +218,16 @@ export function FeaturesSection() {
             delay={200}
           >
             <div aria-hidden="true" className="flex -space-x-2">
-              {["bg-teal-500", "bg-indigo-500", "bg-rose-500", "bg-orange-500"].map((c) => (
-                <span key={c} className={cn("size-8 rounded-full border-2 border-card", c)} />
+              {[
+                "bg-teal-500",
+                "bg-indigo-500",
+                "bg-rose-500",
+                "bg-orange-500",
+              ].map((c) => (
+                <span
+                  key={c}
+                  className={cn("size-8 rounded-full border-2 border-card", c)}
+                />
               ))}
               <span className="grid size-8 place-items-center rounded-full border-2 border-card bg-muted text-[11px] font-medium text-muted-foreground">
                 +
@@ -214,7 +246,8 @@ export function FeaturesSection() {
               className="flex items-center justify-between gap-3 rounded-xl border bg-background px-4 py-3"
             >
               <span className="truncate text-sm">
-                creatorhandle.com/<span className="font-semibold text-primary">@yourhandle</span>
+                creatorhandle.com/
+                <span className="font-semibold text-primary">@yourhandle</span>
               </span>
               <span className="flex shrink-0 items-center gap-2 text-xs text-muted-foreground">
                 Published

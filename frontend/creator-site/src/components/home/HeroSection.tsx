@@ -26,9 +26,12 @@ export function HeroSection() {
           </h1>
 
           <p className="mt-6 max-w-xl text-lg text-muted-foreground">
-            Keep your brand deals, projects and tasks in one workspace, then publish a clean public
-            page at{" "}
-            <span className="font-medium text-foreground">creatorhandle.com/@yourhandle</span>.
+            Keep your brand deals, projects and tasks in one workspace, then
+            publish a clean public page at{" "}
+            <span className="font-medium text-foreground">
+              creatorhandle.com/@yourhandle
+            </span>
+            .
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -37,7 +40,12 @@ export function HeroSection() {
                 Get started free <ArrowRight className="size-4" />
               </a>
             </Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full px-6">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-full px-6"
+            >
               <a href="#how-it-works">See how it works</a>
             </Button>
           </div>

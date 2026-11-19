@@ -4,8 +4,8 @@ import { Search } from "lucide-react"
 import { Suspense, useMemo, useState } from "react"
 
 import { ItemsService } from "@/client"
-import { TableFilters } from "@/components/Common/TableFilters"
 import { DataTable } from "@/components/Common/DataTable"
+import { TableFilters } from "@/components/Common/TableFilters"
 import AddItem from "@/components/workspace/Items/AddItem"
 import { columns } from "@/components/workspace/Items/columns"
 import PendingItems from "@/components/workspace/Pending/PendingItems"
@@ -63,8 +63,12 @@ function Items() {
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">Items</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Create and manage your items</p>
+          <h1 className="text-[22px] font-semibold leading-tight tracking-tight">
+            Items
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Create and manage your items
+          </p>
         </div>
         <AddItem />
       </div>

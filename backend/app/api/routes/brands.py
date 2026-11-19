@@ -2,10 +2,18 @@ import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import func, select
+from sqlmodel import col, func, select
 
 from app.api.deps import CurrentUser, SessionDep, require_permission
-from app.models import Brand, BrandCreate, BrandPublic, BrandsPublic, BrandUpdate, Message, WorkspaceMember
+from app.models import (
+    Brand,
+    BrandCreate,
+    BrandPublic,
+    BrandsPublic,
+    BrandUpdate,
+    Message,
+    WorkspaceMember,
+)
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
@@ -26,7 +34,7 @@ def read_brands(
     statement = (
         select(Brand)
         .where(Brand.workspace_id == membership.workspace_id)
-        .order_by(Brand.created_at.desc())
+        .order_by(col(Brand.created_at).desc())
         .offset(skip)
         .limit(limit)
     )
@@ -53,7 +61,9 @@ def create_brand(
     *,
     session: SessionDep,
     current_user: CurrentUser,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("brands.create"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("brands.create"))
+    ],
     brand_in: BrandCreate,
 ) -> Any:
     brand = Brand.model_validate(
@@ -70,7 +80,9 @@ def create_brand(
 def update_brand(
     *,
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("brands.update"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("brands.update"))
+    ],
     id: uuid.UUID,
     brand_in: BrandUpdate,
 ) -> Any:
@@ -90,7 +102,9 @@ def update_brand(
 @router.delete("/{id}")
 def delete_brand(
     session: SessionDep,
-    membership: Annotated[WorkspaceMember, Depends(require_permission("brands.delete"))],
+    membership: Annotated[
+        WorkspaceMember, Depends(require_permission("brands.delete"))
+    ],
     id: uuid.UUID,
 ) -> Message:
     brand = session.get(Brand, id)

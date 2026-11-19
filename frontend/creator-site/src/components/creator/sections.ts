@@ -18,7 +18,9 @@ export const NAV_SECTIONS = [
 export const LEGACY_HASHES: Record<string, string> = { create: "about" }
 
 /** "Alex Rivera" -> "Alex"; falls back to the @handle. */
-export function firstName(p: Pick<PublicCreator, "full_name" | "username">): string {
+export function firstName(
+  p: Pick<PublicCreator, "full_name" | "username">,
+): string {
   const first = (p.full_name ?? "").trim().split(/\s+/)[0]
   return first || `@${p.username}`
 }

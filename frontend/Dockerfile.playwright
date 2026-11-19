@@ -1,0 +1,20 @@
+FROM mcr.microsoft.com/playwright:v1.57.0-noble
+
+WORKDIR /app
+
+# Same pinned Bun as frontend/Dockerfile (no curl | bash install)
+COPY --from=oven/bun:1.4 /usr/local/bin/bun /usr/local/bin/bun
+RUN ln -s /usr/local/bin/bun /usr/local/bin/bunx
+
+COPY package.json bun.lock /app/
+COPY frontend/creator-workspace/package.json /app/frontend/creator-workspace/
+COPY frontend/creator-site/package.json /app/frontend/creator-site/
+COPY frontend/packages/shared/package.json /app/frontend/packages/shared/
+
+RUN bun install --frozen-lockfile
+
+COPY ./frontend/packages /app/frontend/packages
+COPY ./frontend/creator-workspace /app/frontend/creator-workspace
+
+ARG VITE_API_URL
+WORKDIR /app/frontend/creator-workspace

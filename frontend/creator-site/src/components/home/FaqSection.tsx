@@ -34,14 +34,19 @@ export function FaqSection() {
         </h2>
       </Reveal>
 
-      <Reveal delay={100} className="mt-10 divide-y rounded-2xl border bg-card shadow-sm">
+      <Reveal
+        delay={100}
+        className="mt-10 divide-y rounded-2xl border bg-card shadow-sm"
+      >
         {faqs.map((item, i) => (
           <details key={item.q} className="group px-6 py-5" open={i === 0}>
             <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
               {item.q}
               <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
             </summary>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.a}</p>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              {item.a}
+            </p>
           </details>
         ))}
       </Reveal>

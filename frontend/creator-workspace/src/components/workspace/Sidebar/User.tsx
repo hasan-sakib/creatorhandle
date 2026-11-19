@@ -17,7 +17,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
-import { getInitials } from "@/utils"
+import { getInitials } from "@/lib/utils"
 
 interface UserInfoProps {
   fullName?: string | null
@@ -26,9 +26,16 @@ interface UserInfoProps {
   muted?: boolean
 }
 
-function UserInfo({ fullName, email, avatarUrl, muted = false }: UserInfoProps) {
+function UserInfo({
+  fullName,
+  email,
+  avatarUrl,
+  muted = false,
+}: UserInfoProps) {
   const displayName = fullName || email || "User"
-  const secondaryClass = muted ? "text-muted-foreground" : "text-sidebar-foreground/70"
+  const secondaryClass = muted
+    ? "text-muted-foreground"
+    : "text-sidebar-foreground/70"
   return (
     <div className="flex items-center gap-2.5 w-full min-w-0">
       <Avatar className="size-8">
@@ -91,7 +98,11 @@ export function User({ user }: { user: any }) {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
               data-testid="user-menu"
             >
-              <UserInfo fullName={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} />
+              <UserInfo
+                fullName={user?.full_name}
+                email={user?.email}
+                avatarUrl={user?.avatar_url}
+              />
               <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground/70" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -102,7 +113,12 @@ export function User({ user }: { user: any }) {
             sideOffset={4}
           >
             <DropdownMenuLabel className="p-0 font-normal">
-              <UserInfo fullName={user?.full_name} email={user?.email} avatarUrl={user?.avatar_url} muted />
+              <UserInfo
+                fullName={user?.full_name}
+                email={user?.email}
+                avatarUrl={user?.avatar_url}
+                muted
+              />
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <RouterLink to="/settings" onClick={handleMenuClick}>

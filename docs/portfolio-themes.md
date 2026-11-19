@@ -44,12 +44,13 @@ The dashboard's `vite-ui-theme` and the landing page are not affected.
 ### Add a theme
 
 1. Add the light and `.dark` blocks to `creator-themes.css`.
-2. Add it to `THEMES` and `FONT_LOADERS` in `creator-site/src/lib/themes.ts` (install the
-   `@fontsource-variable/<font>` package; the font is lazy-loaded).
+2. Add it to `ThemeKey` and `THEMES` in `frontend/packages/shared/src/themes.ts` (both apps
+   and the contrast checker read it), and to `FONT_LOADERS` in `creator-site/src/lib/themes.ts`
+   (install the `@fontsource-variable/<font>` package; the font is lazy-loaded).
 3. Add the swatch to `creator-workspace/src/lib/themePresets.ts`.
-4. Add the key to `ThemeKey` in `backend/app/core/validators.py` and `_THEMES` in
+4. Add the key to `ThemeKey` in `backend/app/domain/validators.py` and `_THEMES` in
    `backend/app/api/routes/public.py`.
-5. Regenerate the clients (`bun run generate-client`).
+5. Regenerate the clients (`make client`).
 6. Calibrate and check contrast: `bun run test:contrast` in `frontend/creator-site`
    (`-- --calibrate` suggests `--accent-text-mix`). It checks every theme x 10 accents x 2 modes.
 7. Screenshot light and dark at 1280 and 390 px.

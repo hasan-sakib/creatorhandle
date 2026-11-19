@@ -5,7 +5,7 @@ import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
-import { type ProjectCreate, BrandsService, ProjectsService } from "@/client"
+import { BrandsService, type ProjectCreate, ProjectsService } from "@/client"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -27,8 +27,6 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { LoadingButton } from "@/components/ui/loading-button"
-import { ProjectPortfolioFields } from "@/components/workspace/Projects/ProjectPortfolioFields"
-import { blankToNull, imageField, tagArray, urlField } from "@/lib/profileFields"
 import {
   Select,
   SelectContent,
@@ -36,8 +34,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ProjectPortfolioFields } from "@/components/workspace/Projects/ProjectPortfolioFields"
 import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
+import { handleError } from "@/lib/errors"
+import {
+  blankToNull,
+  imageField,
+  tagArray,
+  urlField,
+} from "@/lib/profileFields"
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
@@ -126,9 +131,7 @@ const AddProject = () => {
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Add Project</DialogTitle>
-          <DialogDescription>
-            Create a new content project.
-          </DialogDescription>
+          <DialogDescription>Create a new content project.</DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -142,7 +145,12 @@ const AddProject = () => {
                       Title <span className="text-destructive">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="Project title" type="text" {...field} required />
+                      <Input
+                        placeholder="Project title"
+                        type="text"
+                        {...field}
+                        required
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -163,7 +171,9 @@ const AddProject = () => {
                       </FormControl>
                       <SelectContent>
                         {TYPES.map((t) => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
+                          <SelectItem key={t} value={t}>
+                            {t}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -186,7 +196,9 @@ const AddProject = () => {
                       </FormControl>
                       <SelectContent>
                         {STATUSES.map((s) => (
-                          <SelectItem key={s} value={s}>{s}</SelectItem>
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -216,7 +228,9 @@ const AddProject = () => {
                   <FormItem>
                     <FormLabel>Brand</FormLabel>
                     <Select
-                      onValueChange={(v) => field.onChange(v === "__none__" ? null : v)}
+                      onValueChange={(v) =>
+                        field.onChange(v === "__none__" ? null : v)
+                      }
                       value={field.value ?? "__none__"}
                     >
                       <FormControl>
@@ -245,7 +259,12 @@ const AddProject = () => {
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Input placeholder="Project description" type="text" maxLength={500} {...field} />
+                      <Input
+                        placeholder="Project description"
+                        type="text"
+                        maxLength={500}
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -265,7 +284,12 @@ const AddProject = () => {
                         onChange={(e) => field.onChange(e.target.checked)}
                         className="h-4 w-4 rounded border-input accent-primary"
                       />
-                      <FormLabel htmlFor="add_is_featured" className="cursor-pointer">Feature on public profile</FormLabel>
+                      <FormLabel
+                        htmlFor="add_is_featured"
+                        className="cursor-pointer"
+                      >
+                        Feature on public profile
+                      </FormLabel>
                     </div>
                     <FormMessage />
                   </FormItem>
@@ -274,7 +298,8 @@ const AddProject = () => {
 
               <ProjectPortfolioFields control={form.control} />
               <p className="rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
-                Only <strong>Published</strong> projects appear on your public page.
+                Only <strong>Published</strong> projects appear on your public
+                page.
               </p>
             </div>
 

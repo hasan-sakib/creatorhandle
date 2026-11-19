@@ -29,7 +29,9 @@ function Login() {
   const triggerGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       try {
-        const res = await LoginService.loginWithGoogle({ requestBody: { token: tokenResponse.access_token } })
+        const res = await LoginService.loginWithGoogle({
+          requestBody: { token: tokenResponse.access_token },
+        })
         localStorage.setItem("access_token", res.access_token)
         navigate({ to: "/" })
       } catch {
@@ -43,7 +45,8 @@ function Login() {
     | Record<string, unknown>
     | undefined
   const errorMessage = loginMutation.isError
-    ? (apiErrorBody?.detail as string | undefined) ?? "Invalid email or password."
+    ? ((apiErrorBody?.detail as string | undefined) ??
+      "Invalid email or password.")
     : googleError
 
   return (

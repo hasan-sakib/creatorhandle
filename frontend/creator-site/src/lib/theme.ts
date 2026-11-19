@@ -10,7 +10,8 @@ const STORAGE_KEY = "vite-ui-theme"
 export function getStoredTheme(): Theme {
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
-    if (stored === "light" || stored === "dark" || stored === "system") return stored
+    if (stored === "light" || stored === "dark" || stored === "system")
+      return stored
   } catch {
     // storage unavailable (private mode, blocked): fall back to the system theme
   }
@@ -18,7 +19,8 @@ export function getStoredTheme(): Theme {
 }
 
 export function isDark(theme: Theme = getStoredTheme()): boolean {
-  if (theme === "system") return window.matchMedia("(prefers-color-scheme: dark)").matches
+  if (theme === "system")
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
   return theme === "dark"
 }
 
