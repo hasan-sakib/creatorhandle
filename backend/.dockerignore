@@ -1,0 +1,12 @@
+# Build context is backend/; keep it small and cache-friendly
+.venv
+**/__pycache__
+**/*.pyc
+.mypy_cache
+.ruff_cache
+.pytest_cache
+.coverage
+htmlcov
+.env
+.env.*
+README.md

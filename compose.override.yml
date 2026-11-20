@@ -16,8 +16,8 @@ services:
     ports:
       - "8000:8000"
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
       args:
         # pytest, ruff, mypy, ... for local development and test runs
         INSTALL_DEV: "true"
@@ -59,8 +59,8 @@ services:
     ports: !override
       - "5173:80"
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
       args:
         - VITE_API_URL=http://localhost:8000
         - NODE_ENV=development
@@ -70,8 +70,8 @@ services:
   playwright:
     profiles: ["test"]
     build:
-      context: .
-      dockerfile: frontend/Dockerfile.playwright
+      context: ./frontend
+      dockerfile: Dockerfile.playwright
       args:
         - VITE_API_URL=http://backend:8000
         - NODE_ENV=production

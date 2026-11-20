@@ -1,7 +1,7 @@
 import { defineConfig } from "@hey-api/openapi-ts"
 
-// The public site only uses the public API. scripts/generate-client.sh
-// writes the filtered spec (see scripts/openapi_public.py).
+// The public site only uses the public API. frontend/scripts/generate-client.sh
+// writes the filtered spec (see frontend/scripts/openapi_public.py).
 export default defineConfig({
   input: "../openapi.public.json",
   output: "./src/client",

@@ -5,7 +5,7 @@
     "": {
       "name": "fastapi-cloud",
     },
-    "frontend/creator-site": {
+    "creator-site": {
       "name": "creator-site",
       "version": "0.0.0",
       "dependencies": {
@@ -47,7 +47,7 @@
         "vite": "^7.3.0",
       },
     },
-    "frontend/creator-workspace": {
+    "creator-workspace": {
       "name": "creator-workspace",
       "version": "0.0.0",
       "dependencies": {
@@ -99,7 +99,7 @@
         "vite": "^7.3.0",
       },
     },
-    "frontend/packages/shared": {
+    "packages/shared": {
       "name": "@creatorhandle/shared",
       "version": "0.0.0",
       "dependencies": {

@@ -3,19 +3,21 @@ FROM oven/bun:1.4 AS deps
 
 WORKDIR /app
 
-COPY package.json bun.lock /app/
-COPY frontend/creator-workspace/package.json /app/frontend/creator-workspace/
-COPY frontend/creator-site/package.json /app/frontend/creator-site/
-COPY frontend/packages/shared/package.json /app/frontend/packages/shared/
+# Build context: frontend/ (the Bun workspace root)
+COPY package.json bun.lock /app/frontend/
+COPY creator-workspace/package.json /app/frontend/creator-workspace/
+COPY creator-site/package.json /app/frontend/creator-site/
+COPY packages/shared/package.json /app/frontend/packages/shared/
 
+WORKDIR /app/frontend
 RUN bun install --frozen-lockfile
 
 
 # Stage 1: build creator-workspace
 FROM deps AS workspace-build
 
-COPY ./frontend/packages /app/frontend/packages
-COPY ./frontend/creator-workspace /app/frontend/creator-workspace
+COPY packages /app/frontend/packages
+COPY creator-workspace /app/frontend/creator-workspace
 ARG VITE_API_URL
 ARG VITE_GOOGLE_CLIENT_ID
 
@@ -26,8 +28,8 @@ RUN bun run build
 # Stage 2: build creator-site
 FROM deps AS site-build
 
-COPY ./frontend/packages /app/frontend/packages
-COPY ./frontend/creator-site /app/frontend/creator-site
+COPY packages /app/frontend/packages
+COPY creator-site /app/frontend/creator-site
 ARG VITE_API_URL
 
 WORKDIR /app/frontend/creator-site
@@ -39,4 +41,4 @@ FROM caddy:2.11-alpine
 
 COPY --from=workspace-build /app/frontend/creator-workspace/dist/ /srv/creator-workspace/
 COPY --from=site-build /app/frontend/creator-site/dist/ /srv/creator-site/
-COPY ./frontend/Caddyfile /etc/caddy/Caddyfile
+COPY Caddyfile /etc/caddy/Caddyfile

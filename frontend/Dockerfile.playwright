@@ -6,15 +6,17 @@ WORKDIR /app
 COPY --from=oven/bun:1.4 /usr/local/bin/bun /usr/local/bin/bun
 RUN ln -s /usr/local/bin/bun /usr/local/bin/bunx
 
-COPY package.json bun.lock /app/
-COPY frontend/creator-workspace/package.json /app/frontend/creator-workspace/
-COPY frontend/creator-site/package.json /app/frontend/creator-site/
-COPY frontend/packages/shared/package.json /app/frontend/packages/shared/
+# Build context: frontend/ (the Bun workspace root)
+COPY package.json bun.lock /app/frontend/
+COPY creator-workspace/package.json /app/frontend/creator-workspace/
+COPY creator-site/package.json /app/frontend/creator-site/
+COPY packages/shared/package.json /app/frontend/packages/shared/
 
+WORKDIR /app/frontend
 RUN bun install --frozen-lockfile
 
-COPY ./frontend/packages /app/frontend/packages
-COPY ./frontend/creator-workspace /app/frontend/creator-workspace
+COPY packages /app/frontend/packages
+COPY creator-workspace /app/frontend/creator-workspace
 
 ARG VITE_API_URL
 WORKDIR /app/frontend/creator-workspace

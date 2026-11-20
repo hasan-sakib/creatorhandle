@@ -28,12 +28,12 @@ Both apps are built and served by a single Caddy Docker container. Caddy routes 
 
 ## Requirements
 
-- [Bun](https://bun.sh/) 1.4 (all commands below run from the repo root)
+- [Bun](https://bun.sh/) 1.4. `frontend/` is the Bun workspace root (`package.json`, `bun.lock`, `node_modules/`); run `bun` commands here, `make` commands from the repo root.
 
 ## Quick Start
 
 ```bash
-bun install                # installs every workspace package
+cd frontend && bun install   # installs every workspace package (or `make setup`)
 make up                    # backend, db, storage and the built frontend on :5173
 docker compose stop frontend
 make dev-workspace         # dashboard dev server: http://localhost:5173/app/
@@ -47,7 +47,9 @@ repo-root `.env` (`envDir` in each `vite.config.ts`).
 
 ```
 frontend/
-├── Dockerfile, Dockerfile.playwright, Caddyfile
+├── package.json, bun.lock   workspace root (scripts: dev:*, build, lint, typecheck, test:e2e, generate-client)
+├── Dockerfile, Dockerfile.playwright, Caddyfile, .dockerignore   (build context = frontend/)
+├── scripts/             generate-client.sh, openapi_public.py
 ├── biome.json               lint/format config for everything below
 ├── packages/shared/         @creatorhandle/shared: accent presets, theme keys/defaults, cn()
 ├── creator-workspace/       dashboard (served at /app)
@@ -136,7 +138,7 @@ docker compose build frontend && docker compose up -d frontend
 ## Regenerating the API Clients
 
 ```bash
-make client     # = bash scripts/generate-client.sh; the backend does not need to run
+make client     # = bash frontend/scripts/generate-client.sh; the backend does not need to run
 ```
 
 This regenerates `creator-workspace/src/client` (whole API) and
@@ -156,6 +158,7 @@ and `FIRST_SUPERUSER_PASSWORD` from the root `.env`.
 ## Lint, format, type-check
 
 ```bash
+# in frontend/
 bun run lint:ci     # biome ci, every package
 bun run lint        # biome check --write (applies fixes)
 bun run typecheck   # tsc --noEmit, every package

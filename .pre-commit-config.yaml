@@ -23,7 +23,7 @@ repos:
       - id: local-biome-check
         name: biome check
         # check only; `make format` applies fixes
-        entry: bun run lint:ci
+        entry: bun run --cwd frontend lint:ci
         pass_filenames: false
         language: system
         types: [text]
@@ -31,21 +31,21 @@ repos:
 
       - id: local-ruff-check
         name: ruff check
-        entry: uv run ruff check --force-exclude --fix --exit-non-zero-on-fix
+        entry: uv run --project backend ruff check --force-exclude --fix --exit-non-zero-on-fix
         require_serial: true
         language: unsupported
         types: [python]
 
       - id: local-ruff-format
         name: ruff format
-        entry: uv run ruff format --force-exclude --exit-non-zero-on-format
+        entry: uv run --project backend ruff format --force-exclude --exit-non-zero-on-format
         require_serial: true
         language: unsupported
         types: [python]
 
       - id: generate-frontend-sdk
         name: Generate Frontend SDK
-        entry: bash scripts/generate-client.sh
+        entry: bash frontend/scripts/generate-client.sh
         pass_filenames: false
         language: unsupported
-        files: ^backend/app/.*$|^scripts/(generate-client\.sh|openapi_public\.py)$
+        files: ^backend/app/.*$|^frontend/scripts/(generate-client\.sh|openapi_public\.py)$

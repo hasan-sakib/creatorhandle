@@ -50,15 +50,18 @@ make up       # http://localhost:5173 (site), /app/ (dashboard), :8000/docs (API
 
 | Path | Purpose |
 |---|---|
-| `backend/` | FastAPI service: `app/api` (routes), `app/core` (config, db, security, logging, storage), `app/domain` (business rules), `app/models` + `app/crud` (per domain), `app/emails`, `app/cli`, `tests/` |
+| `backend/` | FastAPI service with its own deps (`pyproject.toml`, `uv.lock`, `.venv/`): `app/api` (routes), `app/core` (config, db, security, logging, storage), `app/domain` (business rules), `app/models` + `app/crud` (per domain), `app/emails`, `app/cli`, `tests/` |
+| `frontend/` | Bun workspace root (`package.json`, `bun.lock`, `node_modules/`) and API client codegen in `frontend/scripts/` |
 | `frontend/creator-workspace/` | Dashboard SPA, served at `/app` |
 | `frontend/creator-site/` | Marketing page + public profiles at `/` and `/@username` |
 | `frontend/packages/shared/` | Constants and helpers both SPAs use |
 | `frontend/Caddyfile`, `frontend/Dockerfile` | One Caddy image serving both SPAs and proxying `/api` and `/media` |
-| `scripts/` | API client generation, test runners |
 | `compose*.yml` | Docker Compose: base, dev override (auto-applied), production |
 | `docs/` | Architecture, development, deployment, Docker and theme guides |
 | `.github/workflows/ci.yml` | CI: lint → type-check → test → build |
+| `skills-lock.json` | AI design-skills tool config (not part of the app) |
+
+The root holds no package files: Python dependencies live in `backend/`, JavaScript in `frontend/`.
 
 ---
 

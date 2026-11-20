@@ -58,9 +58,9 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          cache-dependency-glob: uv.lock
+          cache-dependency-glob: backend/uv.lock
       - run: uv python install 3.12
-      - run: uv sync --all-packages --frozen
+      - run: uv sync --frozen
       - name: Lint
         run: |
           uv run ruff check app tests
@@ -82,6 +82,9 @@ jobs:
   frontend:
     name: Frontend (lint, types, build)
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
@@ -90,7 +93,7 @@ jobs:
       - uses: actions/cache@v4
         with:
           path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+          key: bun-${{ runner.os }}-${{ hashFiles('frontend/bun.lock') }}
           restore-keys: bun-${{ runner.os }}-
       - run: bun install --frozen-lockfile
       - name: Lint
@@ -115,13 +118,14 @@ jobs:
       - uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
-          cache-dependency-glob: uv.lock
+          cache-dependency-glob: backend/uv.lock
       - run: uv python install 3.12
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.4"
       - run: bun install --frozen-lockfile
-      - run: bash scripts/generate-client.sh
+        working-directory: frontend
+      - run: bash frontend/scripts/generate-client.sh
       - name: Fail if the committed clients differ
         run: |
           git diff --exit-code -- frontend/*/src/client || {
@@ -139,16 +143,14 @@ jobs:
       - name: Backend image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: backend/Dockerfile
+          context: backend
           push: false
           cache-from: type=gha,scope=backend
           cache-to: type=gha,mode=max,scope=backend
       - name: Frontend image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: frontend/Dockerfile
+          context: frontend
           push: false
           build-args: |
             VITE_API_URL=
