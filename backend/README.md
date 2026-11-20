@@ -19,7 +19,7 @@ FastAPI application with SQLModel ORM, PostgreSQL, JWT authentication, and Googl
 ```
 backend/
 ├── Dockerfile                multi-stage image, non-root runtime
-├── pyproject.toml            deps + ruff/mypy/coverage config (uv workspace member)
+├── pyproject.toml, uv.lock   deps + ruff/mypy/coverage config (standalone uv project)
 ├── alembic.ini
 ├── app/
 │   ├── main.py               app wiring: logging, CORS, request logs, Sentry, routers
@@ -137,7 +137,7 @@ Google-only accounts.
 ## Local Setup
 
 ```bash
-uv sync --all-packages        # from the repo root; creates .venv (Python 3.12)
+uv sync                       # in backend/; creates backend/.venv (Python 3.12)
 ```
 
 Lint, format and type-check with `make lint`, `make format`, `make typecheck`

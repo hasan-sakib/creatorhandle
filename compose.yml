@@ -61,8 +61,8 @@ services:
     restart: always
     logging: *logging
     build:
-      context: .
-      dockerfile: backend/Dockerfile
+      context: ./backend
+      dockerfile: Dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV:-false}
     depends_on:
@@ -104,8 +104,8 @@ services:
     restart: always
     logging: *logging
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
+      context: ./frontend
+      dockerfile: Dockerfile
       args:
         # Empty: the API is on the same origin, under /api
         - VITE_API_URL=

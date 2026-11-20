@@ -2,9 +2,9 @@
   "name": "creatorhandle",
   "private": true,
   "workspaces": [
-    "frontend/creator-workspace",
-    "frontend/creator-site",
-    "frontend/packages/*"
+    "creator-workspace",
+    "creator-site",
+    "packages/*"
   ],
   "scripts": {
     "dev:workspace": "bun run --filter creator-workspace dev",

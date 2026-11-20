@@ -6,11 +6,6 @@ resolution-markers = [
     "python_full_version < '3.14'",
 ]
 
-[manifest]
-members = [
-    "app",
-]
-
 [[package]]
 name = "alembic"
 version = "1.18.1"
@@ -50,7 +45,7 @@ wheels = [
 [[package]]
 name = "app"
 version = "0.1.0"
-source = { editable = "backend" }
+source = { editable = "." }
 dependencies = [
     { name = "alembic" },
     { name = "boto3" },

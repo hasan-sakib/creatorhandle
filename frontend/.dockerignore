@@ -1,0 +1,11 @@
+# Build context is frontend/ (the Bun workspace root)
+**/node_modules
+**/dist
+**/.tanstack
+**/test-results
+**/blob-report
+**/playwright-report
+**/playwright/.auth
+**/*.tsbuildinfo
+.env
+.env.*

@@ -68,7 +68,7 @@ docker compose -f compose.yml -f compose.prod.yml up -d --build
 
 - Multi-stage: a builder stage (`python:3.12-slim` + `uv`, with a cache mount and the lockfile installed before the source for layer caching) installs dependencies into a virtualenv, and the runtime stage (`python:3.12-slim`) copies only that virtualenv and the app. No `uv`, build cache or dev tools in the final image (~480 MB).
 - Runs as the unprivileged `app` user (uid 1000). The virtualenv is root-owned and read-only to the app.
-- `INSTALL_DEV` build arg (default `false`): `true` also installs the dev dependencies (pytest, ruff, mypy, ...) and ships `backend/tests`. `compose.override.yml` and `scripts/test*.sh` set it.
+- `INSTALL_DEV` build arg (default `false`): `true` also installs the dev dependencies (pytest, ruff, mypy, ...) and ships `backend/tests`. `compose.override.yml` sets it.
 - Entrypoint (`backend/scripts/entrypoint.sh` → `prestart.sh`): `python -m app.cli.pre_start` (wait for the DB), `app.cli.storage_init` (bucket + policy), `alembic upgrade head`, `app.cli.initial_data` (first superuser), then the command.
 - Command: `fastapi run app/main.py`; the number of workers comes from `WEB_CONCURRENCY` (default 2).
 - Dev override (from compose.override.yml): `fastapi run --reload app/main.py` with `develop.watch` sync.

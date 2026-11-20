@@ -1,5 +1,6 @@
 # Common tasks. Run `make` (or `make help`) for the list.
 # Needs: docker (with compose), uv, bun.
+# Python deps live in backend/ (uv), JS deps in frontend/ (bun workspace).
 
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
@@ -16,9 +17,9 @@ help: ## Show this help
 .PHONY: setup
 setup: ## Install deps (uv + bun), git hooks, and create .env if missing
 	@test -f .env || (cp .env.example .env && echo "Created .env from .env.example; fill in the secrets.")
-	uv sync --all-packages
-	bun install --frozen-lockfile
-	uv run prek install
+	cd backend && uv sync
+	cd frontend && bun install --frozen-lockfile
+	uv run --project backend prek install
 
 # --- Run ---------------------------------------------------------------------
 
@@ -48,28 +49,28 @@ dev-backend: ## Run the API on the host with reload (first: docker compose stop 
 
 .PHONY: dev-workspace
 dev-workspace: ## Run the dashboard Vite dev server
-	bun run dev:workspace
+	cd frontend && bun run dev:workspace
 
 .PHONY: dev-site
 dev-site: ## Run the public site Vite dev server
-	bun run dev:site
+	cd frontend && bun run dev:site
 
 # --- Quality -----------------------------------------------------------------
 
 .PHONY: lint
 lint: ## Lint + format check (ruff, biome)
 	cd backend && uv run ruff check app tests && uv run ruff format --check app tests
-	bun run lint:ci
+	cd frontend && bun run lint:ci
 
 .PHONY: format
 format: ## Auto-fix lint and formatting (ruff, biome)
 	cd backend && uv run ruff check --fix app tests && uv run ruff format app tests
-	bun run lint
+	cd frontend && bun run lint
 
 .PHONY: typecheck
 typecheck: ## Type-check (mypy, tsc)
 	cd backend && uv run mypy app
-	bun run typecheck
+	cd frontend && bun run typecheck
 
 .PHONY: check
 check: lint typecheck ## lint + typecheck
@@ -82,7 +83,7 @@ test: ## Backend tests in the dev container, against a separate *_test database
 
 .PHONY: test-e2e
 test-e2e: ## Playwright e2e tests against the running stack (`make up` first)
-	bun run test:e2e
+	cd frontend && bun run test:e2e
 
 # --- Build & codegen ---------------------------------------------------------
 
@@ -92,7 +93,7 @@ build: ## Build production images
 
 .PHONY: client
 client: ## Regenerate the frontend API clients from the backend OpenAPI schema
-	bash scripts/generate-client.sh
+	bash frontend/scripts/generate-client.sh
 
 # --- Database ----------------------------------------------------------------
 

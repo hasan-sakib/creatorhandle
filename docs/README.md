@@ -126,7 +126,7 @@ Build args: `VITE_API_URL`, `VITE_GOOGLE_CLIENT_ID`
 
 ```
 creatorhandle/
-├── backend/                 FastAPI service (uv workspace member)
+├── backend/                 FastAPI service (standalone uv project: pyproject.toml, uv.lock)
 │   ├── Dockerfile           multi-stage, non-root runtime
 │   ├── app/
 │   │   ├── main.py          app wiring: CORS, Sentry, logging, routers
@@ -140,15 +140,15 @@ creatorhandle/
 │   │   └── alembic/         migrations
 │   ├── scripts/             container scripts: entrypoint, prestart, tests-start
 │   └── tests/               pytest (api/, crud/, cli/, utils/)
-├── frontend/                Bun workspace
+├── frontend/                Bun workspace root (package.json, bun.lock)
 │   ├── Dockerfile           builds both apps into one Caddy image
 │   ├── Dockerfile.playwright
 │   ├── Caddyfile            single-origin routing (/api, /media, /app, site)
 │   ├── biome.json           lint/format config for all frontend code
+│   ├── scripts/             generate-client.sh, openapi_public.py (API client codegen)
 │   ├── creator-workspace/   dashboard SPA (src/{client,components,hooks,lib,providers,routes}, tests/)
 │   ├── creator-site/        public site SPA (src/{client,components,hooks,lib,routes,styles}, scripts/)
 │   └── packages/shared/     @creatorhandle/shared: accents, theme keys, cn()
-├── scripts/                 generate-client.sh, openapi_public.py, test.sh, test-local.sh
 ├── docs/                    this folder
 ├── .github/workflows/ci.yml lint → type-check → test → build
 ├── compose.yml              base stack: db, rustfs, backend, frontend
@@ -156,8 +156,7 @@ creatorhandle/
 ├── compose.prod.yml         production: ports 80/443 + domain
 ├── .env.example             every setting, documented (copy to .env)
 ├── Makefile                 common commands (`make help`)
-├── package.json, bun.lock   JS workspace
-└── pyproject.toml, uv.lock  Python workspace
+└── skills-lock.json         AI design-skills tool (not part of the app)
 ```
 
 ## Key Environment Variables

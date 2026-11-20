@@ -5,7 +5,7 @@
 - [Docker](https://docs.docker.com/get-docker/) with Compose v2
 - [uv](https://docs.astral.sh/uv/) (Python 3.12 is installed by uv as needed)
 - [Bun](https://bun.sh/) 1.4
-- Node 23.6+ only if you run the contrast checker (`bun run test:contrast`)
+- Node 23.6+ only if you run the contrast checker (`bun run test:contrast` in `frontend/`)
 
 ## First-time setup
 
@@ -97,7 +97,7 @@ Upload tests talk to RustFS and are skipped when storage is not configured.
 After changing endpoints or schemas, run `make client` and commit both
 generated clients: `frontend/creator-workspace/src/client` (whole API) and
 `frontend/creator-site/src/client` (public endpoints only, filtered by
-`scripts/openapi_public.py`). CI fails if they are stale.
+`frontend/scripts/openapi_public.py`). CI fails if they are stale.
 
 ## Frontend
 
