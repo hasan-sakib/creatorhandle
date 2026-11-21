@@ -1,5 +1,5 @@
 # ---- builder: resolve and install dependencies into /app/.venv ----
-FROM python:3.12-slim AS builder
+FROM python:3.15-slim AS builder
 
 # Install uv
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#installing-uv
@@ -39,7 +39,7 @@ RUN [ "$INSTALL_DEV" = "true" ] || rm -rf /app/backend/tests
 
 
 # ---- runtime: just the virtualenv and the app, no uv or build cache ----
-FROM python:3.12-slim
+FROM python:3.15-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PATH="/app/.venv/bin:$PATH"
