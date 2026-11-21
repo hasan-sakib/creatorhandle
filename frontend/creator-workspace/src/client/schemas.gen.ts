@@ -116,7 +116,7 @@ export const BrandCreateSchema = {
         },
         status: {
             type: 'string',
-            maxLength: 20,
+            enum: ['active', 'inactive'],
             title: 'Status',
             default: 'active'
         },
@@ -178,7 +178,7 @@ export const BrandPublicSchema = {
         },
         status: {
             type: 'string',
-            maxLength: 20,
+            enum: ['active', 'inactive'],
             title: 'Status',
             default: 'active'
         },
@@ -282,7 +282,7 @@ export const BrandUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    enum: ['active', 'inactive']
                 },
                 {
                     type: 'null'
@@ -450,41 +450,72 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
-export const ItemCreateSchema = {
+export const InquiriesPublicSchema = {
     properties: {
-        title: {
-            type: 'string',
-            maxLength: 255,
-            minLength: 1,
-            title: 'Title'
+        data: {
+            items: {
+                '$ref': '#/components/schemas/InquiryPublic'
+            },
+            type: 'array',
+            title: 'Data'
         },
-        description: {
-            anyOf: [
-                {
-                    type: 'string',
-                    maxLength: 255
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'Description'
+        count: {
+            type: 'integer',
+            title: 'Count'
+        },
+        unread_count: {
+            type: 'integer',
+            title: 'Unread Count'
         }
     },
     type: 'object',
-    required: ['title'],
-    title: 'ItemCreate'
+    required: ['data', 'count', 'unread_count'],
+    title: 'InquiriesPublic'
 } as const;
 
-export const ItemPublicSchema = {
+export const InquiryCreateSchema = {
     properties: {
-        title: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Name'
+        },
+        email: {
             type: 'string',
             maxLength: 255,
-            minLength: 1,
-            title: 'Title'
+            format: 'email',
+            title: 'Email'
         },
-        description: {
+        company: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Company'
+        },
+        budget: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['under-500', '500-2k', '2k-5k', '5k-plus', 'not-sure']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Budget'
+        },
+        message: {
+            type: 'string',
+            maxLength: 2000,
+            title: 'Message'
+        },
+        website: {
             anyOf: [
                 {
                     type: 'string',
@@ -494,17 +525,22 @@ export const ItemPublicSchema = {
                     type: 'null'
                 }
             ],
-            title: 'Description'
-        },
+            title: 'Website'
+        }
+    },
+    type: 'object',
+    required: ['name', 'email', 'message'],
+    title: 'InquiryCreate',
+    description: `What a visitor submits on /@username. \`website\` is a honeypot: real
+visitors never see the field, so a filled-in value means a bot.`
+} as const;
+
+export const InquiryPublicSchema = {
+    properties: {
         id: {
             type: 'string',
             format: 'uuid',
             title: 'Id'
-        },
-        owner_id: {
-            type: 'string',
-            format: 'uuid',
-            title: 'Owner Id'
         },
         created_at: {
             anyOf: [
@@ -517,62 +553,88 @@ export const ItemPublicSchema = {
                 }
             ],
             title: 'Created At'
-        }
-    },
-    type: 'object',
-    required: ['title', 'id', 'owner_id'],
-    title: 'ItemPublic'
-} as const;
-
-export const ItemUpdateSchema = {
-    properties: {
-        title: {
+        },
+        name: {
+            type: 'string',
+            title: 'Name'
+        },
+        email: {
+            type: 'string',
+            title: 'Email'
+        },
+        company: {
             anyOf: [
                 {
-                    type: 'string',
-                    maxLength: 255,
-                    minLength: 1
+                    type: 'string'
                 },
                 {
                     type: 'null'
                 }
             ],
-            title: 'Title'
+            title: 'Company'
         },
-        description: {
+        budget: {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 255
+                    enum: ['under-500', '500-2k', '2k-5k', '5k-plus', 'not-sure']
                 },
                 {
                     type: 'null'
                 }
             ],
-            title: 'Description'
+            title: 'Budget'
+        },
+        message: {
+            type: 'string',
+            title: 'Message'
+        },
+        status: {
+            type: 'string',
+            enum: ['new', 'read', 'archived', 'converted'],
+            title: 'Status'
+        },
+        brand_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Brand Id'
+        },
+        project_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Project Id'
         }
     },
     type: 'object',
-    title: 'ItemUpdate'
+    required: ['id', 'name', 'email', 'message', 'status'],
+    title: 'InquiryPublic'
 } as const;
 
-export const ItemsPublicSchema = {
+export const InquiryUpdateSchema = {
     properties: {
-        data: {
-            items: {
-                '$ref': '#/components/schemas/ItemPublic'
-            },
-            type: 'array',
-            title: 'Data'
-        },
-        count: {
-            type: 'integer',
-            title: 'Count'
+        status: {
+            type: 'string',
+            enum: ['new', 'read', 'archived'],
+            title: 'Status'
         }
     },
     type: 'object',
-    required: ['data', 'count'],
-    title: 'ItemsPublic'
+    required: ['status'],
+    title: 'InquiryUpdate'
 } as const;
 
 export const MessageSchema = {
@@ -640,13 +702,13 @@ export const ProjectCreateSchema = {
         },
         type: {
             type: 'string',
-            maxLength: 50,
+            enum: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Blog', 'Other'],
             title: 'Type',
             default: 'Other'
         },
         platform_status: {
             type: 'string',
-            maxLength: 50,
+            enum: ['Planning', 'In Progress', 'Review', 'Published', 'Cancelled'],
             title: 'Platform Status',
             default: 'Planning'
         },
@@ -654,7 +716,7 @@ export const ProjectCreateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'
@@ -739,13 +801,13 @@ export const ProjectPublicSchema = {
         },
         type: {
             type: 'string',
-            maxLength: 50,
+            enum: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Blog', 'Other'],
             title: 'Type',
             default: 'Other'
         },
         platform_status: {
             type: 'string',
-            maxLength: 50,
+            enum: ['Planning', 'In Progress', 'Review', 'Published', 'Cancelled'],
             title: 'Platform Status',
             default: 'Planning'
         },
@@ -753,7 +815,7 @@ export const ProjectPublicSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'
@@ -873,7 +935,7 @@ export const ProjectUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 50
+                    enum: ['YouTube', 'TikTok', 'Instagram', 'Twitch', 'Blog', 'Other']
                 },
                 {
                     type: 'null'
@@ -885,7 +947,7 @@ export const ProjectUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 50
+                    enum: ['Planning', 'In Progress', 'Review', 'Published', 'Cancelled']
                 },
                 {
                     type: 'null'
@@ -897,7 +959,7 @@ export const ProjectUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'
@@ -1534,13 +1596,13 @@ export const TaskCreateSchema = {
         },
         status: {
             type: 'string',
-            maxLength: 20,
+            enum: ['To Do', 'In Progress', 'Done'],
             title: 'Status',
             default: 'To Do'
         },
         priority: {
             type: 'string',
-            maxLength: 20,
+            enum: ['Low', 'Medium', 'High'],
             title: 'Priority',
             default: 'Medium'
         },
@@ -1548,7 +1610,7 @@ export const TaskCreateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'
@@ -1620,13 +1682,13 @@ export const TaskPublicSchema = {
         },
         status: {
             type: 'string',
-            maxLength: 20,
+            enum: ['To Do', 'In Progress', 'Done'],
             title: 'Status',
             default: 'To Do'
         },
         priority: {
             type: 'string',
-            maxLength: 20,
+            enum: ['Low', 'Medium', 'High'],
             title: 'Priority',
             default: 'Medium'
         },
@@ -1634,7 +1696,7 @@ export const TaskPublicSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'
@@ -1752,7 +1814,7 @@ export const TaskUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    enum: ['To Do', 'In Progress', 'Done']
                 },
                 {
                     type: 'null'
@@ -1764,7 +1826,7 @@ export const TaskUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    enum: ['Low', 'Medium', 'High']
                 },
                 {
                     type: 'null'
@@ -1776,7 +1838,7 @@ export const TaskUpdateSchema = {
             anyOf: [
                 {
                     type: 'string',
-                    maxLength: 20
+                    format: 'date'
                 },
                 {
                     type: 'null'

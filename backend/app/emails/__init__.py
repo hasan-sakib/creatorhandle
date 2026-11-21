@@ -23,7 +23,8 @@ def render_email_template(*, template_name: str, context: dict[str, Any]) -> str
     template_str = (
         Path(__file__).parent / "templates" / "build" / template_name
     ).read_text()
-    html_content = Template(template_str).render(context)
+    # Autoescape: some templates include text typed by visitors (inquiries)
+    html_content = Template(template_str, autoescape=True).render(context)
     return html_content
 
 
@@ -32,12 +33,14 @@ def send_email(
     email_to: str,
     subject: str = "",
     html_content: str = "",
+    reply_to: str | None = None,
 ) -> None:
     assert settings.emails_enabled, "no provided configuration for email variables"
     message = emails.Message(
         subject=subject,
         html=html_content,
         mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
+        headers={"Reply-To": reply_to} if reply_to else None,
     )
     smtp_options = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
     if settings.SMTP_TLS:
@@ -79,19 +82,60 @@ def generate_reset_password_email(email_to: str, email: str, token: str) -> Emai
     return EmailData(html_content=html_content, subject=subject)
 
 
-def generate_new_account_email(
-    email_to: str, username: str, password: str
-) -> EmailData:
+def generate_new_account_email(email_to: str, username: str, token: str) -> EmailData:
+    """Welcome email for an admin-created account.
+
+    It never contains the password: the link lets the user choose their own,
+    using the same token and page as password recovery.
+    """
     project_name = settings.PROJECT_NAME
     subject = f"{project_name} - New account for user {username}"
+    link = f"{settings.DASHBOARD_URL}/reset-password?token={token}"
     html_content = render_email_template(
         template_name="new_account.html",
         context={
             "project_name": settings.PROJECT_NAME,
             "username": username,
-            "password": password,
             "email": email_to,
-            "link": settings.DASHBOARD_URL,
+            "valid_hours": settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS,
+            "link": link,
+        },
+    )
+    return EmailData(html_content=html_content, subject=subject)
+
+
+BUDGET_LABELS = {
+    "under-500": "Under $500",
+    "500-2k": "$500 – $2k",
+    "2k-5k": "$2k – $5k",
+    "5k-plus": "$5k+",
+    "not-sure": "Not sure yet",
+}
+
+
+def generate_new_inquiry_email(
+    *,
+    email_to: str,
+    sender_name: str,
+    sender_email: str,
+    company: str | None,
+    budget: str | None,
+    message: str,
+) -> EmailData:
+    project_name = settings.PROJECT_NAME
+    who = f"{sender_name} ({company})" if company else sender_name
+    subject = f"{project_name} - New inquiry from {who}"
+    html_content = render_email_template(
+        template_name="new_inquiry.html",
+        context={
+            "project_name": project_name,
+            "sender_name": sender_name,
+            "sender_email": sender_email,
+            "company": company,
+            "budget": BUDGET_LABELS.get(budget or ""),
+            "message": message,
+            "email": email_to,
+            "link": f"{settings.DASHBOARD_URL}/inbox",
         },
     )
     return EmailData(html_content=html_content, subject=subject)

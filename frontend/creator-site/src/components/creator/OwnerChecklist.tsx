@@ -3,7 +3,6 @@ import { ArrowRight, Check, Circle } from "lucide-react"
 import type { PublicCreator } from "@/client"
 import { hasMakeContent } from "@/components/creator/AboutSection"
 import { hasApproachContent } from "@/components/creator/ApproachSection"
-import { hasContactMethods } from "@/components/creator/ContactSection"
 import { dashboardPath } from "@/lib/urls"
 
 interface Item {
@@ -49,12 +48,6 @@ export function OwnerChecklist({ profile }: { profile: PublicCreator }) {
       hint: "Only projects with status Published appear here",
       done: profile.projects.length > 0,
       href: dashboardPath("/projects"),
-    },
-    {
-      label: "A way to contact you",
-      hint: "A public email, social links or a media kit",
-      done: hasContactMethods(profile),
-      href: `${dashboardPath("/settings")}?tab=my-profile`,
     },
     {
       label: "Cover image and theme",

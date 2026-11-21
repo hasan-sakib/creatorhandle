@@ -35,12 +35,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
+import { BRAND_STATUSES } from "@/lib/choices"
 import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   category: z.string().optional(),
-  status: z.string().optional(),
+  status: z.enum(BRAND_STATUSES).optional(),
   contact_name: z.string().optional(),
   contact_email: z
     .string()
@@ -58,7 +59,6 @@ interface EditBrandProps {
 }
 
 const CATEGORIES = ["Beauty", "Tech", "Food", "Fashion", "Gaming", "Other"]
-const STATUSES = ["active", "inactive"]
 
 const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
   const [isOpen, setIsOpen] = useState(false)
@@ -180,7 +180,7 @@ const EditBrand = ({ brand, onSuccess }: EditBrandProps) => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {STATUSES.map((s) => (
+                        {BRAND_STATUSES.map((s) => (
                           <SelectItem key={s} value={s} className="capitalize">
                             {s}
                           </SelectItem>

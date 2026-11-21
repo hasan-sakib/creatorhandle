@@ -5,6 +5,7 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -14,6 +15,8 @@ export type Item = {
   icon: LucideIcon
   title: string
   path: string
+  /** Small count shown next to the title (e.g. unread messages) */
+  badge?: number
 }
 
 interface MainProps {
@@ -50,6 +53,11 @@ export function Main({ items }: MainProps) {
                     <span>{item.title}</span>
                   </RouterLink>
                 </SidebarMenuButton>
+                {!!item.badge && (
+                  <SidebarMenuBadge aria-label={`${item.badge} new`}>
+                    {item.badge > 99 ? "99+" : item.badge}
+                  </SidebarMenuBadge>
+                )}
               </SidebarMenuItem>
             )
           })}

@@ -19,7 +19,7 @@ import { Route as LayoutTeamRouteImport } from './routes/_layout/team'
 import { Route as LayoutTasksRouteImport } from './routes/_layout/tasks'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutProjectsRouteImport } from './routes/_layout/projects'
-import { Route as LayoutItemsRouteImport } from './routes/_layout/items'
+import { Route as LayoutInboxRouteImport } from './routes/_layout/inbox'
 import { Route as LayoutBrandsRouteImport } from './routes/_layout/brands'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
 
@@ -72,9 +72,9 @@ const LayoutProjectsRoute = LayoutProjectsRouteImport.update({
   path: '/projects',
   getParentRoute: () => LayoutRoute,
 } as any)
-const LayoutItemsRoute = LayoutItemsRouteImport.update({
-  id: '/items',
-  path: '/items',
+const LayoutInboxRoute = LayoutInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
   getParentRoute: () => LayoutRoute,
 } as any)
 const LayoutBrandsRoute = LayoutBrandsRouteImport.update({
@@ -96,7 +96,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/brands': typeof LayoutBrandsRoute
-  '/items': typeof LayoutItemsRoute
+  '/inbox': typeof LayoutInboxRoute
   '/projects': typeof LayoutProjectsRoute
   '/settings': typeof LayoutSettingsRoute
   '/tasks': typeof LayoutTasksRoute
@@ -109,7 +109,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/admin': typeof LayoutAdminRoute
   '/brands': typeof LayoutBrandsRoute
-  '/items': typeof LayoutItemsRoute
+  '/inbox': typeof LayoutInboxRoute
   '/projects': typeof LayoutProjectsRoute
   '/settings': typeof LayoutSettingsRoute
   '/tasks': typeof LayoutTasksRoute
@@ -125,7 +125,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/brands': typeof LayoutBrandsRoute
-  '/_layout/items': typeof LayoutItemsRoute
+  '/_layout/inbox': typeof LayoutInboxRoute
   '/_layout/projects': typeof LayoutProjectsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/tasks': typeof LayoutTasksRoute
@@ -142,7 +142,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/brands'
-    | '/items'
+    | '/inbox'
     | '/projects'
     | '/settings'
     | '/tasks'
@@ -155,7 +155,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/admin'
     | '/brands'
-    | '/items'
+    | '/inbox'
     | '/projects'
     | '/settings'
     | '/tasks'
@@ -170,7 +170,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/_layout/admin'
     | '/_layout/brands'
-    | '/_layout/items'
+    | '/_layout/inbox'
     | '/_layout/projects'
     | '/_layout/settings'
     | '/_layout/tasks'
@@ -258,11 +258,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutProjectsRouteImport
       parentRoute: typeof LayoutRoute
     }
-    '/_layout/items': {
-      id: '/_layout/items'
-      path: '/items'
-      fullPath: '/items'
-      preLoaderRoute: typeof LayoutItemsRouteImport
+    '/_layout/inbox': {
+      id: '/_layout/inbox'
+      path: '/inbox'
+      fullPath: '/inbox'
+      preLoaderRoute: typeof LayoutInboxRouteImport
       parentRoute: typeof LayoutRoute
     }
     '/_layout/brands': {
@@ -285,7 +285,7 @@ declare module '@tanstack/react-router' {
 interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutBrandsRoute: typeof LayoutBrandsRoute
-  LayoutItemsRoute: typeof LayoutItemsRoute
+  LayoutInboxRoute: typeof LayoutInboxRoute
   LayoutProjectsRoute: typeof LayoutProjectsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutTasksRoute: typeof LayoutTasksRoute
@@ -296,7 +296,7 @@ interface LayoutRouteChildren {
 const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutBrandsRoute: LayoutBrandsRoute,
-  LayoutItemsRoute: LayoutItemsRoute,
+  LayoutInboxRoute: LayoutInboxRoute,
   LayoutProjectsRoute: LayoutProjectsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutTasksRoute: LayoutTasksRoute,

@@ -100,7 +100,7 @@ export function Navbar({ marketing = false }: NavbarProps) {
             <a href={dashboardPath("/login")}>Sign in</a>
           </Button>
           <Button asChild size="sm" className="rounded-full px-4">
-            <a href={dashboardPath("/login")}>Get started</a>
+            <a href={dashboardPath("/signup")}>Get started</a>
           </Button>
           {marketing && (
             <Button

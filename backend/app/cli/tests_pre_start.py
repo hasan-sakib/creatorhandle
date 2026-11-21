@@ -34,7 +34,7 @@ def ensure_test_database() -> None:
     """Create the test database (POSTGRES_DB, e.g. app_test) if it is missing.
 
     Tests must never share the dev database: the conftest teardown deletes
-    every user, workspace and item.
+    every user and workspace.
     """
     name = settings.POSTGRES_DB
     if not name.endswith("_test"):

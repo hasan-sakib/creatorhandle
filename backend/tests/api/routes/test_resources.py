@@ -19,15 +19,15 @@ API = settings.API_V1_STR
 CASES: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {
     "brands": (
         {"name": "Acme Co", "category": "Tech", "contact_email": "a@acme.test"},
-        {"name": "Acme Inc", "status": "paused"},
+        {"name": "Acme Inc", "status": "inactive"},
     ),
     "projects": (
-        {"title": "Launch Campaign", "type": "Video", "tags": ["launch"]},
+        {"title": "Launch Campaign", "type": "YouTube", "tags": ["launch"]},
         {"title": "Launch Campaign v2", "platform_status": "In Progress"},
     ),
     "tasks": (
-        {"title": "Write brief", "priority": "High"},
-        {"status": "Done"},
+        {"title": "Write brief", "priority": "High", "due_date": "2026-12-01"},
+        {"status": "Done", "due_date": None},
     ),
     "collaborators": (
         {"name": "Jamie Doe", "role": "Designer"},
@@ -89,6 +89,37 @@ def test_missing_resource_is_404(
     assert (
         client.get(f"{API}/{resource}/{missing}", headers=ws_headers).status_code == 404
     )
+
+
+@pytest.mark.parametrize(
+    ("resource", "body"),
+    [
+        ("brands", {"name": "Acme", "status": "paused"}),
+        ("projects", {"title": "P", "type": "Video"}),
+        ("projects", {"title": "P", "platform_status": "Done"}),
+        ("projects", {"title": "P", "deadline": "next week"}),
+        ("tasks", {"title": "T", "status": "Blocked"}),
+        ("tasks", {"title": "T", "priority": "Urgent"}),
+        ("tasks", {"title": "T", "due_date": "2026-02-30"}),
+    ],
+)
+def test_rejects_unknown_choices_and_bad_dates(
+    client: TestClient, ws_headers: dict[str, str], resource: str, body: dict[str, Any]
+) -> None:
+    r = client.post(f"{API}/{resource}/", headers=ws_headers, json=body)
+    assert r.status_code == 422, r.text
+
+
+def test_project_deadline_round_trips_as_iso_date(
+    client: TestClient, ws_headers: dict[str, str]
+) -> None:
+    r = client.post(
+        f"{API}/projects/",
+        headers=ws_headers,
+        json={"title": "Dated", "deadline": "2027-01-15"},
+    )
+    assert r.status_code == 200
+    assert r.json()["deadline"] == "2027-01-15"
 
 
 def test_task_embeds_its_collaborator(

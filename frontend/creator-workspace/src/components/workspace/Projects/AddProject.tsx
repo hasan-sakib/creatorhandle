@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select"
 import { ProjectPortfolioFields } from "@/components/workspace/Projects/ProjectPortfolioFields"
 import useCustomToast from "@/hooks/useCustomToast"
+import { PROJECT_STATUSES, PROJECT_TYPES } from "@/lib/choices"
 import { handleError } from "@/lib/errors"
 import {
   blankToNull,
@@ -46,8 +47,8 @@ import {
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  type: z.string().optional(),
-  platform_status: z.string().optional(),
+  type: z.enum(PROJECT_TYPES).or(z.literal("")).optional(),
+  platform_status: z.enum(PROJECT_STATUSES).optional(),
   deadline: z.string().optional(),
   description: z.string().optional(),
   brand_id: z.string().nullable().optional(),
@@ -58,9 +59,6 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
-
-const TYPES = ["YouTube", "TikTok", "Instagram", "Twitch", "Blog", "Other"]
-const STATUSES = ["Planning", "In Progress", "Review", "Published", "Cancelled"]
 
 const AddProject = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -170,7 +168,7 @@ const AddProject = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {TYPES.map((t) => (
+                        {PROJECT_TYPES.map((t) => (
                           <SelectItem key={t} value={t}>
                             {t}
                           </SelectItem>
@@ -195,7 +193,7 @@ const AddProject = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {STATUSES.map((s) => (
+                        {PROJECT_STATUSES.map((s) => (
                           <SelectItem key={s} value={s}>
                             {s}
                           </SelectItem>

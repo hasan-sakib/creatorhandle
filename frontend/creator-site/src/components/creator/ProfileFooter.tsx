@@ -14,7 +14,7 @@ export function ProfileFooter({ name }: { name: string }) {
           </a>
           .{" "}
           <a
-            href={dashboardPath("/login")}
+            href={dashboardPath("/signup")}
             className="hover:text-foreground hover:underline"
           >
             Create your own page

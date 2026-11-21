@@ -40,12 +40,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import useCustomToast from "@/hooks/useCustomToast"
+import { TASK_PRIORITIES, TASK_STATUSES } from "@/lib/choices"
 import { handleError } from "@/lib/errors"
 
 const formSchema = z.object({
   title: z.string().min(1, { message: "Title is required" }),
-  status: z.string().optional(),
-  priority: z.string().optional(),
+  status: z.enum(TASK_STATUSES).optional(),
+  priority: z.enum(TASK_PRIORITIES).optional(),
   due_date: z.string().optional(),
   description: z.string().optional(),
   project_id: z.string().nullable().optional(),
@@ -53,9 +54,6 @@ const formSchema = z.object({
 })
 
 type FormData = z.infer<typeof formSchema>
-
-const STATUSES = ["To Do", "In Progress", "Done"]
-const PRIORITIES = ["Low", "Medium", "High"]
 
 const AddTask = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -168,7 +166,7 @@ const AddTask = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {STATUSES.map((s) => (
+                        {TASK_STATUSES.map((s) => (
                           <SelectItem key={s} value={s}>
                             {s}
                           </SelectItem>
@@ -193,7 +191,7 @@ const AddTask = () => {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {PRIORITIES.map((p) => (
+                        {TASK_PRIORITIES.map((p) => (
                           <SelectItem key={p} value={p}>
                             {p}
                           </SelectItem>

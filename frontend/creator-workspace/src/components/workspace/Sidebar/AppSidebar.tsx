@@ -1,9 +1,9 @@
 import {
-  Briefcase,
   Building2,
   CheckSquare,
   FolderKanban,
   Home,
+  Inbox,
   Users,
   Users2,
 } from "lucide-react"
@@ -17,25 +17,30 @@ import {
   SidebarHeader,
 } from "@/components/ui/sidebar"
 import useAuth from "@/hooks/useAuth"
+import { useUnreadInquiries } from "@/hooks/useInquiries"
 import { type Item, Main } from "./Main"
 import { User } from "./User"
 import { WorkspaceSwitcher } from "./WorkspaceSwitcher"
 
 const baseItems: Item[] = [
   { icon: Home, title: "Dashboard", path: "/" },
+  { icon: Inbox, title: "Inbox", path: "/inbox" },
   { icon: Building2, title: "Brands", path: "/brands" },
   { icon: FolderKanban, title: "Projects", path: "/projects" },
   { icon: CheckSquare, title: "Tasks", path: "/tasks" },
   { icon: Users2, title: "Team", path: "/team" },
-  { icon: Briefcase, title: "Items", path: "/items" },
 ]
 
 export function AppSidebar() {
   const { user: currentUser } = useAuth()
+  const unread = useUnreadInquiries()
 
+  const withBadges = baseItems.map((item) =>
+    item.path === "/inbox" ? { ...item, badge: unread } : item,
+  )
   const items = currentUser?.is_superuser
-    ? [...baseItems, { icon: Users, title: "Admin", path: "/admin" }]
-    : baseItems
+    ? [...withBadges, { icon: Users, title: "Admin", path: "/admin" }]
+    : withBadges
 
   return (
     <Sidebar collapsible="offcanvas">

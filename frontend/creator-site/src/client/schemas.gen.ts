@@ -14,6 +14,80 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
+export const InquiryCreateSchema = {
+    properties: {
+        name: {
+            type: 'string',
+            maxLength: 100,
+            title: 'Name'
+        },
+        email: {
+            type: 'string',
+            maxLength: 255,
+            format: 'email',
+            title: 'Email'
+        },
+        company: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 100
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Company'
+        },
+        budget: {
+            anyOf: [
+                {
+                    type: 'string',
+                    enum: ['under-500', '500-2k', '2k-5k', '5k-plus', 'not-sure']
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Budget'
+        },
+        message: {
+            type: 'string',
+            maxLength: 2000,
+            title: 'Message'
+        },
+        website: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 255
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Website'
+        }
+    },
+    type: 'object',
+    required: ['name', 'email', 'message'],
+    title: 'InquiryCreate',
+    description: `What a visitor submits on /@username. \`website\` is a honeypot: real
+visitors never see the field, so a filled-in value means a bot.`
+} as const;
+
+export const MessageSchema = {
+    properties: {
+        message: {
+            type: 'string',
+            title: 'Message'
+        }
+    },
+    type: 'object',
+    required: ['message'],
+    title: 'Message'
+} as const;
+
 export const PublicBrandSchema = {
     properties: {
         id: {

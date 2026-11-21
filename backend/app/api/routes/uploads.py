@@ -1,12 +1,13 @@
 from typing import Annotated, Any
 
-from fastapi import APIRouter, File, Form, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 from sqlmodel import SQLModel
 
 from app.api.deps import CurrentUser
 from app.core import storage
 from app.core.config import settings
 from app.core.media import new_media_path
+from app.core.rate_limit import rate_limit
 from app.domain.images import ImageError, Kind, process_image
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
@@ -20,7 +21,11 @@ class UploadedImage(SQLModel):
     height: int
 
 
-@router.post("/images", response_model=UploadedImage)
+@router.post(
+    "/images",
+    response_model=UploadedImage,
+    dependencies=[Depends(rate_limit("upload", 60, 600))],
+)
 def upload_image(
     current_user: CurrentUser,
     file: Annotated[UploadFile, File()],

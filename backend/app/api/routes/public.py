@@ -5,12 +5,15 @@ the table/base models, so a new private column can never leak by default.
 Everything a visitor can see is listed explicitly below.
 """
 
+import logging
 from typing import Any, get_args
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response
 from sqlmodel import SQLModel, col, func, select
 
 from app.api.deps import SessionDep
+from app.core.config import settings
+from app.core.rate_limit import enforce, rate_limit
 from app.domain.validators import (
     AccentKey,
     Availability,
@@ -20,7 +23,10 @@ from app.domain.validators import (
     _clean_image_url,
     _clean_url,
 )
-from app.models import Brand, Project, User
+from app.emails import generate_new_inquiry_email, send_email
+from app.models import Brand, Inquiry, InquiryCreate, Message, Project, User
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/public", tags=["public"])
 
@@ -235,3 +241,64 @@ def get_creator(session: SessionDep, response: Response, username: str) -> Any:
         ],
         projects_total=projects_total,
     )
+
+
+INQUIRY_RECEIVED = "Thanks! Your message was sent."
+
+
+def _email_inquiry(email_to: str, inquiry: InquiryCreate) -> None:
+    """Runs after the response; a mail failure must not lose the inquiry."""
+    try:
+        email = generate_new_inquiry_email(
+            email_to=email_to,
+            sender_name=inquiry.name,
+            sender_email=str(inquiry.email),
+            company=inquiry.company,
+            budget=inquiry.budget,
+            message=inquiry.message,
+        )
+        send_email(
+            email_to=email_to,
+            subject=email.subject,
+            html_content=email.html_content,
+            reply_to=str(inquiry.email),
+        )
+    except Exception:
+        logger.exception("Could not send the new-inquiry email")
+
+
+@router.post(
+    "/{username}/inquiries",
+    response_model=Message,
+    dependencies=[Depends(rate_limit("inquiry", 5, 3600))],
+)
+def create_inquiry(
+    session: SessionDep,
+    background_tasks: BackgroundTasks,
+    username: str,
+    body: InquiryCreate,
+) -> Any:
+    """Send a message to a creator from their public page."""
+    user = _get_user_by_username(session, username)
+    if body.website:
+        # Honeypot filled in: answer like a success so bots learn nothing
+        return Message(message=INQUIRY_RECEIVED)
+    # Cap per creator too, so rotating IPs can't flood one inbox
+    enforce(f"inquiry-to:{user.id}", limit=50, window_seconds=86400)
+
+    inquiry = Inquiry(
+        recipient_id=user.id,
+        name=body.name,
+        email=str(body.email),
+        company=body.company,
+        budget=body.budget,
+        message=body.message,
+    )
+    session.add(inquiry)
+    session.commit()
+
+    if settings.emails_enabled:
+        background_tasks.add_task(
+            _email_inquiry, user.contact_email or user.email, body
+        )
+    return Message(message=INQUIRY_RECEIVED)

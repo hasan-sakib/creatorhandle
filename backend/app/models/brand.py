@@ -2,10 +2,10 @@
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from sqlalchemy import DateTime
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import AutoString, Field, Relationship, SQLModel
 
 from app.models.common import get_datetime_utc
 from app.models.user import User
@@ -16,13 +16,15 @@ if TYPE_CHECKING:
 
 # ── Brand ────────────────────────────────────────────────────────────────────
 
+BrandStatus = Literal["active", "inactive"]
+
 
 class BrandBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     category: str = Field(default="Other", max_length=50)
     contact_name: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
-    status: str = Field(default="active", max_length=20)
+    status: BrandStatus = Field(default="active", sa_type=AutoString(length=20))  # type: ignore[call-overload]
     notes: str | None = Field(default=None, max_length=500)
 
 
@@ -35,7 +37,7 @@ class BrandUpdate(SQLModel):
     category: str | None = Field(default=None, max_length=50)
     contact_name: str | None = Field(default=None, max_length=100)
     contact_email: str | None = Field(default=None, max_length=255)
-    status: str | None = Field(default=None, max_length=20)
+    status: BrandStatus | None = None
     notes: str | None = Field(default=None, max_length=500)
 
 

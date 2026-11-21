@@ -41,4 +41,9 @@ FROM caddy:2.11-alpine
 
 COPY --from=workspace-build /app/frontend/creator-workspace/dist/ /srv/creator-workspace/
 COPY --from=site-build /app/frontend/creator-site/dist/ /srv/creator-site/
+# /@username pages get the creator's own meta tags (link previews, SEO)
+COPY creator-site/scripts/profile-template.awk /tmp/profile-template.awk
+RUN awk -f /tmp/profile-template.awk /srv/creator-site/index.html > /srv/creator-site/profile.html \
+    && grep -q httpInclude /srv/creator-site/profile.html \
+    && rm /tmp/profile-template.awk
 COPY Caddyfile /etc/caddy/Caddyfile

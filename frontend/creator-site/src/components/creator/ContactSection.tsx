@@ -1,21 +1,12 @@
 import { Mail } from "lucide-react"
 
 import type { PublicCreator } from "@/client"
-import { EmptyState } from "@/components/creator/EmptyState"
+import { InquiryForm } from "@/components/creator/InquiryForm"
 import { Section } from "@/components/creator/Section"
-import { firstName } from "@/components/creator/sections"
 import { Reveal } from "@/components/home/Reveal"
 import { Button } from "@/components/ui/button"
 import { safeEmail, safeHttpUrl } from "@/lib/safeUrl"
 import { getSocialLinks } from "@/lib/socials"
-
-export function hasContactMethods(p: PublicCreator) {
-  return !!(
-    safeEmail(p.contact_email) ||
-    getSocialLinks(p).length > 0 ||
-    safeHttpUrl(p.media_kit_url)
-  )
-}
 
 const COPY: Record<string, string> = {
   open: "I'm open to new collaborations. Tell me about your brand and what you have in mind.",
@@ -26,16 +17,6 @@ const COPY: Record<string, string> = {
 }
 
 export function ContactSection({ profile }: { profile: PublicCreator }) {
-  if (!hasContactMethods(profile)) {
-    return (
-      <Section id="contact" eyebrow="Contact" title="Let's work together">
-        <EmptyState
-          message={`${firstName(profile)} hasn't added a way to get in touch yet.`}
-          settingsTab="my-profile"
-        />
-      </Section>
-    )
-  }
   const email = safeEmail(profile.contact_email)
   const links = getSocialLinks(profile)
   const mediaKit = safeHttpUrl(profile.media_kit_url)
@@ -58,9 +39,22 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
               `Get in touch with ${name} about collaborations, sponsorships or projects.`}
           </p>
 
-          <div className="relative mt-6 flex flex-wrap gap-3">
+          <div className="relative mt-6">
+            <InquiryForm username={profile.username} name={name} />
+          </div>
+
+          {(email || mediaKit) && (
+            <p className="relative mt-8 text-sm text-muted-foreground">
+              Prefer something else?
+            </p>
+          )}
+          <div className="relative mt-3 flex flex-wrap gap-3">
             {email && (
-              <Button asChild size="lg" className="rounded-pill px-6">
+              <Button
+                asChild
+                variant="outline"
+                className="rounded-pill bg-background/50 px-5"
+              >
                 <a
                   href={`mailto:${email}?subject=${encodeURIComponent(`Collaboration with ${name}`)}`}
                 >
@@ -71,9 +65,8 @@ export function ContactSection({ profile }: { profile: PublicCreator }) {
             {mediaKit && (
               <Button
                 asChild
-                size="lg"
                 variant="outline"
-                className="rounded-pill bg-background/50 px-6"
+                className="rounded-pill bg-background/50 px-5"
               >
                 <a href={mediaKit} target="_blank" rel="noopener noreferrer">
                   Download media kit

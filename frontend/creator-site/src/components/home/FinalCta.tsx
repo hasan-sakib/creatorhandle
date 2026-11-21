@@ -24,7 +24,7 @@ export function FinalCta() {
             size="lg"
             className="relative mt-8 rounded-full bg-white px-6 text-primary hover:bg-white/90"
           >
-            <a href={dashboardPath("/login")}>
+            <a href={dashboardPath("/signup")}>
               Get started free <ArrowRight className="size-4" />
             </a>
           </Button>

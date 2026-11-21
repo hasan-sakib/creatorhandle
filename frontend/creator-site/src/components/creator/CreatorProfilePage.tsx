@@ -5,10 +5,7 @@ import { PublicService } from "@/client"
 import { AboutSection } from "@/components/creator/AboutSection"
 import { ApproachSection } from "@/components/creator/ApproachSection"
 import { BrandsSection } from "@/components/creator/BrandsSection"
-import {
-  ContactSection,
-  hasContactMethods,
-} from "@/components/creator/ContactSection"
+import { ContactSection } from "@/components/creator/ContactSection"
 import { CreatorScope } from "@/components/creator/CreatorScope"
 import { GlassNavbar } from "@/components/creator/GlassNavbar"
 import { NotFound } from "@/components/creator/NotFound"
@@ -147,8 +144,6 @@ export function CreatorProfilePage({
     )
   }
 
-  const hasContact = hasContactMethods(data)
-
   return (
     <OwnerContext.Provider value={isOwner}>
       <CreatorScope accent={data.accent_color} theme={data.theme}>
@@ -168,7 +163,7 @@ export function CreatorProfilePage({
           {isOwner && <OwnerChecklist profile={data} />}
           <AboutSection profile={data} />
           <ApproachSection profile={data} />
-          <ServicesSection profile={data} hasContact={hasContact} />
+          <ServicesSection profile={data} />
           <WorkSection
             projects={data.projects}
             total={data.projects_total}

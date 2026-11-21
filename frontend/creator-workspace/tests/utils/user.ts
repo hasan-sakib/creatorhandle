@@ -13,6 +13,10 @@ export async function signUpNewUser(
   await page.getByTestId("password-input").fill(password)
   await page.getByTestId("confirm-password-input").fill(password)
   await page.getByRole("button", { name: "Sign Up" }).click()
+  // Sign-up signs the new account in; wait for that (so the account surely
+  // exists), then sign out so callers start from the login page.
+  await page.waitForURL("./")
+  await page.evaluate(() => localStorage.removeItem("access_token"))
   await page.goto("login")
 }
 

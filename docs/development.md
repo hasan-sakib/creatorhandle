@@ -150,6 +150,43 @@ like `/media/images/<owner>/<id>.webp`. Caddy serves `/media/*` read-only from
 storage, so the same path works in dev and production. Users can only attach
 images they uploaded (the `<owner>` part is an HMAC of their id).
 
+## Inquiries (inbox)
+
+The contact section of every public page has a form
+(`creator-site/src/components/creator/InquiryForm.tsx`). It posts to
+`POST /api/v1/public/{username}/inquiries`, which stores the message and, when
+SMTP is configured, emails the creator with `Reply-To` set to the sender (in
+dev, see Mailcatcher). Creators read them at `/app/inbox`, where "Convert to
+project" creates a brand (reused when one in the workspace has the same contact
+email) and a project. A hidden honeypot field drops bot submissions.
+
+## Link previews and SEO
+
+The site is a single-page app, so `/@username` would otherwise only carry the
+homepage's meta tags. Caddy serves those pages from `profile.html` (built from
+`index.html` by `creator-site/scripts/profile-template.awk`) through its
+`templates` handler, which includes the creator's tags from
+`GET /api/v1/seo/profile-meta/{username}`. The share image is drawn by the
+backend (`/api/v1/seo/og/{username}.png`), and `/robots.txt` and
+`/sitemap.xml` come from the backend too. Outside production, robots.txt
+disallows everything. Check a page the way a crawler sees it:
+
+```bash
+curl -s http://localhost:5173/@yourhandle | grep -E '<title>|og:'
+```
+
+This needs the Docker `frontend` service; the Vite dev server shows the
+default tags.
+
+## Rate limits
+
+Login, signup, password recovery, uploads and inquiries are limited per client
+IP (`app/core/rate_limit.py`, in-memory, per worker). They are off when
+`ENVIRONMENT=local` so e2e tests can create many accounts; set
+`RATE_LIMIT_ENABLED=true` to try them locally. Compose sets
+`FORWARDED_ALLOW_IPS=*` so the backend sees the visitor's IP from Caddy's
+`X-Forwarded-For` (the backend has no public port in production).
+
 ## Logs
 
 Locally logs are plain text; with `ENVIRONMENT` other than `local` they are

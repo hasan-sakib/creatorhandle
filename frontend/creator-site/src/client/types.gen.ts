@@ -4,6 +4,23 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+/**
+ * What a visitor submits on /@username. `website` is a honeypot: real
+ * visitors never see the field, so a filled-in value means a bot.
+ */
+export type InquiryCreate = {
+    name: string;
+    email: string;
+    company?: (string | null);
+    budget?: ('under-500' | '500-2k' | '2k-5k' | '5k-plus' | 'not-sure' | null);
+    message: string;
+    website?: (string | null);
+};
+
+export type Message = {
+    message: string;
+};
+
 export type PublicBrand = {
     id: string;
     name: string;
@@ -83,3 +100,10 @@ export type PublicGetCreatorData = {
 };
 
 export type PublicGetCreatorResponse = (PublicCreator);
+
+export type PublicCreateInquiryData = {
+    requestBody: InquiryCreate;
+    username: string;
+};
+
+export type PublicCreateInquiryResponse = (Message);

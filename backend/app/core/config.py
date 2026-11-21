@@ -44,6 +44,17 @@ class Settings(BaseSettings):
     # Text logs when local, JSON lines otherwise (see core/log.py)
     LOG_LEVEL: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
 
+    # Per-IP limits on login, signup, password recovery, uploads and public
+    # forms (core/rate_limit.py). Off by default locally so e2e tests can
+    # create many accounts quickly.
+    RATE_LIMIT_ENABLED: bool | None = None
+
+    @model_validator(mode="after")
+    def _default_rate_limit(self) -> Self:
+        if self.RATE_LIMIT_ENABLED is None:
+            self.RATE_LIMIT_ENABLED = self.ENVIRONMENT != "local"
+        return self
+
     BACKEND_CORS_ORIGINS: Annotated[
         list[AnyUrl] | str, BeforeValidator(parse_cors)
     ] = []

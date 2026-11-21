@@ -92,6 +92,16 @@ def put_image(path: str, data: bytes) -> None:
         raise StorageUnavailable("Image storage is unavailable") from e
 
 
+def get_image(path: str) -> bytes | None:
+    """Best-effort read of a stored image (None if missing or unavailable)."""
+    try:
+        obj = _client().get_object(Bucket=settings.S3_BUCKET, Key=bucket_key(path))
+        return bytes(obj["Body"].read())
+    except (StorageUnavailable, BotoCoreError, ClientError):
+        logger.warning("Could not read stored image %s", path, exc_info=True)
+        return None
+
+
 def delete_image(path: str) -> None:
     """Best-effort: a failed delete only leaves an orphaned file behind."""
     try:
