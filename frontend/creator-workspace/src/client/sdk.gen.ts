@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, ItemsReadItemsData, ItemsReadItemsResponse, ItemsCreateItemData, ItemsCreateItemResponse, ItemsReadItemData, ItemsReadItemResponse, ItemsUpdateItemData, ItemsUpdateItemResponse, ItemsDeleteItemData, ItemsDeleteItemResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UploadsUploadImageData, UploadsUploadImageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, UtilsReadinessResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { BrandsReadBrandsData, BrandsReadBrandsResponse, BrandsCreateBrandData, BrandsCreateBrandResponse, BrandsReadBrandData, BrandsReadBrandResponse, BrandsUpdateBrandData, BrandsUpdateBrandResponse, BrandsDeleteBrandData, BrandsDeleteBrandResponse, CollaboratorsReadCollaboratorsData, CollaboratorsReadCollaboratorsResponse, CollaboratorsCreateCollaboratorData, CollaboratorsCreateCollaboratorResponse, CollaboratorsReadCollaboratorData, CollaboratorsReadCollaboratorResponse, CollaboratorsUpdateCollaboratorData, CollaboratorsUpdateCollaboratorResponse, CollaboratorsDeleteCollaboratorData, CollaboratorsDeleteCollaboratorResponse, InquiriesReadInquiriesData, InquiriesReadInquiriesResponse, InquiriesUpdateInquiryData, InquiriesUpdateInquiryResponse, InquiriesDeleteInquiryData, InquiriesDeleteInquiryResponse, InquiriesConvertInquiryData, InquiriesConvertInquiryResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, LoginLoginWithGoogleData, LoginLoginWithGoogleResponse, PrivateCreateUserData, PrivateCreateUserResponse, ProjectsReadProjectsData, ProjectsReadProjectsResponse, ProjectsCreateProjectData, ProjectsCreateProjectResponse, ProjectsReadProjectData, ProjectsReadProjectResponse, ProjectsUpdateProjectData, ProjectsUpdateProjectResponse, ProjectsDeleteProjectData, ProjectsDeleteProjectResponse, PublicGetCreatorData, PublicGetCreatorResponse, PublicCreateInquiryData, PublicCreateInquiryResponse, TasksReadTasksData, TasksReadTasksResponse, TasksCreateTaskData, TasksCreateTaskResponse, TasksReadTaskData, TasksReadTaskResponse, TasksUpdateTaskData, TasksUpdateTaskResponse, TasksDeleteTaskData, TasksDeleteTaskResponse, UploadsUploadImageData, UploadsUploadImageResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, UtilsReadinessResponse, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BrandsService {
     /**
@@ -217,21 +217,22 @@ export class CollaboratorsService {
     }
 }
 
-export class ItemsService {
+export class InquiriesService {
     /**
-     * Read Items
-     * Retrieve items.
+     * Read Inquiries
      * @param data The data for the request.
+     * @param data.status
      * @param data.skip
      * @param data.limit
-     * @returns ItemsPublic Successful Response
+     * @returns InquiriesPublic Successful Response
      * @throws ApiError
      */
-    public static readItems(data: ItemsReadItemsData = {}): CancelablePromise<ItemsReadItemsResponse> {
+    public static readInquiries(data: InquiriesReadInquiriesData = {}): CancelablePromise<InquiriesReadInquiriesResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/items/',
+            url: '/api/v1/inquiries/',
             query: {
+                status: data.status,
                 skip: data.skip,
                 limit: data.limit
             },
@@ -242,59 +243,17 @@ export class ItemsService {
     }
     
     /**
-     * Create Item
-     * Create new item.
-     * @param data The data for the request.
-     * @param data.requestBody
-     * @returns ItemPublic Successful Response
-     * @throws ApiError
-     */
-    public static createItem(data: ItemsCreateItemData): CancelablePromise<ItemsCreateItemResponse> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/api/v1/items/',
-            body: data.requestBody,
-            mediaType: 'application/json',
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Read Item
-     * Get item by ID.
-     * @param data The data for the request.
-     * @param data.id
-     * @returns ItemPublic Successful Response
-     * @throws ApiError
-     */
-    public static readItem(data: ItemsReadItemData): CancelablePromise<ItemsReadItemResponse> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/api/v1/items/{id}',
-            path: {
-                id: data.id
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Update Item
-     * Update an item.
+     * Update Inquiry
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns ItemPublic Successful Response
+     * @returns InquiryPublic Successful Response
      * @throws ApiError
      */
-    public static updateItem(data: ItemsUpdateItemData): CancelablePromise<ItemsUpdateItemResponse> {
+    public static updateInquiry(data: InquiriesUpdateInquiryData): CancelablePromise<InquiriesUpdateInquiryResponse> {
         return __request(OpenAPI, {
-            method: 'PUT',
-            url: '/api/v1/items/{id}',
+            method: 'PATCH',
+            url: '/api/v1/inquiries/{id}',
             path: {
                 id: data.id
             },
@@ -307,17 +266,40 @@ export class ItemsService {
     }
     
     /**
-     * Delete Item
-     * Delete an item.
+     * Delete Inquiry
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
      * @throws ApiError
      */
-    public static deleteItem(data: ItemsDeleteItemData): CancelablePromise<ItemsDeleteItemResponse> {
+    public static deleteInquiry(data: InquiriesDeleteInquiryData): CancelablePromise<InquiriesDeleteInquiryResponse> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/api/v1/items/{id}',
+            url: '/api/v1/inquiries/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Convert Inquiry
+     * Turn an inquiry into a project (and its brand) in the current workspace.
+     *
+     * Reuses a brand in the workspace with the same contact email, so repeat
+     * inquiries from one company don't create duplicate brands.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns ProjectPublic Successful Response
+     * @throws ApiError
+     */
+    public static convertInquiry(data: InquiriesConvertInquiryData): CancelablePromise<InquiriesConvertInquiryResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/inquiries/{id}/convert',
             path: {
                 id: data.id
             },
@@ -588,6 +570,30 @@ export class PublicService {
             path: {
                 username: data.username
             },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Inquiry
+     * Send a message to a creator from their public page.
+     * @param data The data for the request.
+     * @param data.username
+     * @param data.requestBody
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static createInquiry(data: PublicCreateInquiryData): CancelablePromise<PublicCreateInquiryResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/public/{username}/inquiries',
+            path: {
+                username: data.username
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }

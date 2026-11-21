@@ -57,6 +57,28 @@ def test_create_user_new_email(
         assert user.email == created_user["email"]
 
 
+def test_new_account_email_has_set_password_link_not_password(
+    client: TestClient, superuser_token_headers: dict[str, str]
+) -> None:
+    with (
+        patch("app.api.routes.users.send_email", return_value=None) as send,
+        patch("app.core.config.settings.SMTP_HOST", "smtp.example.com"),
+        patch("app.core.config.settings.SMTP_USER", "admin@example.com"),
+    ):
+        email = random_email()
+        password = random_lower_string()
+        r = client.post(
+            f"{settings.API_V1_STR}/users/",
+            headers=superuser_token_headers,
+            json={"email": email, "password": password},
+        )
+        assert r.status_code == 200
+        send.assert_called_once()
+        html = send.call_args.kwargs["html_content"]
+        assert password not in html
+        assert "/reset-password?token=" in html
+
+
 def test_get_existing_user_as_superuser(
     client: TestClient, superuser_token_headers: dict[str, str], db: Session
 ) -> None:

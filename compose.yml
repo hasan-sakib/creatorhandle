@@ -87,6 +87,9 @@ services:
       - POSTGRES_USER=${POSTGRES_USER?Variable not set}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD?Variable not set}
       - WEB_CONCURRENCY=${WEB_CONCURRENCY:-2}
+      # Caddy is the only way in (no published port in production), so trust
+      # its X-Forwarded-For: rate limits then see the real client IP
+      - FORWARDED_ALLOW_IPS=*
     healthcheck:
       test:
         - CMD

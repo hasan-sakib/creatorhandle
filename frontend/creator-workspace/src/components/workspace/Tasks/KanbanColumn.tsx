@@ -1,13 +1,14 @@
 import type { TaskPublic } from "@/client"
+import type { TaskStatus } from "@/lib/choices"
 import { KanbanCard } from "./KanbanCard"
 
 interface KanbanColumnProps {
   title: string
-  status: string
+  status: TaskStatus
   tasks: TaskPublic[]
   onDragStart: (taskId: string) => void
   onDragOver: (e: React.DragEvent) => void
-  onDrop: (e: React.DragEvent, status: string) => void
+  onDrop: (e: React.DragEvent, status: TaskStatus) => void
   accentClass: string
 }
 

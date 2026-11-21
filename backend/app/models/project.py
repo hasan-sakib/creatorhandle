@@ -1,12 +1,12 @@
 """Projects (optionally for a brand), shown on the public portfolio."""
 
 import uuid
-from datetime import datetime
-from typing import TYPE_CHECKING
+from datetime import date, datetime
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import Field as PydanticField
 from sqlalchemy import DateTime
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import AutoString, Field, Relationship, SQLModel
 
 from app.domain.validators import (
     image_url as clean_image_url,
@@ -23,12 +23,17 @@ if TYPE_CHECKING:
 
 # ── Project ───────────────────────────────────────────────────────────────────
 
+ProjectType = Literal["YouTube", "TikTok", "Instagram", "Twitch", "Blog", "Other"]
+ProjectStatus = Literal["Planning", "In Progress", "Review", "Published", "Cancelled"]
+
 
 class ProjectBase(SQLModel):
     title: str = Field(min_length=1, max_length=200)
-    type: str = Field(default="Other", max_length=50)
-    platform_status: str = Field(default="Planning", max_length=50)
-    deadline: str | None = Field(default=None, max_length=20)  # ISO date string
+    type: ProjectType = Field(default="Other", sa_type=AutoString(length=50))  # type: ignore[call-overload]
+    platform_status: ProjectStatus = Field(  # type: ignore[call-overload]
+        default="Planning", sa_type=AutoString(length=50)
+    )
+    deadline: date | None = Field(default=None)
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = Field(
         default=None, foreign_key="brand.id", nullable=True, ondelete="CASCADE"
@@ -48,9 +53,9 @@ class ProjectCreate(ProjectBase):
 
 class ProjectUpdate(SQLModel):
     title: str | None = Field(default=None, min_length=1, max_length=200)
-    type: str | None = Field(default=None, max_length=50)
-    platform_status: str | None = Field(default=None, max_length=50)
-    deadline: str | None = Field(default=None, max_length=20)
+    type: ProjectType | None = None
+    platform_status: ProjectStatus | None = None
+    deadline: date | None = None
     description: str | None = Field(default=None, max_length=500)
     brand_id: uuid.UUID | None = None
     is_featured: bool | None = None

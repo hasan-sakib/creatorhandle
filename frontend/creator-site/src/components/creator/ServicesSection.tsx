@@ -9,18 +9,12 @@ import { Reveal } from "@/components/home/Reveal"
 import { Button } from "@/components/ui/button"
 
 /** What brands can hire the creator for. */
-export function ServicesSection({
-  profile,
-  hasContact,
-}: {
-  profile: PublicCreator
-  hasContact: boolean
-}) {
+export function ServicesSection({ profile }: { profile: PublicCreator }) {
   return (
     <Section id="services" eyebrow="Work list" title="What I do">
       {profile.services.length === 0 ? (
         <EmptyState
-          message={`${firstName(profile)} hasn't listed services yet.${hasContact ? " Get in touch to ask what's possible." : ""}`}
+          message={`${firstName(profile)} hasn't listed services yet. Get in touch to ask what's possible.`}
         />
       ) : (
         <ul className="grid gap-4 sm:grid-cols-2">
@@ -45,19 +39,17 @@ export function ServicesSection({
           ))}
         </ul>
       )}
-      {profile.services.length > 0 &&
-        hasContact &&
-        profile.availability !== "closed" && (
-          <div className="mt-8">
-            <Button
-              variant="outline"
-              className="rounded-pill bg-background/50"
-              onClick={() => goToSection("contact")}
-            >
-              Start a conversation
-            </Button>
-          </div>
-        )}
+      {profile.services.length > 0 && profile.availability !== "closed" && (
+        <div className="mt-8">
+          <Button
+            variant="outline"
+            className="rounded-pill bg-background/50"
+            onClick={() => goToSection("contact")}
+          >
+            Start a conversation
+          </Button>
+        </div>
+      )}
     </Section>
   )
 }

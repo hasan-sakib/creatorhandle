@@ -1,0 +1,15 @@
+<mjml>
+  <mj-body background-color="#fafbfc">
+    <mj-section background-color="#fff" padding="40px 20px">
+      <mj-column vertical-align="middle" width="100%">
+        <mj-text align="center" padding="35px" font-size="20px" color="#333">{{ project_name }} - New inquiry</mj-text>
+        <mj-text font-size="16px" padding-left="25px" padding-right="25px" font-family="Arial, Helvetica, sans-serif" color="#555"><strong>{{ sender_name }}</strong> ({{ sender_email }}) sent you a message from your page.</mj-text>
+        <mj-text font-size="16px" padding-left="25px" padding-right="25px" font-family="Arial, Helvetica, sans-serif" color="#555">{% if company %}<div>Company: {{ company }}</div>{% endif %}{% if budget %}<div>Budget: {{ budget }}</div>{% endif %}</mj-text>
+        <mj-text font-size="16px" padding-left="25px" padding-right="25px" font-family="Arial, Helvetica, sans-serif" color="#333" css-class="message"><div style="white-space: pre-wrap; border-left: 3px solid #009688; padding-left: 12px;">{{ message }}</div></mj-text>
+        <mj-text font-size="14px" padding-left="25px" padding-right="25px" font-family="Arial, Helvetica, sans-serif" color="#555">Reply to this email to answer {{ sender_name }} directly.</mj-text>
+        <mj-button align="center" font-size="18px" background-color="#009688" border-radius="8px" color="#fff" href="{{ link }}" padding="15px 30px">Open your inbox</mj-button>
+        <mj-divider border-color="#ccc" border-width="2px"></mj-divider>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

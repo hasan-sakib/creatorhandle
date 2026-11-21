@@ -2,7 +2,7 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, select
+from sqlmodel import col, func, select
 
 from app import crud
 from app.api.deps import (
@@ -13,10 +13,14 @@ from app.api.deps import (
 from app.core import storage
 from app.core.config import settings
 from app.core.media import is_media_path, owns_media
-from app.core.security import get_password_hash, verify_password
+from app.core.rate_limit import rate_limit
+from app.core.security import (
+    generate_password_reset_token,
+    get_password_hash,
+    verify_password,
+)
 from app.emails import generate_new_account_email, send_email
 from app.models import (
-    Item,
     Message,
     UpdatePassword,
     User,
@@ -69,7 +73,9 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
     user = crud.create_user(session=session, user_create=user_in)
     if settings.emails_enabled and user_in.email:
         email_data = generate_new_account_email(
-            email_to=user_in.email, username=user_in.email, password=user_in.password
+            email_to=user_in.email,
+            username=user_in.email,
+            token=generate_password_reset_token(email=user_in.email),
         )
         send_email(
             email_to=user_in.email,
@@ -171,7 +177,11 @@ def delete_user_me(session: SessionDep, current_user: CurrentUser) -> Any:
     return Message(message="User deleted successfully")
 
 
-@router.post("/signup", response_model=UserPublic)
+@router.post(
+    "/signup",
+    response_model=UserPublic,
+    dependencies=[Depends(rate_limit("signup", 10, 3600))],
+)
 def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     """
     Create new user without the need to be logged in.
@@ -253,8 +263,6 @@ def delete_user(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
-    statement = delete(Item).where(col(Item.owner_id) == user_id)
-    session.exec(statement)
     session.delete(user)
     session.commit()
     return Message(message="User deleted successfully")

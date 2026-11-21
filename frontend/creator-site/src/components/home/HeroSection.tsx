@@ -36,7 +36,7 @@ export function HeroSection() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Button asChild size="lg" className="rounded-full px-6">
-              <a href={dashboardPath("/login")}>
+              <a href={dashboardPath("/signup")}>
                 Get started free <ArrowRight className="size-4" />
               </a>
             </Button>

@@ -53,6 +53,9 @@ test("Sign up with valid name, email, and password", async ({ page }) => {
   await page.goto("signup")
   await fillForm(page, full_name, email, password, password)
   await page.getByRole("button", { name: "Sign Up" }).click()
+
+  // New accounts are signed in straight away
+  await page.waitForURL("./")
 })
 
 test("Sign up with invalid email", async ({ page }) => {

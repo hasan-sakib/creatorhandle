@@ -26,24 +26,31 @@ const useAuth = () => {
     enabled: isLoggedIn(),
   })
 
-  const signUpMutation = useMutation({
-    mutationFn: (data: UserRegister) =>
-      UsersService.registerUser({ requestBody: data }),
-    onSuccess: () => {
-      navigate({ to: "/login" })
-    },
-    onError: handleError.bind(showErrorToast),
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["users"] })
-    },
-  })
-
   const login = async (data: AccessToken) => {
     const response = await LoginService.loginAccessToken({
       formData: data,
     })
     localStorage.setItem("access_token", response.access_token)
   }
+
+  const signUpMutation = useMutation({
+    mutationFn: (data: UserRegister) =>
+      UsersService.registerUser({ requestBody: data }),
+    // Sign the new account straight in; fall back to the login page if that
+    // fails for any reason (the account exists either way).
+    onSuccess: async (_user, data) => {
+      try {
+        await login({ username: data.email, password: data.password })
+        navigate({ to: "/" })
+      } catch {
+        navigate({ to: "/login" })
+      }
+    },
+    onError: handleError.bind(showErrorToast),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] })
+    },
+  })
 
   const loginMutation = useMutation({
     mutationFn: login,

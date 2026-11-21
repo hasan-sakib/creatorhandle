@@ -2,11 +2,11 @@
 
 import uuid
 from datetime import datetime
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import Annotated, Any
 
 from pydantic import EmailStr, Field as PydanticField
 from sqlalchemy import DateTime
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 
 from app.domain.validators import (
     AccentKey,
@@ -22,9 +22,6 @@ from app.domain.validators import (
     url as clean_url,
 )
 from app.models.common import get_datetime_utc, json_list_field
-
-if TYPE_CHECKING:
-    from app.models.item import Item
 
 
 # Shared properties
@@ -132,7 +129,6 @@ class User(UserBase, table=True):
         default_factory=get_datetime_utc,
         sa_type=DateTime(timezone=True),  # type: ignore
     )
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required

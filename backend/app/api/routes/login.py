@@ -2,7 +2,7 @@ from datetime import timedelta
 from typing import Annotated, Any
 
 import httpx
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import SQLModel
@@ -11,6 +11,7 @@ from app import crud
 from app.api.deps import CurrentUser, SessionDep, get_current_active_superuser
 from app.core import security
 from app.core.config import settings
+from app.core.rate_limit import client_ip, enforce, rate_limit
 from app.core.security import (
     generate_password_reset_token,
     verify_password_reset_token,
@@ -26,11 +27,16 @@ GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v3/userinfo"
 
 @router.post("/login/access-token")
 def login_access_token(
-    session: SessionDep, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]
+    request: Request,
+    session: SessionDep,
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
+    ip = client_ip(request)
+    enforce(f"login:{ip}", limit=30, window_seconds=60)
+    enforce(f"login:{ip}:{form_data.username.lower()}", limit=10, window_seconds=300)
     user = crud.authenticate(
         session=session, email=form_data.username, password=form_data.password
     )
@@ -54,7 +60,10 @@ def test_token(current_user: CurrentUser) -> Any:
     return current_user
 
 
-@router.post("/password-recovery/{email}")
+@router.post(
+    "/password-recovery/{email}",
+    dependencies=[Depends(rate_limit("password-recovery", 5, 900))],
+)
 def recover_password(email: str, session: SessionDep) -> Message:
     """
     Password Recovery
@@ -78,7 +87,10 @@ def recover_password(email: str, session: SessionDep) -> Message:
     )
 
 
-@router.post("/reset-password/")
+@router.post(
+    "/reset-password/",
+    dependencies=[Depends(rate_limit("reset-password", 10, 900))],
+)
 def reset_password(session: SessionDep, body: NewPassword) -> Message:
     """
     Reset password
@@ -131,7 +143,9 @@ class GoogleTokenBody(SQLModel):
     token: str
 
 
-@router.post("/login/google")
+@router.post(
+    "/login/google", dependencies=[Depends(rate_limit("login-google", 30, 60))]
+)
 async def login_with_google(body: GoogleTokenBody, session: SessionDep) -> Token:
     """
     Sign in with Google — exchanges a Google access token for an app JWT.

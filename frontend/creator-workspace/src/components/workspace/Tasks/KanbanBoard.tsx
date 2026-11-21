@@ -3,13 +3,14 @@ import { useRef } from "react"
 
 import type { TaskPublic } from "@/client"
 import { TasksService } from "@/client"
+import type { TaskStatus } from "@/lib/choices"
 import { KanbanColumn } from "./KanbanColumn"
 
 interface KanbanBoardProps {
   tasks: TaskPublic[]
 }
 
-const COLUMNS = [
+const COLUMNS: { title: string; status: TaskStatus; accent: string }[] = [
   { title: "To Do", status: "To Do", accent: "bg-slate-400" },
   { title: "In Progress", status: "In Progress", accent: "bg-blue-400" },
   { title: "Done", status: "Done", accent: "bg-green-500" },
@@ -27,7 +28,7 @@ export function KanbanBoard({ tasks }: KanbanBoardProps) {
     e.preventDefault()
   }
 
-  function handleDrop(e: React.DragEvent, newStatus: string) {
+  function handleDrop(e: React.DragEvent, newStatus: TaskStatus) {
     e.preventDefault()
     const taskId = draggingId.current
     if (!taskId) return

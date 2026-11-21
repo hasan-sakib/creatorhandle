@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { PublicGetCreatorData, PublicGetCreatorResponse } from './types.gen';
+import type { PublicGetCreatorData, PublicGetCreatorResponse, PublicCreateInquiryData, PublicCreateInquiryResponse } from './types.gen';
 
 export class PublicService {
     /**
@@ -20,6 +20,30 @@ export class PublicService {
             path: {
                 username: data.username
             },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Inquiry
+     * Send a message to a creator from their public page.
+     * @param data The data for the request.
+     * @param data.username
+     * @param data.requestBody
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static createInquiry(data: PublicCreateInquiryData): CancelablePromise<PublicCreateInquiryResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/public/{username}/inquiries',
+            path: {
+                username: data.username
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
             errors: {
                 422: 'Validation Error'
             }

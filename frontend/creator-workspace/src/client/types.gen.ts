@@ -21,16 +21,18 @@ export type BrandCreate = {
     category?: string;
     contact_name?: (string | null);
     contact_email?: (string | null);
-    status?: string;
+    status?: 'active' | 'inactive';
     notes?: (string | null);
 };
+
+export type status = 'active' | 'inactive';
 
 export type BrandPublic = {
     name: string;
     category?: string;
     contact_name?: (string | null);
     contact_email?: (string | null);
-    status?: string;
+    status?: 'active' | 'inactive';
     notes?: (string | null);
     id: string;
     owner_id: string;
@@ -48,7 +50,7 @@ export type BrandUpdate = {
     category?: (string | null);
     contact_name?: (string | null);
     contact_email?: (string | null);
-    status?: (string | null);
+    status?: ('active' | 'inactive' | null);
     notes?: (string | null);
 };
 
@@ -82,28 +84,45 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
-export type ItemCreate = {
-    title: string;
-    description?: (string | null);
-};
-
-export type ItemPublic = {
-    title: string;
-    description?: (string | null);
-    id: string;
-    owner_id: string;
-    created_at?: (string | null);
-};
-
-export type ItemsPublic = {
-    data: Array<ItemPublic>;
+export type InquiriesPublic = {
+    data: Array<InquiryPublic>;
     count: number;
+    unread_count: number;
 };
 
-export type ItemUpdate = {
-    title?: (string | null);
-    description?: (string | null);
+/**
+ * What a visitor submits on /@username. `website` is a honeypot: real
+ * visitors never see the field, so a filled-in value means a bot.
+ */
+export type InquiryCreate = {
+    name: string;
+    email: string;
+    company?: (string | null);
+    budget?: ('under-500' | '500-2k' | '2k-5k' | '5k-plus' | 'not-sure' | null);
+    message: string;
+    website?: (string | null);
 };
+
+export type InquiryPublic = {
+    id: string;
+    created_at?: (string | null);
+    name: string;
+    email: string;
+    company?: (string | null);
+    budget?: ('under-500' | '500-2k' | '2k-5k' | '5k-plus' | 'not-sure' | null);
+    message: string;
+    status: 'new' | 'read' | 'archived' | 'converted';
+    brand_id?: (string | null);
+    project_id?: (string | null);
+};
+
+export type status2 = 'new' | 'read' | 'archived' | 'converted';
+
+export type InquiryUpdate = {
+    status: 'new' | 'read' | 'archived';
+};
+
+export type status3 = 'new' | 'read' | 'archived';
 
 export type Message = {
     message: string;
@@ -123,8 +142,8 @@ export type PrivateUserCreate = {
 
 export type ProjectCreate = {
     title: string;
-    type?: string;
-    platform_status?: string;
+    type?: 'YouTube' | 'TikTok' | 'Instagram' | 'Twitch' | 'Blog' | 'Other';
+    platform_status?: 'Planning' | 'In Progress' | 'Review' | 'Published' | 'Cancelled';
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
@@ -134,10 +153,14 @@ export type ProjectCreate = {
     tags?: Array<(string)>;
 };
 
+export type type = 'YouTube' | 'TikTok' | 'Instagram' | 'Twitch' | 'Blog' | 'Other';
+
+export type platform_status = 'Planning' | 'In Progress' | 'Review' | 'Published' | 'Cancelled';
+
 export type ProjectPublic = {
     title: string;
-    type?: string;
-    platform_status?: string;
+    type?: 'YouTube' | 'TikTok' | 'Instagram' | 'Twitch' | 'Blog' | 'Other';
+    platform_status?: 'Planning' | 'In Progress' | 'Review' | 'Published' | 'Cancelled';
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
@@ -158,8 +181,8 @@ export type ProjectsPublic = {
 
 export type ProjectUpdate = {
     title?: (string | null);
-    type?: (string | null);
-    platform_status?: (string | null);
+    type?: ('YouTube' | 'TikTok' | 'Instagram' | 'Twitch' | 'Blog' | 'Other' | null);
+    platform_status?: ('Planning' | 'In Progress' | 'Review' | 'Published' | 'Cancelled' | null);
     deadline?: (string | null);
     description?: (string | null);
     brand_id?: (string | null);
@@ -242,7 +265,7 @@ export type Readiness = {
     checks: ReadinessChecks;
 };
 
-export type status = 'ok' | 'error';
+export type status4 = 'ok' | 'error';
 
 export type ReadinessChecks = {
     database: 'ok' | 'error' | 'disabled';
@@ -264,19 +287,23 @@ export type ServiceItem = {
 export type TaskCreate = {
     title: string;
     description?: (string | null);
-    status?: string;
-    priority?: string;
+    status?: 'To Do' | 'In Progress' | 'Done';
+    priority?: 'Low' | 'Medium' | 'High';
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
     collaborator_id?: (string | null);
 };
 
+export type status5 = 'To Do' | 'In Progress' | 'Done';
+
+export type priority = 'Low' | 'Medium' | 'High';
+
 export type TaskPublic = {
     title: string;
     description?: (string | null);
-    status?: string;
-    priority?: string;
+    status?: 'To Do' | 'In Progress' | 'Done';
+    priority?: 'Low' | 'Medium' | 'High';
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
@@ -296,8 +323,8 @@ export type TasksPublic = {
 export type TaskUpdate = {
     title?: (string | null);
     description?: (string | null);
-    status?: (string | null);
-    priority?: (string | null);
+    status?: ('To Do' | 'In Progress' | 'Done' | null);
+    priority?: ('Low' | 'Medium' | 'High' | null);
     due_date?: (string | null);
     project_id?: (string | null);
     assigned_to?: (string | null);
@@ -616,37 +643,32 @@ export type CollaboratorsDeleteCollaboratorData = {
 
 export type CollaboratorsDeleteCollaboratorResponse = (Message);
 
-export type ItemsReadItemsData = {
+export type InquiriesReadInquiriesData = {
     limit?: number;
     skip?: number;
+    status?: ('new' | 'read' | 'archived' | 'converted' | null);
 };
 
-export type ItemsReadItemsResponse = (ItemsPublic);
+export type InquiriesReadInquiriesResponse = (InquiriesPublic);
 
-export type ItemsCreateItemData = {
-    requestBody: ItemCreate;
+export type InquiriesUpdateInquiryData = {
+    id: string;
+    requestBody: InquiryUpdate;
 };
 
-export type ItemsCreateItemResponse = (ItemPublic);
+export type InquiriesUpdateInquiryResponse = (InquiryPublic);
 
-export type ItemsReadItemData = {
+export type InquiriesDeleteInquiryData = {
     id: string;
 };
 
-export type ItemsReadItemResponse = (ItemPublic);
+export type InquiriesDeleteInquiryResponse = (Message);
 
-export type ItemsUpdateItemData = {
-    id: string;
-    requestBody: ItemUpdate;
-};
-
-export type ItemsUpdateItemResponse = (ItemPublic);
-
-export type ItemsDeleteItemData = {
+export type InquiriesConvertInquiryData = {
     id: string;
 };
 
-export type ItemsDeleteItemResponse = (Message);
+export type InquiriesConvertInquiryResponse = (ProjectPublic);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;
@@ -723,6 +745,13 @@ export type PublicGetCreatorData = {
 };
 
 export type PublicGetCreatorResponse = (PublicCreator);
+
+export type PublicCreateInquiryData = {
+    requestBody: InquiryCreate;
+    username: string;
+};
+
+export type PublicCreateInquiryResponse = (Message);
 
 export type TasksReadTasksData = {
     limit?: number;
