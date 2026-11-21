@@ -41,7 +41,7 @@ services:
   # Uploaded images (avatars, covers, project thumbnails). Not published to the
   # host: the backend writes to it, and Caddy serves public reads at /media/*.
   rustfs:
-    image: rustfs/rustfs:1.0.1
+    image: rustfs/rustfs:1.0.6
     restart: always
     logging: *logging
     environment:
