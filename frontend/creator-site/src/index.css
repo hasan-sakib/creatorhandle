@@ -1,8 +1,10 @@
 @import "@fontsource-variable/inter";
 @import "@fontsource-variable/bricolage-grotesque";
+@import "@fontsource-variable/archivo/wdth.css";
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "./styles/creator-themes.css";
+@import "./styles/illustrated-hero.css";
 
 @custom-variant dark (&:is(.dark *));
 
